@@ -1,0 +1,89 @@
+﻿@model List<BDCS.Model.Misc.KeyAndValuePair>
+@{
+    ViewBag.Title = "AddEditLookupData";
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+
+
+<div class="container-fluid">
+
+    <div class="row" style="margin-top:50px">
+        <div class="row" style="text-align:center">
+            <h3>Add Edit Lookup values</h3>
+        </div>
+        <div class="col-xs-12">
+            <form id="LookupForm" action="@Url.Action("InsertLookupData","Patient")" method="post" onsubmit="return SaveLookupValue();">
+
+                <div class="form-group">
+                    <label>Lookup Value</label>
+                    <input type="text" name="LookupValue" class="form-control" placeholder="Lookup Value" />
+                </div>
+
+                <div class="form-group">
+                    <label>Return Value</label>
+                    <input type="text" name="ReturnValue" class="form-control" placeholder="Return Value" />
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px">
+                    <label>Category</label>
+                    <input type="text" name="Category" class="form-control" placeholder="Category" list="LookupType" />
+                </div>
+
+                
+                @*<button class="btn btn-danger pull-right" onclick="window.close();"><span class="glyphicon glyphicon-eye-close"></span> Close</button>*@
+                <button class="btn btn-success pull-right"><span class="glyphicon glyphicon-save"></span> Save</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="row" style="margin-top:10px">
+        <div class="col-xs-12">
+            <table class="table table-striped table-responsive">
+                <thead>
+                    <tr style="background-color: #57b7fd;color:white;">
+                        <th>Value</th>
+                        <th>Category</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (BDCS.Model.Misc.KeyAndValuePair kv in Model)
+                    {
+                        <tr>
+                            <td>@kv.Value</td>
+                            <td>@kv.Description</td>
+                            <td>
+
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+
+<datalist id="LookupType">
+    @foreach (string item in Model.Select(a=> a.Description).Distinct())
+    {
+        <option value="@item" />
+    }
+</datalist>
+
+
+<script type="text/javascript">
+
+    function  SaveLookupValue()
+    {
+        submitFormData($("#LookupForm"));
+
+        return false;
+    }
+
+
+</script>

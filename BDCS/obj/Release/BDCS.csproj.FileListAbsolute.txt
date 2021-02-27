@@ -1,0 +1,222 @@
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\ApplicationInsights.config
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\roslyn\csc.exe
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\roslyn\Microsoft.Build.Tasks.CodeAnalysis.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\roslyn\Microsoft.CodeAnalysis.CSharp.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\roslyn\Microsoft.CodeAnalysis.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\roslyn\Microsoft.CodeAnalysis.VisualBasic.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\roslyn\Microsoft.CSharp.Core.targets
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\roslyn\Microsoft.VisualBasic.Core.targets
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\roslyn\System.Collections.Immutable.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\roslyn\System.Reflection.Metadata.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\roslyn\vbc.exe
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\roslyn\VBCSCompiler.exe
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\roslyn\VBCSCompiler.exe.config
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\BDCS.dll.config
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\BDCS.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\BDCS.pdb
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Antlr3.Runtime.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\BDCS.Bussiness.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\BDCS.Constants.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\BDCS.Data.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\BDCS.Model.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\ClosedXML.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\DocumentFormat.OpenXml.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\EntityFramework.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\EntityFramework.SqlServer.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\ExcelNumberFormat.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\FastMember.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.AI.Agent.Intercept.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.AI.DependencyCollector.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.AI.PerfCounterCollector.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.AI.ServerTelemetryChannel.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.AI.Web.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.AI.WindowsServer.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.ApplicationInsights.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.AspNet.Identity.Core.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.AspNet.Identity.EntityFramework.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.AspNet.Identity.Owin.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.Host.SystemWeb.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.Security.Cookies.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.Security.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.Security.Facebook.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.Security.Google.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.Security.MicrosoftAccount.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.Security.OAuth.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.Security.Twitter.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Web.Infrastructure.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Newtonsoft.Json.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Owin.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\System.Web.Helpers.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\System.Web.Mvc.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\System.Web.Optimization.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\System.Web.Razor.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\System.Web.WebPages.Deployment.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\System.Web.WebPages.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\System.Web.WebPages.Razor.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\WebGrease.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\BDCS.Bussiness.pdb
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\BDCS.Constants.pdb
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\BDCS.Data.pdb
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\BDCS.Model.pdb
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\ClosedXML.pdb
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\ClosedXML.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\DocumentFormat.OpenXml.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\ExcelNumberFormat.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.AI.DependencyCollector.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.AI.ServerTelemetryChannel.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.AI.Web.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.AI.WindowsServer.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.ApplicationInsights.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\System.Web.Helpers.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\System.Web.Mvc.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\System.Web.Optimization.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\System.Web.Razor.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\System.Web.WebPages.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\System.Web.WebPages.Deployment.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\System.Web.WebPages.Razor.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Antlr3.Runtime.pdb
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Newtonsoft.Json.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\EntityFramework.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\EntityFramework.SqlServer.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.AspNet.Identity.Core.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.AspNet.Identity.Owin.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.AspNet.Identity.EntityFramework.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.Host.SystemWeb.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.Security.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.Security.Facebook.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.Security.Cookies.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.Security.OAuth.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.Security.Google.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.Security.Twitter.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\obj\Release\BDCS.csprojResolveAssemblyReference.cache
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\obj\Release\BDCS.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\obj\Release\BDCS.pdb
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\SqlServerTypes\x64\msvcr120.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\SqlServerTypes\x64\SqlServerSpatial140.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\SqlServerTypes\x86\msvcr120.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\SqlServerTypes\x86\SqlServerSpatial140.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.ReportViewer.Common.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.ReportViewer.ProcessingObjectModel.DLL
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.ReportViewer.WebForms.DLL
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Microsoft.SqlServer.Types.dll
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\obj\Release\RdlCompile.cache
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\obj\Release\RdlCompile.compiled
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Reports\PatientDetails.rdlc
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Reports\Patient.rdlc
+C:\Users\PKLI\Documents\Visual Studio 2015\Projects\BDCS\BDCS\bin\Reports\PreviousLabReport.rdlc
+E:\Code repositories\BDCS\BDCS\bin\ApplicationInsights.config
+E:\Code repositories\BDCS\BDCS\bin\SqlServerTypes\x64\msvcr120.dll
+E:\Code repositories\BDCS\BDCS\bin\SqlServerTypes\x64\SqlServerSpatial140.dll
+E:\Code repositories\BDCS\BDCS\bin\SqlServerTypes\x86\msvcr120.dll
+E:\Code repositories\BDCS\BDCS\bin\SqlServerTypes\x86\SqlServerSpatial140.dll
+E:\Code repositories\BDCS\BDCS\bin\roslyn\csc.exe
+E:\Code repositories\BDCS\BDCS\bin\roslyn\Microsoft.Build.Tasks.CodeAnalysis.dll
+E:\Code repositories\BDCS\BDCS\bin\roslyn\Microsoft.CodeAnalysis.CSharp.dll
+E:\Code repositories\BDCS\BDCS\bin\roslyn\Microsoft.CodeAnalysis.dll
+E:\Code repositories\BDCS\BDCS\bin\roslyn\Microsoft.CodeAnalysis.VisualBasic.dll
+E:\Code repositories\BDCS\BDCS\bin\roslyn\Microsoft.CSharp.Core.targets
+E:\Code repositories\BDCS\BDCS\bin\roslyn\Microsoft.VisualBasic.Core.targets
+E:\Code repositories\BDCS\BDCS\bin\roslyn\System.Collections.Immutable.dll
+E:\Code repositories\BDCS\BDCS\bin\roslyn\System.Reflection.Metadata.dll
+E:\Code repositories\BDCS\BDCS\bin\roslyn\vbc.exe
+E:\Code repositories\BDCS\BDCS\bin\roslyn\VBCSCompiler.exe
+E:\Code repositories\BDCS\BDCS\bin\roslyn\VBCSCompiler.exe.config
+E:\Code repositories\BDCS\BDCS\bin\Reports\PatientDetails.rdlc
+E:\Code repositories\BDCS\BDCS\bin\Reports\Patient.rdlc
+E:\Code repositories\BDCS\BDCS\bin\Reports\PreviousLabReport.rdlc
+E:\Code repositories\BDCS\BDCS\bin\BDCS.dll.config
+E:\Code repositories\BDCS\BDCS\bin\BDCS.dll
+E:\Code repositories\BDCS\BDCS\bin\BDCS.pdb
+E:\Code repositories\BDCS\BDCS\bin\Antlr3.Runtime.dll
+E:\Code repositories\BDCS\BDCS\bin\BDCS.Bussiness.dll
+E:\Code repositories\BDCS\BDCS\bin\BDCS.Constants.dll
+E:\Code repositories\BDCS\BDCS\bin\BDCS.Data.dll
+E:\Code repositories\BDCS\BDCS\bin\BDCS.Model.dll
+E:\Code repositories\BDCS\BDCS\bin\ClosedXML.dll
+E:\Code repositories\BDCS\BDCS\bin\DocumentFormat.OpenXml.dll
+E:\Code repositories\BDCS\BDCS\bin\EntityFramework.dll
+E:\Code repositories\BDCS\BDCS\bin\EntityFramework.SqlServer.dll
+E:\Code repositories\BDCS\BDCS\bin\ExcelNumberFormat.dll
+E:\Code repositories\BDCS\BDCS\bin\FastMember.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.AI.Agent.Intercept.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.AI.DependencyCollector.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.AI.PerfCounterCollector.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.AI.ServerTelemetryChannel.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.AI.Web.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.AI.WindowsServer.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.ApplicationInsights.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.AspNet.Identity.Core.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.AspNet.Identity.EntityFramework.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.AspNet.Identity.Owin.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.Host.SystemWeb.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.Security.Cookies.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.Security.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.Security.Facebook.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.Security.Google.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.Security.MicrosoftAccount.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.Security.OAuth.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.Security.Twitter.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.ReportViewer.Common.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.ReportViewer.ProcessingObjectModel.DLL
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.ReportViewer.WebForms.DLL
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.SqlServer.Types.dll
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Web.Infrastructure.dll
+E:\Code repositories\BDCS\BDCS\bin\Newtonsoft.Json.dll
+E:\Code repositories\BDCS\BDCS\bin\Owin.dll
+E:\Code repositories\BDCS\BDCS\bin\System.Web.Helpers.dll
+E:\Code repositories\BDCS\BDCS\bin\System.Web.Mvc.dll
+E:\Code repositories\BDCS\BDCS\bin\System.Web.Optimization.dll
+E:\Code repositories\BDCS\BDCS\bin\System.Web.Razor.dll
+E:\Code repositories\BDCS\BDCS\bin\System.Web.WebPages.Deployment.dll
+E:\Code repositories\BDCS\BDCS\bin\System.Web.WebPages.dll
+E:\Code repositories\BDCS\BDCS\bin\System.Web.WebPages.Razor.dll
+E:\Code repositories\BDCS\BDCS\bin\WebGrease.dll
+E:\Code repositories\BDCS\BDCS\bin\BDCS.Bussiness.pdb
+E:\Code repositories\BDCS\BDCS\bin\BDCS.Constants.pdb
+E:\Code repositories\BDCS\BDCS\bin\BDCS.Data.pdb
+E:\Code repositories\BDCS\BDCS\bin\BDCS.Model.pdb
+E:\Code repositories\BDCS\BDCS\bin\ClosedXML.pdb
+E:\Code repositories\BDCS\BDCS\bin\ClosedXML.xml
+E:\Code repositories\BDCS\BDCS\bin\DocumentFormat.OpenXml.xml
+E:\Code repositories\BDCS\BDCS\bin\ExcelNumberFormat.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.AI.DependencyCollector.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.AI.ServerTelemetryChannel.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.AI.Web.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.AI.WindowsServer.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.ApplicationInsights.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml
+E:\Code repositories\BDCS\BDCS\bin\System.Web.Helpers.xml
+E:\Code repositories\BDCS\BDCS\bin\System.Web.Mvc.xml
+E:\Code repositories\BDCS\BDCS\bin\System.Web.Optimization.xml
+E:\Code repositories\BDCS\BDCS\bin\System.Web.Razor.xml
+E:\Code repositories\BDCS\BDCS\bin\System.Web.WebPages.xml
+E:\Code repositories\BDCS\BDCS\bin\System.Web.WebPages.Deployment.xml
+E:\Code repositories\BDCS\BDCS\bin\System.Web.WebPages.Razor.xml
+E:\Code repositories\BDCS\BDCS\bin\Antlr3.Runtime.pdb
+E:\Code repositories\BDCS\BDCS\bin\Newtonsoft.Json.xml
+E:\Code repositories\BDCS\BDCS\bin\EntityFramework.xml
+E:\Code repositories\BDCS\BDCS\bin\EntityFramework.SqlServer.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.AspNet.Identity.Core.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.AspNet.Identity.Owin.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.AspNet.Identity.EntityFramework.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.Host.SystemWeb.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.Security.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.Security.Facebook.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.Security.Cookies.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.Security.OAuth.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.Security.Google.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.Security.Twitter.xml
+E:\Code repositories\BDCS\BDCS\bin\Microsoft.Owin.Security.MicrosoftAccount.xml
+E:\Code repositories\BDCS\BDCS\obj\Release\BDCS.csprojResolveAssemblyReference.cache
+E:\Code repositories\BDCS\BDCS\obj\Release\RdlCompile.cache
+E:\Code repositories\BDCS\BDCS\obj\Release\RdlCompile.compiled
+E:\Code repositories\BDCS\BDCS\obj\Release\BDCS.dll
+E:\Code repositories\BDCS\BDCS\obj\Release\BDCS.pdb

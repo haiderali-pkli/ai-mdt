@@ -1,0 +1,14 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/BDCS.Bussiness/bin
+/BDCS.Bussiness/obj
+/BDCS.Constants/bin
+/BDCS.Constants/obj
+/BDCS.Data/bin
+/BDCS.Data/obj
+/BDCS.Model/bin
+/BDCS.Model/obj
+/MessageConstants/obj/Debug
+/packages

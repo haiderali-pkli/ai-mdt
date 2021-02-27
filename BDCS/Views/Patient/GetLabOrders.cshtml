@@ -1,0 +1,155 @@
+﻿@model List<BDCS.Model.VitalHistory.LabReports>
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+
+}
+<div class="container-fluid">
+    <div class="row" style="margin-top:10px;">
+        <div class="col-lg-12">
+            <table id="tblLabReports" class="table table-bordered table-responsive" style="width:100%;">
+                <thead>
+                    <tr style="background-color: #57b7fd;color:white;">
+                        <th>Test Date</th>
+                        <th class="hidden">Test Id</th>
+                        <th>Test Name</th>
+                        <th>Result</th>
+                        <th>Result Unit</th>
+                        <th>Result Label</th>
+                        <th>Action</th>
+                        <th><span class="glyphicon glyphicon-plus-sign" onclick="addRowLabReports();"></span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (BDCS.Model.VitalHistory.LabReports item in Model)
+                    {
+                        <tr  class="DataRowLabReports" data-recordid="@item.LabReportId">
+
+                            <td>@Html.TextBoxFor(a => item.TestDate, item.TestDate.HasValue ? item.TestDate.Value.ToString("dd-MMM-yyyy") : "", new { @class = "form-control TestDate datepicker", tabindex = "-1" })</td>
+                            <td class="hidden">@Html.TextBoxFor(a => item.TestId, new { @class = "form-control TestId" })</td>
+                            <td>@Html.TextBoxFor(a => item.TestName, new { @class = "form-control TestName",@list= "dlLabTestList", tabindex = "-1" })</td>
+                            <td>@Html.TextBoxFor(a => item.TestResult, new { @class = "form-control TestResult" })</td>
+                            <td>@Html.TextBoxFor(a => item.TestUnit, new { @class = "form-control TestUnit", @list = "dlResultUnit" , tabindex = "-1" })</td>
+                            <td>@Html.TextBoxFor(a => item.TestResultLabel, new { @class = "form-control TestResultLabel", @list = "dlResultLabel", tabindex = "-1" })</td>
+                            <td align="center"><span class="glyphicon glyphicon-remove-circle" onclick="removeRow(this);"></span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <table style="display:none">
+            <tr id="SampleDataRowLabReports" data-recordid="0" class="DataRowLabReports">
+                <td>@Html.TextBox("TestDate", null, new { @class = "form-control TestDate", tabindex = "-1" })</td>
+                @*<td>@Html.TextBox("TestId", null, new { @class = "form-control TestId" })</td>*@
+                <td>@Html.TextBox("TestName", null, new { @class = "form-control TestName", @list = "dlLabTestList", tabindex = "-1" })</td>
+                <td>@Html.TextBox("TestResult", null, new { @class = "form-control TestResult" })</td>
+                <td>@Html.TextBox("TestUnit", null, new { @class = "form-control TestUnit", @list = "dlResultUnit" , tabindex = "-1" })</td>
+                <td>@Html.TextBox("TestResultLabel", null, new { @class = "form-control TestResultLabel", @list = "dlResultLabel", tabindex = "-1" })</td>
+                <td align="center"><span class="glyphicon glyphicon-remove-circle" onclick="removeRowLabReports(this);"></span></td>
+            </tr>
+        </table>
+
+        <datalist id="dlResultLabel">
+            @foreach (SelectListItem li in ViewBag.ResultLabelVB)
+            {
+                <option value="@li.Text"></option>
+            }
+        </datalist>
+        <datalist id="dlResultUnit">
+            @foreach (SelectListItem li in ViewBag.ResultUnitVB)
+            {
+                <option value="@li.Text"></option>
+            }
+        </datalist>
+
+    </div>
+</div>
+
+
+
+
+<datalist id="dlLabTestList">
+    @foreach (SelectListItem li in ViewBag.LabTestListVB)
+            {
+        <option value="@li.Text"></option>
+    }
+</datalist>
+<datalist id="dlResultLabel">
+    @foreach (SelectListItem li in ViewBag.ResultLabelVB)
+            {
+        <option value="@li.Text"></option>
+    }
+</datalist>
+
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        PostPageLoad();
+    });
+
+    function addRowLabReports() {
+        var row = $("#SampleDataRowLabReports").clone();
+        $(row).removeAttr('id');
+        $(row).find('input').val('');
+        $(row).find('.TestDate').val('@DateTime.Now.ToString("dd-MMM-yyyy")');
+        $("#tblLabReports").append(row);
+        InitializeDateTimePicker(".datepicker");
+    }
+
+    function PostPageLoad() {
+        InitializeDateTimePicker(".datepicker");
+    }
+    function removeRowLabReports(tag) {
+        $(tag).closest('tr').remove();
+        
+    }
+
+    function PopulateLabResultValue(tag) {
+        var TestName = $(tag).find(".TestName").val();
+        var TestResult = $(tag).find(".TestResult").val();
+
+
+
+        switch (TestName) {
+            case "HBsAg":
+                var Result = parseFloat(TestResult);
+                if (Result < 1.0) {
+                    $(tag).find(".TestResultLabel").val("Non-Reactive");
+                }
+                else {
+                    $(tag).find(".TestResultLabel").val("REACTIVE");
+                }
+
+                break;
+            case "Anti HCV":
+                var Result = parseFloat(TestResult);
+                if (TestResult < 1.0) {
+                    $(tag).find(".TestResultLabel").val("Non-Reactive");
+                }
+                else {
+                    $(tag).find(".TestResultLabel").val("REACTIVE");
+                }
+                break;
+            case "Anti HIV":
+                var Result = parseFloat(TestResult);
+                if (TestResult < 1.0) {
+                    $(tag).find(".TestResultLabel").val("Non-Reactive");
+                }
+                else {
+                    $(tag).find(".TestResultLabel").val("REACTIVE");
+                }
+                break;
+               
+            default:
+
+        }
+    }
+
+    
+    
+</script>
+
+

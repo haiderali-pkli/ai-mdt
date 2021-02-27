@@ -1,0 +1,138 @@
+﻿
+@{
+    ViewBag.Title = "Dashboard";
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+
+<script src="~/Content/vendor/Chart.js/dist/Chart.min.js"></script>
+
+<link href="~/Content/vendor/Chart.js/dist/Chart.min.css" rel="stylesheet" />
+
+
+<div class="container-fluid">
+
+    <div class="row" style="padding-top: 50px;">
+        <div class="col-sm-2 col-xs-6">
+            <input type="text" class="form-control datepicker" id="RecordDate" readonly />
+        </div>
+
+        <div class="col-sm-3 col-xs-6">
+            <button class="btn btn-success" onclick="LoadDashboardData();"><span class="glyphicon-dashboard"></span>Load</button>
+        </div>
+        <div class="col-sm-3 col-xs-6">
+            <button class="btn btn-success" onclick="LoadDashBaordData1();"><span class="glyphicon-dashboard"></span>Load<</button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6 col-xs-12">
+            <canvas id="DoctorWiseVisits"></canvas>
+        </div>
+        <div class="col-sm-6 col-xs-12">
+            <canvas id="DistrictWiseDiseaseCountCanvas"></canvas>
+        </div>
+    </div>
+    
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        PostPageLoad();
+    });
+
+    function PostPageLoad() {
+        InitializeDateTimePicker(".datepicker");
+    }
+
+    function LoadDashboardData() {
+        RenderUserWiseVisitChart();
+        
+    }
+
+    function LoadDashBaordData1() {
+        RenderDistrictWiseDiseaseCountChart();
+    }
+    function RenderDistrictWiseDiseaseCountChart() {
+        var District = new Array();
+        var Disease = new Array();
+        var Count = new Array();
+        document.getElementById("DistrictWiseDiseaseCountCanvas").innerHTML = "";
+        $.ajax({
+            url: "@Url.Action("","Home")",
+            type: 'post',
+            dataType: 'json',
+            success: function (msg) {
+                if (msg!=null && msg.length>0 ) {
+                    for (var i=0; i < msg.length; i++)
+                    {
+                        District.push = (msg[i].district);
+                        Disease.push = (msg[i].disease);
+                        Count.push = (msg[i].count);
+
+                    }
+                }
+            },
+            error: function myfunction() {
+
+            }
+        });
+       
+        return false;
+    }
+
+    function RenderUserWiseVisitChart() {
+        var Data = new Array();//Count
+        var Labels = new Array();//UserName
+        var Date = $("#RecordDate").val();
+        document.getElementById('DoctorWiseVisits').innerHTML = "";
+
+        $.ajax({
+            url: "@Url.Action("UserWiseVisits", "Home")",
+            type: 'post',
+            data: {date: Date},
+            dataType: 'json',
+            success: function (msg) {
+            if (msg != null && msg.length > 0) {
+                for (var i = 0; i < msg.length; i++) {
+                    Data.push(msg[i].Value);//UserName
+                    Labels.push(msg[i].Id);//Count
+                }
+                var data = {
+                    datasets: [{
+                        data: Data,
+                        backgroundColor: [
+                            "#001f3f",
+                            "#0074D9",
+                            "#2ECC40",
+                            "#FFDC00",
+                            "#39CCCC",
+                            "#FF4136",
+                            "#AAAAAA",
+                            "#85144b"
+                        ],
+                    }],
+
+                    labels: Labels
+                };
+                //canvas
+                var ctx = document.getElementById('DoctorWiseVisits');
+                var myPieChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: data,
+                    // options: options
+                });
+            }
+        },
+        error: function () {
+
+        }
+    });
+
+    return false;
+    }
+</script>

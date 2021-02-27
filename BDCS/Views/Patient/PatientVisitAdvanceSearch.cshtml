@@ -1,0 +1,143 @@
+﻿
+@{
+    ViewBag.Title = "PatientVisitAdvanceSearch";
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+
+
+<div class="panel panel-default" style="padding-top: 50px;">
+    <div class="panel-heading">Advance Search</div>
+    <div class="panel-body">
+
+
+        <div class="row" style="margin: 5px;">
+
+            <div class="col-sm-2">
+                <label>Diagnosis:</label>
+            </div>
+
+            <div class="col-sm-4">
+                <input type="text" class="form-control input-lg" id="DiagnosisSearch" name="DiagnosisSearch" />
+            </div>
+
+            <div class="col-sm-2">
+                <label>Complain:</label>
+            </div>
+
+            <div class="col-sm-4">
+                <input type="text" class="form-control input-lg" id="ComplainSearch" name="ComplainSearch" />
+            </div>
+
+        </div>
+
+        <div class="row" style="margin: 5px;">
+
+            <div class="col-sm-2">
+                <label>Drug Hx:</label>
+            </div>
+
+            <div class="col-sm-4">
+                <input type="text" class="form-control input-lg" id="DrugSearch" name="DrugSearch" />
+            </div>
+
+            <div class="col-sm-2">
+                <label>Family Hx:</label>
+            </div>
+
+            <div class="col-sm-4">
+                <input type="text" class="form-control input-lg" id="FamilySearch" name="FamilySearch" />
+            </div>
+
+        </div>
+
+        <div class="row" style="margin: 5px;">
+
+            <div class="col-sm-2">
+                <label>Past Hx:</label>
+            </div>
+
+            <div class="col-sm-4">
+                <input type="text" class="form-control input-lg" id="PastSearch" name="PastSearch" />
+            </div>
+
+            <div class="col-sm-2">
+                <label>Lab Test:</label>
+            </div>
+
+            <div class="col-sm-4">
+                <input type="text" class="form-control input-lg" id="LabSearch" name="LabSearch" />
+            </div>
+
+           
+        </div>
+
+        <div class="row" style="margin: 5px;">
+
+            <div class="col-sm-2">
+                <label>Liver:</label>
+            </div>
+
+            <div class="col-sm-4">
+                <input type="text" class="form-control input-lg" id="LiverSearch" name="LiverSearch" />
+            </div>
+
+            <div class="col-sm-2">
+                <label>Spleen:</label>
+            </div>
+
+            <div class="col-sm-4">
+                <input type="text" class="form-control input-lg" id="SpleenSearch" name="SpleenSearch" />
+            </div>
+
+        </div>
+
+        <div class="row" style="margin: 5px;">
+
+            <div class="col-sm-2">
+                <label>Resp. System:</label>
+            </div>
+
+            <div class="col-sm-4">
+                <input type="text" class="form-control input-lg" id="RespiratorySearch" name="RespiratorySearch" />
+            </div>
+
+            <div class="col-sm-2">
+                <label>cardio System:</label>
+            </div>
+
+            <div class="col-sm-4">
+                <input type="text" class="form-control input-lg" id="CardioSearch" name="CardioSearch" />
+            </div>
+
+        </div>
+
+        <div class="row" >
+
+            <div class="col-sm-2">
+                <label>Match:</label>
+            </div>
+
+            <div class="col-sm-4">
+                <select class="form-control input-lg" id="MatchingCriteria" name="MatchingCriteria">
+                    <option value="AND">Match All</option>
+                    <option value="OR">Match Either</option>
+                </select>
+            </div>
+
+            <div class="col-sm-2">
+                <label>Search:</label>
+            </div>
+
+            <div class="col-sm-4">
+                <button class="btn btn-warning">Search</button>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+

@@ -1,0 +1,211 @@
+﻿
+@{
+    ViewBag.Title = "Login";
+}
+
+<style type="text/css">
+    header
+    {
+        display: none;
+    }
+</style>
+
+
+<form id="LoginForm" action="@Url.Action("ValidateLogin","Patient")" method="post" onsubmit="return ValidateLogin();" style="padding-top: 100px; ">
+
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+            <img src="https://seekvectorlogo.com/wp-content/uploads/2018/09/european-metal-recycling-emr-vector-logo.png" alt="Placeholder" class="img img-responsive" style="height: 150px; width: auto; margin-top: -86px; margin-left: 191px;"/>
+            <h1 class="text-center">Login</h1>
+        </div>
+    </div>
+
+
+    <div class="row" >
+        <div class="col-sm-4 col-sm-offset-4" style="border: 1px double #000; padding: 10px;border-color: #5bc0de;padding-bottom: 26px;">
+
+            <div class="form-group">
+                <label>User Name</label>
+                <input type="text" name="UserId" id="UserId" class="form-control" />
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="Password" id="Password" class="form-control" />
+            </div>
+
+
+        </div>
+    </div>
+
+    <div class="row" style="margin-top: 20px;">
+        <div class="col-sm-1 col-sm-offset-4">
+            <button class="btn btn-success btn-block" style="margin-left:353px;"><span class="glyphicon glyphicon-log-in"></span> Login</button>
+        </div>
+    </div>
+
+</form>
+
+
+
+<form id="ClinicForm" action="@Url.Action("SaveClinicInSession","Patient")" method="post" onsubmit="return SaveClinicInSession();" style="padding-top: 100px; display: none; ">
+
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+            <img src="https://seekvectorlogo.com/wp-content/uploads/2018/09/european-metal-recycling-emr-vector-logo.png" alt="Placeholder" class="img img-responsive" style="height: 150px; width: auto; margin-top: -86px; margin-left: 191px;" />
+            <h1 class="text-center">Login</h1>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-sm-4 col-sm-offset-4" style="border: 1px double #000; padding: 10px;border-color: #5bc0de;padding-bottom: 26px;">
+
+            <div class="form-group">
+                <label>Clinic</label>
+                <select id="ClinicList" class="form-control">
+                   
+                </select>
+            </div>
+
+
+
+        </div>
+    </div>
+
+    <div class="row" style="margin-top: 20px;">
+        <div class="col-sm-1 col-sm-offset-4">
+
+            <button class="btn btn-success btn-block" style="margin-left:353px;"><span class="glyphicon glyphicon-log-in"></span> Select</button>
+        </div>
+    </div>
+
+</form>
+
+<script type="text/javascript">
+
+    function ValidateLogin() {
+        showProgressBar();
+        var UserId = $("#UserId").val();
+        var Password = $("#Password").val();
+
+        $.ajax({
+            url: $("#LoginForm").attr("action"),
+            type: "post",
+            data: { loginId: UserId, password: Password },
+            dataType: "json",
+            success: function (res) {
+
+                if (res !== null && res.Message !== undefined) {
+                    if (res.Code == 200) {
+                        $("#LoginForm").hide();
+                        $("#ClinicForm").show();
+                        GetClinicList(res.ResponseObject);
+                    }
+
+                    ShowAlertMessage(res.Message, res.MessageClass, res.MessageTitle);
+                    //if (res.RedirectUrl !== null && res.RedirectUrl.length > 0) {
+                    //    if (res.DoFullRedirect == true) {
+                    //        window.location.href = res.RedirectUrl;
+                    //    }
+                    //    else {
+                    //        //its method to call ajax for partial view
+                    //        setTimeout(loadPage, 1000, res.RedirectUrl, "Module");
+                    //    }
+                    //}
+                    //else {
+                    //    ShowAlertMessage("no proper response received", "error")
+                    //}
+                }
+            },
+            error: function()
+                {
+                ShowAlertMessage("An error occured", "error", "Error");
+                }
+
+
+        });
+
+        return false;
+
+    }
+
+    function GetClinicList(id) {
+        hideProgressBar();
+        $("#ClinicList").empty();
+
+        $.ajax({
+            url: '@Url.Action("GetUserClinics","Patient")',
+
+            type: "post",
+            data: { userId: id },
+            dataType: "json",
+            success: function (res) {
+               
+
+                if (res !== null ) {
+
+                    $(res).each(function () {
+                        var option = $("<option>").val(this.Id).html(this.Value);
+
+                        $("#ClinicList").append(option);
+                    });
+
+                }
+            },
+            error: function () {
+                ShowAlertMessage("An error occured", "error", "Error");
+            }
+
+
+        });
+    }
+
+    function SaveClinicInSession() {
+
+
+        $.ajax({
+            url: $("#ClinicForm").attr("action"),
+            type: "post",
+            data: { clinicId: $("#ClinicList").val()},
+            dataType: "json",
+            success: function (res) {
+
+                if (res !== null && res.Message !== undefined) {
+                    
+
+                    ShowAlertMessage(res.Message, res.MessageClass, res.MessageTitle);
+                    if (res.RedirectUrl !== null && res.RedirectUrl.length > 0) {
+                        if (res.DoFullRedirect == true) {
+                            window.location.href = res.RedirectUrl;
+                        }
+                        else {
+                            //its method to call ajax for partial view
+                            setTimeout(loadPage, 1000, res.RedirectUrl, "Module");
+                        }
+                    }
+                    else {
+                        ShowAlertMessage("no proper response received", "error")
+                    }
+                }
+            },
+            error: function () {
+                ShowAlertMessage("An error occured", "error", "Error");
+            }
+
+
+        });
+
+        return false;
+    }
+
+    function showProgressBar() {
+        $("#preloader").show();
+        $("#preloader .preloader").show();
+
+    }
+
+    function hideProgressBar() {
+        $("#preloader").hide();
+    }
+</script>

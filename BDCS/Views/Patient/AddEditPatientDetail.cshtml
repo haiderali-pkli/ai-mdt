@@ -1,0 +1,256 @@
+﻿@model BDCS.Model.Patient.Patient
+
+
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+
+<script src="~/Content/Plugin/asuggest-master/jquery.a-tools-1.4.1.js"></script>
+<script src="~/Content/Plugin/asuggest-master/jquery.asuggest.js"></script>
+
+<style type="text/css"> 
+.table>tbody>tr>td
+ {
+     padding: 1.2px;
+ }
+</style>
+
+
+<div class="container-fluid">
+
+    <div>
+        <h2 class="media-heading">AddEditPatientDetail</h2>
+    </div>
+
+    <form id="PatientDetial" action="" method="post">
+        <input type="hidden" id="visitId" value="@TempData["visitIdVB"]" />
+        <input type="hidden" id="patientId" value="@TempData["patientIdVB"]" />
+        <input type="hidden" id="reason" value="@TempData["reasonVB"]" />
+
+        <div class="row" style="background-color: #57b7fd;color:white;box-sizing: border-box; padding-right: 40px;" id="PatientHeaderContainer">
+
+            @Html.Action("PatientHeader","Patient", new { patId  = TempData["patientIdVB"] })
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-sm-1 col-sm-offset-8 col-xs-1">
+                </br>
+                <label>&nbsp;</label>
+
+                <button class="btn btn-block btn-success" style="margin-top: -38px;" type="button" onclick="savePatientDetail();"><span class="glyphicon glyphicon-save"></span> Save</button>
+
+            </div>
+
+            <div class="col-sm-1 col-xs-1">
+                </br>
+                <label>&nbsp;</label>
+
+                <button class="btn btn-block btn-primary" style="margin-top: -38px;" type="button" onclick="PrintReport();"><span class="glyphicon glyphicon-print"></span> Print</button>
+
+            </div>
+
+            <div class="col-sm-1 col-xs-1">
+                <br />
+                <label>&nbsp;</label>
+                <a class="btn btn-block btn-warning" style="margin-top: -38px;" onclick="AddEditPatientDemographics(@TempData["patientIdVB"]);" @*href="@Url.Action("AddEditPatient","Patient",new { patId=TempData["patientIdVB"] })"*@ target="_blank">
+                    <span class="glyphicon glyphicon-edit"></span>Edit
+                </a>
+            </div>
+
+
+            <div class="col-sm-1 col-xs-1">
+                </br>
+                <label>&nbsp;</label>
+
+                <button class="btn btn-block btn-danger" style="margin-top: -38px;" type="button" onclick="loadPage('@Url.Action("GetPatientList","Patient", new { PreloadList="Yes"})')"><span class="glyphicon glyphicon-eye-close"></span> Close</button>
+                @*<button class="btn btn-block btn-danger" style="margin-top:-4px;" type="button" onclick="loadPage('@Url.Action("GetPatientList", "Patient")')"><span class="glyphicon glyphicon-eye-close"></span> Close</button>*@
+
+            </div>
+        </div>
+
+
+        @*<div class="panel-group top" style="margin-top:5px;">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#AlertPanel" style="color:blue;">Alert</a>
+                    </h4>
+                </div>
+                <div id="AlertPanel" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <div class="row">
+                            @foreach (BDCS.Model.Patient.PatientAlert alert in ViewBag.Alerts)
+                            {
+                                <p style="color:red;"><img src ="@Url.Content("~/Content/theme/images/Blinking_warning.gif")" style="height: 20px;  width: 20px; margin-top: -8px;" /> @alert.AlertTitle  <span onclick="MarkAlertAsInactive(@alert.PatientAlertId);" class="glyphicon glyphicon-arrow-down"></span> </p>
+
+                            }
+                        </div>
+
+                        <div class="row">
+
+
+                            <div class="col-sm-6">
+                                @Html.TextBox("PatientAlert", null, new { @class = "form-control", placeholder = "Patient allergy/alert" })
+                            </div>
+
+                            <div class="col-sm-1">
+                                @Html.TextBox("PatientAlertStartDate", null, new { @class = "form-control datepicker", placeholder = "Start date" })
+                            </div>
+
+                            <div class="col-sm-1">
+                                @Html.TextBox("PatientAlertEndDate", null, new { @class = "form-control datepicker", placeholder = "End date" })
+                            </div>
+
+                            <div class="col-sm-1">
+                                <button class="btn btn-primary" type="button" onclick="SavePatientAlert();">Save Alert</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+
+        
+
+        @*//Tab coloring*@
+        <div class="row">
+            <div class="col-md-12" >
+
+                @*<ul class="nav nav-tabs"  style="border-bottom: 1px solid #57b7fd;margin-top: 2px;">
+                    <li class="active"><a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#VitalHx" role="tab" aria-controls="nav-home" aria-selected="true" style="background-color: #57b7fd; color: white;">Vital History</a></li>
+                    <li><a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false" style="background-color: #57b7fd; color: white;">Protocol History</a></li>
+                    <li><a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#lab-profile" role="tab" aria-controls="nav-profile" aria-selected="false" style="background-color: #57b7fd; color: white;">Lab History</a></li>
+                </ul>*@
+      
+                <div class="tab-content" id="nav-tabContent " style="height: 550px; width: 100%; overflow: scroll;">
+                    <div class="tab-pane fade active in" id="VitalHx" role="tabpanel" aria-labelledby="nav-home-tab">
+
+
+                    </div>
+
+                    @*<div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+
+                        <div id="ProtocolHx">
+
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="lab-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+
+                        <div id="LabHx">
+
+                        </div>
+                    </div>*@
+                </div>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#nav-home-tab").click();
+
+        var visitId = $("#visitId").val();
+        var patientId = $("#patientId").val();
+        var reason = $("#reason").val();
+
+        var url = '@Url.Action("VitalHistory", "Patient")' + '/?visitId=' + visitId + "&reason=" + reason + "&patId=" + patientId;
+        loadPage(url, "VitalHistory", "VitalHx");
+        debugger;
+
+        @*var uRl = '@Url.Action("GetPreviousLabReport", "Patient")' + '/?visitId=' + visitId + "&patId=" + patientId;
+        loadPage(uRl,"PreviousLabReports")*@
+
+        var URL = '@Url.Action("GetProtocols", "Patient")' + '/?visitId=' + visitId + "&patId=" + patientId;
+        loadPage(URL, "ProtocolsHistory", "ProtocolHx");
+
+        var LabUrl = '@Url.Action("GetPreviousVisitLabTests", "Patient")' + '/?patientId=' + patientId + '&visitId=' + visitId;
+        loadPage(LabUrl, "Lab History", "LabHx");
+
+    });
+
+
+    function LoadPatientHeader()
+    {
+        var patientId = $("#patientId").val();
+        var HeaderUrl = '@Url.Action("PatientHeader", "Patient")' + '/?patId=' + patientId;
+
+        loadPage(HeaderUrl, "Patient Header", "PatientHeaderContainer");
+    }
+
+    function ShowHideGenderSpecificFields() {
+
+        var Gender = $("#Gender").val();
+
+        if ($.trim(Gender) === 'Male') {
+            debugger;
+            $(".MaleOnly").show();
+            $(".FemaleOnly").hide();
+
+        }
+        else {
+            debugger;
+            $(".MaleOnly").hide();
+            $(".FemaleOnly").show();
+        }
+    }
+
+    function SavePatientAlert()
+    {
+        var Alert = {
+            AlertTitle: $("#PatientAlert").val(),
+            ActiveFrom: $("#PatientAlertStartDate").val(),
+            ActiveTill: $("#PatientAlertEndDate").val(),
+            PatientId: $("#patientId").val(),
+        };
+
+        $.ajax({
+            url: '@Url.Action("AddPatientAlert", "Patient")',
+            type: 'Post',
+            dataType: 'Json',
+            data: JSON.stringify(Alert),
+            contentType: "application/json",
+            success: function (msg) {
+
+                ShowAlertMessage(msg.Message, msg.MessageClass);
+            },
+            error: function () {
+                alert('an error occured');
+            }
+        });
+    }
+
+    function MarkAlertAsInactive(id) {
+        $.ajax({
+            url: '@Url.Action("MarkPatientAlertAsInactive", "Patient")',
+            type: 'Post',
+            dataType: 'Json',
+            data: { patientAlertId: id },
+            success: function (msg) {
+
+                ShowAlertMessage(msg.Message, msg.MessageClass);
+            },
+            error: function () {
+                alert('an error occured');
+            }
+        });
+    }
+
+    function AddEditPatientDemographics(patId) {
+        var url = '@Url.Action("AddEditPatient","Patient")' + '/?patId=' + patId;
+        //loadPage(url, "AddEditPatient");
+        $("#GenericModalBody").load(url);
+        $("#GenericModalTitle").html("Edit Patient Information");
+        $("#GenericModal").modal('show');
+    }
+
+</script>

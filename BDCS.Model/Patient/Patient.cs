@@ -56,6 +56,9 @@ namespace BDCS.Model.Patient
         public int ClinicId { get; set; }
 
         public string Rel { get; set; }
+        public bool DiscussionRequired { get; set; }
+        public string BloodGroupName { get; set; }
+
         string CalculateYourAge(DateTime Dob)
         {
             if (Dob == null || Dob.Date == DateTime.MinValue.Date)

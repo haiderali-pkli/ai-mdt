@@ -27,6 +27,7 @@
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
     <TypeScriptToolsVersion>1.7</TypeScriptToolsVersion>
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -754,9 +755,13 @@
     <Content Include="Views\Home\Dashboard.cshtml" />
     <Content Include="Views\Patient\PatientHeader.cshtml" />
     <Content Include="Views\Patient\PatientVisitAdvanceSearch.cshtml" />
+    <Content Include="Views\Patient\PatientVisitAdvanceSearchResult.cshtml" />
+    <Content Include="Views\Patient\PatientListForMDT.cshtml" />
+    <Content Include="Views\Patient\NoData.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="DB Script MDT\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />

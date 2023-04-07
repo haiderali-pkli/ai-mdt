@@ -1,0 +1,115 @@
+﻿@model BDCS.Model.RoleRights.Users
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div>
+                <h3 class="heading" style="margin-top:47px; ">User List</h3>
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <input type="text" id="SearchTextByUserName" class="form-control padding-input full-width" style="max-width:100%" placeholder="Search by User Name" value="@ViewBag.SearchTextByUser" />
+                    </div>
+                </div>
+                <div class="col-sm-1">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-block btn-danger" onclick="SearchByUserName();"><span class="glyphicon glyphicon glyphicon-search"></span></button>
+                    </div>
+                </div>
+                <div class="col-sm-1">
+                    <div class="form-group">
+                        <button type="button" class="btn btn-block btn-danger" onclick="AddEditUser();"><span class="glyphicon glyphicon glyphicon-plus-sign"></span></button>
+                    </div>
+                </div>
+            </div>
+
+
+            @*<div class="row">*@
+                <table class="table table-condensed table-bordered" style="margin-top:10px;">
+                    <thead>
+                        <tr>
+                            <th>Full Name</th>
+                            <th>UserLoginId</th>
+                            <th>Active</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (BDCS.Model.RoleRights.Users item in ViewBag.GetUserList ?? "")
+                        {
+                            <tr>
+                                <td>@item.UserFullName</td>
+                                <td>@item.LoginId</td>
+                                <td>
+                                    <input type="checkbox" class="Active" @(item.Active ? "checked=\"checked\"" : "") />
+                                </td>
+                                <td>
+                                    <a href="#" onclick="AddEditUser(@item.UserId)">
+                                        <span class="glyphicon glyphicon-edit"></span>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            @*</div>*@
+
+
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<div class="modal fade" tabindex="-1" role="dialog" id="AddUserModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            @*<div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">&nbsp;</h4>
+            </div>*@
+            <div class="modal-body" id="AddEditUserModal">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="submit" onclick="saveUser();" class="btn btn-default" data-dismiss="modal">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script type="text/javascript">
+
+    function SearchByUserName() {
+        var par = {
+            searchByUserName: $("#SearchTextByUserName").val(),
+        }
+        var url = '@Url.Action("SearchByUserName", "User")' + '/?' + $.param(par);
+        loadPage(url, "UserSearch");
+    }
+
+    function AddEditUser(userId) {
+        debugger;
+        var url = '@Url.Action("AddEditUser", "User")' + '/?UserId=' + userId;
+        loadPage(url, "AddEditUser", "AddEditUserModal");
+        $('#AddUserModal').modal('show');
+    }
+    function callingMethodforUser()
+    {
+        debugger;
+        saveUser();
+    }
+
+</script>

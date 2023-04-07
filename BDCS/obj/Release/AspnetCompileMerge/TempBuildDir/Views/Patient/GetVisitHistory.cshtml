@@ -1,0 +1,134 @@
+﻿@model List<BDCS.Model.Visit.Visit>
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+<div class="row" style="margin-top:-30px;">
+    <div class="col-lg-10">
+        <h2  class="media media-heading" style="font-size: 20px;">Name: @ViewBag.PatientName</h2>
+    </div>
+    <div class="col-lg-2">
+        <button class="btn btn-danger" onclick="ClosePatientInfoBox();"><span class="glyphicon glyphicon-th"></span></button>
+    </div>     
+</div>
+@if (Model != null && Model.Any())
+{
+    <table id="tblVisitHistory" class="table table-bordered table-responsive" style="margin-top:15px;">
+
+        <thead>
+            <tr style="background-color: #57b7fd;color:white;">
+                <th>Visit Date</th>
+                <th>Reason</th>
+                <th>Print</th>
+                @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
+                {
+                    <th>Edit</th>
+                    <th>Copy</th>
+                }
+                @*<th>Service</th>*@
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (BDCS.Model.Visit.Visit item in Model)
+            {
+                <tr>
+                    <td>@item.VisitDate</td>
+                    <td>@item.Reason</td>
+                    <td>
+                        <a href="@Url.Action("PatientVisitReportRdlc","Patient",new { patId = item.PatientId, visitId = item.VisitId, item.Reason })" target="_blank">
+                            <span class="glyphicon glyphicon-print"></span>
+                        </a>
+                    </td>
+                    @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
+                    {
+                        <td>
+                            <a href="#" onclick="AddEditPatientFunction(@item.PatientId,@item.VisitId,'@item.VisitDate','@item.Reason')" ;>
+                                <span class="glyphicon glyphicon-edit"></span>
+                            </a>
+                        </td>
+                        @*----------*@
+                        <td>
+                            <a href="#" onclick="CopyVisit(@item.PatientId,@item.VisitId)" ;>
+                                <span class="glyphicon glyphicon-download"></span>
+                            </a>
+                        </td>
+                    }
+
+
+
+                    @*<td>
+                        <a href="#" onclick="AddServices(@item.PatientId,@item.VisitId)" ;>
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </a>
+                    </td>*@
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <label>No history found for the selected patient....</label>
+}
+
+
+
+<script type="text/javascript">
+
+    function AddEditPatientFunction(patId,visitId,visitdt,reason) {
+        debugger;
+        var par = {
+            patId: patId,
+            visitId: visitId,
+            visitDateTime: visitdt,
+            reason: reason
+           
+
+        };
+        debugger;
+        var url = '@Url.Action("AddEditPatientDetail", "Patient")' + '/?' + $.param(par);
+        loadPage(url, "Patient");
+
+        @*var URL = '@Url.Action("AddEditPatientDetail", "Patient")' + '/?' + $.param(par);
+        loadPage(URL, "VitalHistory", "VitalHx");*@
+    }
+
+
+    function CopyVisit(patId, visitId) {
+      
+        $.ajax({
+            url: '@Url.Action("CopyVisit", "Patient")',
+            type: 'Post',
+            dataType: 'Json',
+            data: { patientId: patId, oldVisitId: visitId },
+
+            success: (function (msg) {
+                if (parseInt(msg.Code) == 200) {
+                    loadPage('@Url.Action("AddEditPatientDetail", "Patient")' + '/?patId=' + patId + ' &visitId=' + msg.ResponseObject + ' &reason=' + 'Followup', "Prescription");
+                }
+                else {
+                    ShowAlertMessage('Unable to Create Visit', 'warning');
+                }
+            }),
+            error: function () {
+                ShowAlertMessage("An error occured", 'error');
+            }
+        });
+    }
+
+    function AddServices(patId, visitId) {
+
+        var par = {
+            patientId: patId,
+            visitId: visitId
+
+
+        };
+        debugger;
+        var url = '@Url.Action("AddPatientServices", "Patient")' + '/?' + $.param(par);
+        loadPage(url, "Patient");
+
+    }
+</script>

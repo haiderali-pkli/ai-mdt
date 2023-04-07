@@ -1,0 +1,68 @@
+﻿@model List<BDCS.Model.VitalHistory.VitalHistory>
+@{
+    ViewBag.Title = "PatientVisitAdvanceSearchResult";
+
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+
+<div class="row">
+@if (Model != null && Model.Any())
+{
+    <div class="col-sm-12">
+        <table class="table table-responsive table-bordered table-striped">
+            <thead>
+                <tr style="background: #57b7fd; color:white">
+                    <th>Patient Name</th>
+                    <th>Date</th>
+                    <th>Open</th>
+                    <th>Print</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (BDCS.Model.VitalHistory.VitalHistory vh in Model)
+                {
+                    <tr>
+                        <td>@vh.PatientName</td>
+                        <td>@vh.VisitDateTime.Value.ToString("dd-MMM-yy")</td>
+                        <td>
+                            <a href="#" onclick="AddEditPatientFunction(@vh.PatientId, @vh.VisitId, '@vh.VisitDateTime.Value.ToString("dd-MMM-yy")', '')">Open</a>
+                        </td>
+                        <td>
+                            <a href="@Url.Action("PatientVisitReportRdlc", "Patient", new { patId = vh.PatientId, visitId = vh.VisitId })" target="_blank">
+                                <span class="glyphicon glyphicon-print"></span>
+                            </a>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+    </div>
+}
+</div>
+
+
+<script type="text/javascript">
+    function AddEditPatientFunction(patId,visitId,visitdt,reason) {
+        debugger;
+        var par = {
+            patId: patId,
+            visitId: visitId,
+            visitDateTime: visitdt,
+            reason: reason
+           
+
+        };
+        debugger;
+        var url = '@Url.Action("AddEditPatientDetail", "Patient")' + '/?' + $.param(par);
+     //   loadPage(url, "Patient");
+        window.open(url, "_blank");
+
+        }
+
+</script>

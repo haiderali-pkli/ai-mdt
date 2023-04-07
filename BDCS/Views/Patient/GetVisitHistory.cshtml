@@ -22,9 +22,12 @@
                 <th>Visit Date</th>
                 <th>Reason</th>
                 <th>Print</th>
-                <th>Edit</th>
-                <th>Copy</th>
-                <th>Service</th>
+                @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
+                {
+                    <th>Edit</th>
+                    <th>Copy</th>
+                }
+                @*<th>Service</th>*@
             </tr>
         </thead>
         <tbody>
@@ -38,24 +41,28 @@
                             <span class="glyphicon glyphicon-print"></span>
                         </a>
                     </td>
-                    <td>
-                        <a href="#" onclick="AddEditPatientFunction(@item.PatientId,@item.VisitId,'@item.VisitDate','@item.Reason')" ;>
-                            <span class="glyphicon glyphicon-edit"></span>
-                        </a>
-                    </td>
-                    @*----------*@
-                    <td>
-                        <a href="#" onclick="CopyVisit(@item.PatientId,@item.VisitId)" ;>
-                            <span class="glyphicon glyphicon-download"></span>
-                        </a>
-                    </td>
+                    @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
+                    {
+                        <td>
+                            <a href="#" onclick="AddEditPatientFunction(@item.PatientId,@item.VisitId,'@item.VisitDate','@item.Reason')" ;>
+                                <span class="glyphicon glyphicon-edit"></span>
+                            </a>
+                        </td>
+                        @*----------*@
+                        <td>
+                            <a href="#" onclick="CopyVisit(@item.PatientId,@item.VisitId)" ;>
+                                <span class="glyphicon glyphicon-download"></span>
+                            </a>
+                        </td>
+                    }
 
 
-                    <td>
+
+                    @*<td>
                         <a href="#" onclick="AddServices(@item.PatientId,@item.VisitId)" ;>
                             <span class="glyphicon glyphicon-plus"></span>
                         </a>
-                    </td>
+                    </td>*@
                 </tr>
             }
         </tbody>

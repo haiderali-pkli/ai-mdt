@@ -1,0 +1,592 @@
+﻿@model BDCS.Model.VitalHistory.VitalHistory
+
+@{
+    ViewBag.Title = "PatientVisitReport";
+}
+
+
+<style type="text/css">
+
+    .header-bottom,
+    .copyright-area
+    {
+        display: none;
+    }
+
+    @@media (max-width: 768px) {
+        .first-section {
+            padding: 1em 0 1em !important;
+        }
+    }
+</style>
+
+<div class="row" style="padding: 0px;">
+    <h3>Blood Diseases Clinic</h3>
+    <p style="margin:0px;">Canal Road Near Shahid Flats | University Town Peshawar</p>
+    <p style="margin:0px;">Contact: 0300 5957989</p>
+    <!--Patient Header-->
+
+</div>
+
+<div class="row">
+    @*Picture Div*@
+    <div class="col-sm-2 col-xs-2">
+        <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print" checked="checked" />
+        @*here we are not mapping the image we justly displaying it therefore we dont use lamdad expression*@
+
+        @if (!string.IsNullOrEmpty(ViewBag.Patient.ImageURL))
+        {
+            <img src="@Url.Content(ViewBag.Patient.ImageURL)" class="img-responsive" style="max-width: 80%; height: auto; border:solid; min-height:50px; min-width:50px;" />
+        }
+        else
+        {
+            <img src="@Url.Content("~/Content/theme/images/doctor_02.jpg")" class="img-responsive" style="max-width: 80px; height: auto; border:solid; min-height:50px; min-width:50px;" />
+        }
+
+    </div>
+    @*MRN*@
+    <div class="col-sm-2 col-xs-3">
+        @*<div class="form-group">*@
+            @*<label>MR Number: @((string)ViewBag.Patient.MrNumber)</label>*@
+            <label>MRN</label>
+            @Html.TextBox("MrNumber",(string)ViewBag.Patient.MrNumber, new { @class = "form-control", @readonly = "readonly" })
+        @*</div>*@
+    </div>
+    @*Emtpy*@
+    <div>
+        @*<div class="col-sm-2 col-xs-2">
+            <div class="form-group">
+                <label>Name</label>
+                @Html.TextBox("FullName", (string)ViewBag.Patient.FullName, new { @class = "form-control", @readonly = "readonly" })
+
+            </div>
+        </div>
+
+        <div class="col-sm-2 col-xs-2">
+            <div class="form-group">
+                <label>Father/Spouse</label>
+                @Html.TextBox("FatherSpouseName", (string)ViewBag.Patient.FatherSpouseName, new { @class = "form-control", @readonly = "readonly" })
+
+            </div>
+        </div>*@
+
+        @*<div class="col-sm-2 col-xs-2">
+            <div class="form-group">
+                <label>Date of Birth</label>
+                @Html.TextBox("DOB", (DateTime)ViewBag.Patient.DOB, new { @class = "form-control", @readonly = "readonly" })
+
+            </div>
+        </div>*@
+
+        @*<div class="col-sm-2 col-xs-2">
+            <div class="form-group">
+                <label>Gender</label>
+                @Html.TextBox("Gender", (string)ViewBag.Patient.Gender, new { @class = "form-control", @readonly = "readonly" })
+            </div>
+        </div>*@
+
+        @*<div class="col-sm-2 col-xs-3">
+            <div class="form-group">
+                <label>Mobile Number</label>
+                @Html.TextBox("MobileNumber", (string)ViewBag.Patient.MobileNumber, new { @class = "form-control", @readonly = "readonly" })
+
+            </div>
+        </div>
+
+        @*<div class="col-sm-2 col-xs-3">
+            <div class="form-group">
+                <label>Contact</label>
+                @Html.TextBox("ContactNumber", (string)ViewBag.Patient.ContactNumber, new { @class = "form-control", @readonly = "readonly" })
+
+            </div>
+        </div>
+
+        @*<div class="col-sm-2 col-xs-3">
+            <div class="form-group">
+                <label>Referred By</label>
+                @Html.TextBox("ReferredBy", (string)ViewBag.Patient.ReferredBy, new { @class = "form-control", @readonly = "readonly" })
+
+            </div>
+        </div>*@
+
+
+    </div>
+   @*Name and Gender*@
+    <div class="col-sm-2 col-xs-4">
+        @*<div class="form-group">*@
+            @*<b> @((string)ViewBag.Patient.FullName + " - " + (string)ViewBag.Patient.Gender) </b>*@
+            <label>Name/Gender</label>
+            @*+ " " + (DateTime)ViewBag.Patient.DOB*@
+            @Html.TextBox("Gender", (string)ViewBag.Patient.FullName + " " + (string)ViewBag.Patient.Gender, new { @class = "form-control", @readonly = "readonly" })
+        @*</div>*@
+    </div>
+    @*Mobile Number*@
+    <div class="col-sm-2 col-xs-3">
+        @*<div class="form-group">*@
+        <label>Mobile Number</label>
+        @Html.TextBox("MobileNumber", (string)ViewBag.Patient.MobileNumber, new { @class = "form-control", @readonly = "readonly" })
+
+        @*</div>*@
+    </div>
+    @*Ethniticy*@
+    <div class="col-sm-2 col-xs-3">
+        <label>Ethnicity</label>
+        @Html.TextBox("Ethnicity",(string)ViewBag.Patient.Ethnicity,new { @class="form-control"})
+    </div>
+    @*Address*@
+    <div class="col-sm-2 col-xs-7">
+        @*<div class="form-group">*@
+        <label>Address</label>
+        @*<b>@((string)ViewBag.Patient.Address)</b>*@
+        @Html.TextBox("Address", (string)ViewBag.Patient.Address, new { @class = "form-control" })
+        @*</div>*@
+    </div>
+</div>
+    @*Visit Type*@
+<div class="row">
+    <div class="col-sm-3 col-xs-4">
+        <div class="form-group">
+            <br />
+            <label>Visit Type: @((string)ViewBag.reasonVB)</label>
+        </div>
+    </div>
+</div>
+@*Column ONE*@
+<div class="col-lg-4 col-xs-4">
+    @*Vitals*@
+   
+    <div class="row">
+        @*<div class="col-sm-3 col-xs-3">
+            <div class="form-group">
+                <label>Visit Date</label>
+                @Html.TextBox("VisitDateTime", (string)ViewBag.VisitDateTimeVB, new { @class = "form-control", @readonly = "readonly" })
+            </div>
+        </div>*@
+        @*Weight and unit*@
+        <div class="row">
+            <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print" checked="checked" />
+            <div class="col-sm-3 col-xs-4">
+                <div class="form-group">
+                    <label>Weight:</label>
+                    <input type="text" value="@Model.Weight  @((ViewBag.WeightUnitVB as List<SelectListItem>).Where(a=> a.Value == Model.WeightUnit).Select(a=> a.Text).FirstOrDefault())" class="form-control" readonly />
+                </div>
+            </div>
+            <div class="col-sm-3 col-xs-4">
+                <div class="form-group">
+                    <label>Height</label>
+                    @*@Html.TextBoxFor(a => a.Height, new { @class = "form-control", maxlength = 3, type = "number" })*@
+                    <input type="text" value="@Model.Height @((ViewBag.HeightUnitVB as List<SelectListItem>).Where(a=>a.Value==Model.HeightUnit).Select(a=>a.Text).FirstOrDefault())" class="form-control" readonly />
+                </div>
+            </div>
+            <div class="col-sm-3 col-xs-4 ">
+                <div class="form-group">
+                    <label>Temp</label>
+                    @Html.TextBoxFor(a => a.Temp, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>  
+    </div>
+    @*BP*@
+    <div class="row">
+        <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print" />
+        <div class="row">
+            <div class="col-sm-3 col-xs-4">
+                <div class="form-group">
+                    <label>BP-Sys</label>
+                    @Html.TextBoxFor(a => a.BPSystolic, new { @class = "form-control", maxlength = 3, type = "number" })
+                </div>
+            </div>
+            <div class="col-sm-3 col-xs-4">
+                <div class="form-group">
+                    <label>BP-Dis</label>
+                    @Html.TextBoxFor(a => a.BPDistolic, new { @class = "form-control", maxlength = 3, type = "number" })
+                </div>
+            </div>
+        </div>
+    </div>
+    @*Checkboxes*@
+    @*<div class="row">
+        <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print" checked="checked" />
+            <div class="col-sm-1 col-xs-2">
+                    <label>J</label>
+                    <p>@(Model.GPEJ ? "Y":"N")</p>
+            </div>
+            <div class="col-sm-1 col-xs-2">
+                    <label>A</label>
+                <p>@(Model.GPEA ? "Y" : "N")</p>
+            </div>
+            <div class="col-sm-1 col-xs-2">
+                    <label>L</label>
+                <p>@(Model.GPEL ? "Y" : "N")</p>
+            </div>
+            <div class="col-sm-1 col-xs-1">
+                    <label>C</label>
+                <p>@(Model.GPEC ? "Y" : "N")</p>
+            </div>
+            <div class="col-sm-1 col-xs-1">
+                    <label>K</label>
+                <p>@(Model.GPEK ? "Y" : "N")</p>
+            </div>
+            <div class="col-sm-1 col-xs-1">
+                    <label>E</label>
+                <p>@(Model.GPEE ? "Y" : "N")</p>
+            </div>
+            <div class="col-sm-1 col-xs-1">
+                    <label>T</label>
+                <p>@(Model.GPET ? "Y" : "N")</p>
+            </div>
+    
+    </div>*@
+    
+    @*comments*@
+    <div class="row">
+        <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print"  checked="checked"/>
+        @*<div class="row">
+            <div class="col-sm-9 col-xs-12">
+                <div class="">
+                    <label>Comments</label>
+                    <blockquote>
+                        @Model.GPEComments
+                    </blockquote>
+                </div>
+            </div>
+        </div>*@
+        @*Systemic Examination*@
+        @*<div class="row">
+            <div class="col-sm-9 col-xs-12">
+                <div class="">
+                    <label>CVS</label>
+                    <blockquote>
+                        @Model.SystemicCVS
+                    </blockquote>
+                </div>
+            </div>
+        </div>*@
+        @*<div class="row">
+            <div class="col-sm-9 col-xs-12">
+                <label>Systemic Response</label>
+
+                <blockquote>
+                    @Model.SystemicRes
+                </blockquote>
+            </div>
+        </div>*@
+        <div class="row">
+            <div class="col-sm-9 col-xs-12">
+                <label>Systemic Liver</label>
+                <blockquote>
+                    @Model.SystemicLiver
+                </blockquote>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-9 col-xs-12">
+                <label>Spleen</label>
+                <blockquote>
+                    @Model.SystemicSpleen
+                </blockquote>
+            </div>
+        </div>
+
+        @*<div class="row">
+            <div class="col-sm-9 col-xs-12">
+                <label>Next Followup</label>
+                <blockquote>
+                    @Model.NextFollowup
+                </blockquote>
+            </div>
+        </div>*@
+    </div>
+
+   
+</div>
+    
+
+@*Column TWO*@
+<div class="col-lg-5 col-xs-4">
+
+    <div class="row">
+        @*CIC*@
+        <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print" checked="checked" />
+        <div class="col-sm-10 col-xs-12">
+            <label>CIC</label>
+            <blockquote>
+                @Model.CIC
+            </blockquote>
+            @*@Html.TextAreaFor(a => a.CIC, new { @class = "form-control", style = "max-width:100%", @list = "dlcvs", @rows = "2" })*@
+        </div>
+    </div>
+    @*previous Result*@
+    <div class="row">
+        <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print"/>
+        <div class="col-sm-10 col-xs-12">
+            <div class="form-group">
+              <h4>Previous Reports</h4>
+                
+
+                
+                  @if (Model != null && Model.PreviousLab.Count > 0)
+                {
+                    foreach (BDCS.Model.VitalHistory.LabReports item in Model.PreviousLab)
+                    {
+                          <p>
+                              <b>@item.TestName</b> : @(item.TestDate.HasValue && item.TestDate.Value.Date != DateTime.MinValue.Date ? item.TestDate.Value.ToString("dd-MMM-yy") :""  ) - @item.TestResult 
+                          </p>
+
+
+                    }
+                }
+
+                @*<table id="tblPreviousResult" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Test</th>
+                            <th>Date</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @if (Model != null && Model.PreviousLab.Count > 0)
+                    {
+                        foreach (BDCS.Model.VitalHistory.LabReports item in Model.PreviousLab)
+                        {
+                            <tr id="sampleDataRowPreviousResult" class="DataRowPreviousResult" data-recordidPrv="@item.PreviousReportId"> 
+                                <td>@Html.TextBoxFor(a => item.TestName, new { @class = "form-control TestName" })</td>
+                                <td>@Html.TextBoxFor(a => item.TestDate, item.TestDate.HasValue ? item.TestDate.Value.ToString("dd-MMM-yyyy") : "", new { @class = "form-control TestDate datepicker" })</td>
+                                <td>@Html.TextBoxFor(a => item.TestResult, new { @class = "form-control TestResult" })</td>
+                            </tr>
+                         }
+                     }
+                    </tbody>
+                </table>*@
+            </div>
+        </div>
+    </div>
+    @*Lab Current Reports*@
+    <div class="row">
+        <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print"  />
+        <div class="col-sm-10 col-xs-12">
+            <h4>Current Lab</h4>
+
+            @foreach (BDCS.Model.VitalHistory.LabReports item in Model.labreports.Where(a => !string.IsNullOrEmpty(a.TestResult)))
+            {
+                <p>
+                    <b>@item.TestName</b> - @item.TestResult
+                </p>
+
+            }
+
+
+
+
+
+            @*<table id="tblLabReports" class="table table-bordered table-responsive" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th>Test Name</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (BDCS.Model.VitalHistory.LabReports item in Model.labreports.Where(a => !string.IsNullOrEmpty(a.TestResult)))
+                    {
+                        <tr class="DataRowLabReports" data-recordid="@item.LabReportId">
+                            <td>@Html.TextBoxFor(a => item.TestName, new { @class = "form-control TestName" })</td>
+                            <td>@Html.TextBoxFor(a => item.TestResult, new { @class = "form-control TestResult" })</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>*@
+        </div>
+    </div>
+
+
+</div>
+@*Column Three*@
+<div class="col-lg-3 col-xs-4">
+    
+    @*Present History and Past History*@
+    <div class="row">
+
+        <div class="row">
+            <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print" checked="checked" />
+            <div class="col-sm-9 col-xs-12">
+                <label>Present History</label>
+                <blockquote>
+                    @Model.PresentHx
+                </blockquote>
+                @*@Html.TextAreaFor(a => a.PresentHx, new { @class = "form-control", @list = "dlphx", @rows = "2" })*@
+            </div>
+        </div>
+        <div class="row">
+            <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print"/>
+            @*Past History*@
+            <div class="col-sm-9 col-xs-12">
+                <blockquote>
+
+                    @((ViewBag.PastHxVB as List<SelectListItem>).Where(a => a.Value == Model.PastHx).Select(b => b.Text).FirstOrDefault()) :
+
+                    @Model.PastHxNAT
+                </blockquote>
+                    @*@Html.DropDownListFor(a => a.PastHx, (List<SelectListItem>)ViewBag.PastHxVB, "--Select--", new {  })
+                    @Html.TextBoxFor(a => a.PastHxNAT, new {  })*@
+            </div>
+        </div>
+        @*FaimlyHisotry*@
+        <div class="row">
+            <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print"/>
+            <div class="col-sm-9 col-xs-12">
+                <label>Family History</label>
+                <blockquote>
+                    @Model.FamilyHx
+                </blockquote>
+                @*@Html.TextAreaFor(a => a.FamilyHx, new { @class = "form-control", @rows = "2" })*@
+            </div>
+        </div>
+        @*Drug History*@
+        <div class="row">
+            <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print"/>
+            <div class="col-sm-9 col-xs-12">
+                <label>Drug History</label>
+                <blockquote>
+                    @Model.DrugHx
+                </blockquote>
+
+                @*@Html.TextAreaFor(a => a.DrugHx, new { @class = "form-control", @rows = "2" })*@
+            </div>
+        </div>
+        @*Sec *@
+        <div class="row">
+            <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print"/>
+            <div class="col-sm-9 col-xs-12">
+                <label>Sec History</label>
+                <blockquote>
+                    @Model.SecHx
+                </blockquote>
+                @*@Html.TextAreaFor(a => a.SecHx, new { @class = "form-control", @rows = "2" })*@
+            </div>
+        </div>
+        @*Comorbidites*@
+        <div class="row">
+            <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print"/>
+            <div class="col-sm-9 col-xs-12">
+                <label>Comorbidites</label>
+                <blockquote>
+                    @Model.Comorbidites
+                </blockquote>
+                @*@Html.TextAreaFor(a => a.Comorbidites, new { @class = "form-control", @rows = "2" })*@
+            </div>
+        </div>
+        @*TransfusionHistory*@
+        <div class="row">
+            <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print" checked="checked" />
+            <div class="col-sm-9 col-xs-12">
+                <label>Transfusion History</label>
+                <blockquote>
+                    @Model.TransfusionHx
+                </blockquote>
+                @*@Html.TextAreaFor(a => a.TransfusionHx, new { @class = "form-control", @rows = "2" })*@
+            </div>
+        </div>
+        @*Ghynae Obs History*@
+        <div class="row">
+            <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print"/>
+            <div class="col-sm-9 col-xs-12 FemaleOnly">
+                <div class="FemaleOnly">
+                    <label>Gynae/OBS History</label>
+                    <blockquote>
+                        @Model.GynaeObsHx
+                    </blockquote>
+                    @*@Html.TextAreaFor(a => a.GynaeObsHx, new { @class = "form-control", @rows = "2" })*@
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+</div>
+
+<div class="col-lg-12 col-xs-12">
+
+    <div class="row">
+        <input type="checkbox" class="PrintCheckbox hidden-print" title="Show On Print" checked="checked" />
+
+        @foreach (BDCS.Model.VitalHistory.Protocols item in Model.protocols)
+        {
+
+            <p>
+                <b> @item.Medicine (@item.MedicineType) </b> - @item.Dose @item.DoseUnit  @item.Route as @item.Frequency for @item.Duration
+            </p>
+
+
+        }
+
+
+        @*<table id="tblProtocols" class="table table-bordered table-responsive">
+                <thead>
+                    <tr>
+
+                        <th>Type</th>
+                        <th>Medicine</th>
+                        <th>Dose Unit</th>
+                        <th>Dose</th>
+                        <th>Route</th>
+                        <th>Frequency</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (BDCS.Model.VitalHistory.Protocols item in Model.protocols)
+                    {
+                        <tr class="DataRowProtocol">
+                        
+                                <td>@Html.TextBoxFor(a => item.MedicineType, new { @class = "form-control MedicineType" })</td>
+                            <td>@Html.TextBoxFor(a => item.Medicine, new { @class = "form-control Medicine" })</td>
+                            <td>@Html.TextBoxFor(a => item.DoseUnit, new { @class = "form-control DoseUnit", @list = "dlDoseUnit" })</td>
+                            <td>@Html.TextBoxFor(a => item.Dose, new { @class = "form-control Dose" })</td>
+                            <td>@Html.TextBoxFor(a => item.Route, new { @class = "form-control Route" })</td>
+                            <td>@Html.TextBoxFor(a => item.Frequency, new { @class = "form-control Frequency" })</td>
+                            <td>@Html.TextBoxFor(a => item.Duration, new { @class = "form-control Duration" })</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>*@
+       
+    </div>
+</div>
+
+
+
+
+
+
+<script>
+    $(document).ready(function () {
+
+        //setTimeout(function () { window.print(); window.close();},2000);
+        $(".PrintCheckbox").each(function () {
+            ShowOnPrint(this);
+        });
+
+        $(".PrintCheckbox").change(function () {
+            ShowOnPrint(this);
+        });
+    });
+
+
+    function ShowOnPrint(tag)
+    {
+        if ($(tag).is(":checked")) {
+            $(tag).parent().removeClass("hidden-print");
+        }
+        else {
+            $(tag).parent().addClass("hidden-print");
+        }
+    }
+</script>
+
+
+
+

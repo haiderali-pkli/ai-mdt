@@ -17,6 +17,9 @@ using System.Text.RegularExpressions;
 using ClosedXML.Excel;
 using BDCS.Model.PatientServices;
 using Microsoft.Reporting.WebForms;
+using System.Data;
+using System.IO;
+using System.Reflection;
 
 namespace BDCS.Controllers
 {
@@ -80,9 +83,11 @@ namespace BDCS.Controllers
             List<KeyAndValuePair> Referredby=await _CommonBL.GetDefinationData("lookups", "System", "ReferredBy");
   List<KeyAndValuePair> Ethnicity = await _CommonBL.GetDefinationData("lookups", "System", "Ethnicity");
 
+            List<KeyAndValuePair> BloodGroup = await _CommonBL.GetDefinationData("lookups", "System", "BloodGroup");
+
             List<KeyAndValuePair> AgeUnit = new List<KeyAndValuePair>() {
-                  new KeyAndValuePair() { Id = "Days", Value = "Days" },
                 new KeyAndValuePair() { Id = "Years", Value = "Years" },
+                new KeyAndValuePair() { Id = "Days", Value = "Days" },
                 new KeyAndValuePair() { Id = "Months", Value = "Months" },
               
             };
@@ -95,6 +100,8 @@ namespace BDCS.Controllers
             ViewBag.ReferredbyVB = Referredby.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
             ViewBag.AgeUnit = AgeUnit.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
      ViewBag.EthnicityVB = Ethnicity.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            ViewBag.BloodGroupVB = BloodGroup.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
 
             return View(pat);
@@ -157,6 +164,21 @@ namespace BDCS.Controllers
                 else
                 {
 
+                    if (await _PatientBL.DoesPatientHospitalNumberExists(pat.HospitalNumber, pat.PatientId) > 0)
+                    {
+                        response = new AjaxResponse
+                        {
+                            Code = 403,
+                            IsSuccess = false,
+                            Message = "Patient Hospital Number already present",
+                            MessageTitle = MessageConstants.NoDataReceived,
+                            MessageClass = MessageConstants.MessageClassWarning,
+                            ResponseObject = 0
+                        };
+
+                        return Json(response);
+                    }
+
                     if (pat.PatientId < 1)
                     {
                         // assume its a new patient
@@ -193,6 +215,8 @@ namespace BDCS.Controllers
                             }
                         }
                     }
+
+                    
 
 
                     if (PatientImage != null && PatientImage.ContentLength > 0)
@@ -275,6 +299,108 @@ namespace BDCS.Controllers
                     Message=MessageConstants.InternalError,
                     MessageTitle=MessageConstants.MessageClassError,
                     ResponseObject=e.Message
+                };
+            }
+            return Json(response);
+        }
+
+        [CheckUserRights(MenuName = "Add Patient", Order = 1, UserRightType = RightType.AddEdit)]
+        public async Task<ActionResult> ToggleDiscussionStatus(int patientId)
+        {
+            //Patient patient = new Patient();
+
+            AjaxResponse response = new AjaxResponse();
+            int result = 0;
+            try
+            {
+                if (patientId <= 0)
+                {
+                    response = new AjaxResponse
+                    {
+                        Code = 403,
+                        IsSuccess = false,
+                        Message = "No Data",
+                        MessageTitle = MessageConstants.NoDataReceived,
+                        MessageClass = MessageConstants.MessageClassWarning
+                    };
+                }
+                else
+                {
+
+
+                    result = await _PatientBL.ToggleDiscussionStatus(patientId);
+                    if (result > 0)
+                    {
+                        response = new AjaxResponse
+                        {
+                            Code = 200,
+                            IsSuccess = true,
+                            MessageTitle = MessageConstants.SuccessfullInsertion,
+                            MessageClass = MessageConstants.MessageClassSuccess,
+                            DoFullRedirect = true,
+                            //RedirectUrl = Url.Action("GetPatientList"),
+                            ResponseObject = result,
+                            // PopupUrl = Url.Action("PatientCard", new {PatientId = result })
+                        };
+                    }
+                    else
+                    {
+                        response = new AjaxResponse
+                        {
+                            Code = 404,
+                            IsSuccess = false,
+                            MessageTitle = MessageConstants.InsertionFailed,
+                            MessageClass = MessageConstants.MessageClassWarning
+                        };
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                response = new AjaxResponse
+                {
+                    Code = 500,
+                    IsSuccess = false,
+                    Message = MessageConstants.InternalError,
+                    MessageTitle = MessageConstants.MessageClassError,
+                    ResponseObject = e.Message
+                };
+            }
+            return Json(response);
+        }
+
+        [CheckUserRights(MenuName = "Add Patient", Order = 1, UserRightType = RightType.AddEdit)]
+        public async Task<ActionResult> DoesPatientHospitalNumberExists(string hospitalNumber, int patientId)
+        {
+            //Patient patient = new Patient();
+
+            AjaxResponse response = new AjaxResponse();
+           
+            try
+            {
+                if (await _PatientBL.DoesPatientHospitalNumberExists(hospitalNumber, patientId) > 0)
+                {
+                    response = new AjaxResponse
+                    {
+                        Code = 403,
+                        IsSuccess = false,
+                        Message = "Patient Hospital Number already present.",
+                        MessageTitle = MessageConstants.NoDataReceived,
+                        MessageClass = MessageConstants.MessageClassWarning
+                    };
+                }
+                
+            }
+            catch (Exception e)
+            {
+                response = new AjaxResponse
+                {
+                    Code = 500,
+                    IsSuccess = false,
+                    Message = MessageConstants.InternalError,
+                    MessageTitle = MessageConstants.MessageClassError,
+                    ResponseObject = e.Message
                 };
             }
             return Json(response);
@@ -534,8 +660,8 @@ namespace BDCS.Controllers
             List<KeyAndValuePair> MeldStatus = await _CommonBL.GetDefinationData("Lookups", "System", "MeldStatus");
             ViewBag.MeldStatusVB = MeldStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-            List<KeyAndValuePair> BCLC = await _CommonBL.GetDefinationData("Lookups", "System", "BCLC");
-            ViewBag.BCLCVB = MeldStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> BCLC = await _CommonBL.GetDefinationData("Lookups", "System", "BCLCStatus");
+            ViewBag.BCLCVB = BCLC.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
 
             List<KeyAndValuePair> ECOGStatus = await _CommonBL.GetDefinationData("Lookups", "System", "ECOGStatus");
@@ -553,10 +679,14 @@ namespace BDCS.Controllers
             ViewBag.LargestLesionSizeVB = LargestLesionSize.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
             List<KeyAndValuePair> MDTOutCome = await _CommonBL.GetDefinationData("Lookups", "System", "MDTOutCome");
-            ViewBag.MDTOutComeVB = MDTOutCome.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            ViewBag.MDTOutComeVB = MDTOutCome.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+
+
+         
+
 
             List<KeyAndValuePair> SiteOfAngioinvasion = await _CommonBL.GetDefinationData("Lookups", "System", "SiteOfAngioinvasion");
-            ViewBag.SiteOfAngioinvasionVB = SiteOfAngioinvasion.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            ViewBag.SiteOfAngioinvasionDropdown = SiteOfAngioinvasion.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
 
             List<KeyAndValuePair> TreatmentResponse = await _CommonBL.GetDefinationData("Lookups", "System", "TreatmentResponse");
             ViewBag.TreatmentResponseVB = TreatmentResponse.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
@@ -565,7 +695,10 @@ namespace BDCS.Controllers
             ViewBag.RefusalReasonVB = RefusalReason.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
             List<KeyAndValuePair> SitesOfExtraHepaticDisease = await _CommonBL.GetDefinationData("Lookups", "System", "SitesOfExtraHepaticDisease");
-            ViewBag.SitesOfExtraHepaticDiseaseVB = SitesOfExtraHepaticDisease.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            ViewBag.SitesOfExtraHepaticDiseaseVB = SitesOfExtraHepaticDisease.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+
+            //List<KeyAndValuePair> SitesOfExtraHepaticDisease = await _CommonBL.GetDefinationData("Lookups", "System", "SitesOfExtraHepaticDisease");
+            //ViewBag.SitesOfExtraHepaticDiseaseVB = SitesOfExtraHepaticDisease.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
             
             List<KeyAndValuePair> SVRStatus = await _CommonBL.GetDefinationData("Lookups", "System", "SVRStatus");
             ViewBag.SVRStatusVB = SVRStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
@@ -580,7 +713,7 @@ namespace BDCS.Controllers
                         {
                             //Data[0].labreports = _PatientBL.GetLabOrders(visitId);
 
-                            Data[0].PreviousLab = _PatientBL.GetPreviousLabReport(visitId);
+                            //Data[0].PreviousLab = _PatientBL.GetPreviousLabReport(visitId);
                             Data[0].PatientDiagnosis = _PatientBL.GetPatientDiagnosisAgainstVisit(visitId);
                             
                         }
@@ -771,6 +904,7 @@ namespace BDCS.Controllers
                 {
                     Users u = Session["User"] as Users;
                     vitalHistory.EnteredBy = u.UserId;
+                    vitalHistory.EnteredOn = DateTime.Now;
                     vitalHistory.ClinicId = Convert.ToInt32(Session["ClinicId"]);
                     result = await _PatientBL.insertUpdatePatientDetail(vitalHistory);
                     if (result>0)
@@ -1006,7 +1140,7 @@ namespace BDCS.Controllers
             await Task.Run(() =>
             {
                 Data = _PatientBL.GetPatientDetail(visitId, patId);
-                if (Data != null)
+                if (Data != null && Data.Count > 0)
                 {
                     Data[0].PreviousLab = _PatientBL.GetPreviousLabReport(visitId);
                     Data[0].labreports = _PatientBL.GetLabOrders(visitId);
@@ -1022,6 +1156,10 @@ namespace BDCS.Controllers
             string encoding;
             string filenameExtension;
 
+            if (Data == null || Data.Count <1)
+            {
+                return RedirectToAction("NoData", new { message = "No Report data found.." });
+            }
 
             LocalReport Report = new LocalReport();
 
@@ -1579,11 +1717,204 @@ namespace BDCS.Controllers
 
         }
 
-        public ActionResult PatientVisitAdvanceSearch()
+        public async Task<ActionResult> PatientVisitAdvanceSearch()
         {
+            List<KeyAndValuePair> Diagnosis = await _CommonBL.GetDefinationData("lookups", "System", "DiagnosisType");
+            ViewBag.DiagnosisVB = Diagnosis.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+
+            List<KeyAndValuePair> ChildStatus = await _CommonBL.GetDefinationData("Lookups", "System", "ChildStatus");
+            ViewBag.ChildStatusVB = ChildStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> MeldStatus = await _CommonBL.GetDefinationData("Lookups", "System", "MeldStatus");
+            ViewBag.MeldStatusVB = MeldStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> BCLC = await _CommonBL.GetDefinationData("Lookups", "System", "BCLCStatus");
+            ViewBag.BCLCVB = BCLC.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+
+            List<KeyAndValuePair> ECOGStatus = await _CommonBL.GetDefinationData("Lookups", "System", "ECOGStatus");
+            ViewBag.ECOGStatusVB = ECOGStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+
+            List<KeyAndValuePair> HepStatus = await _CommonBL.GetDefinationData("Lookups", "System", "HepStatus");
+            ViewBag.HepStatusVB = HepStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+
+            List<KeyAndValuePair> AscitiesStatus = await _CommonBL.GetDefinationData("Lookups", "System", "AscitiesStatus");
+            ViewBag.AscitiesStatusVB = AscitiesStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> LargestLesionSize = await _CommonBL.GetDefinationData("Lookups", "System", "LargestLesionSize");
+            ViewBag.LargestLesionSizeVB = LargestLesionSize.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> MDTOutCome = await _CommonBL.GetDefinationData("Lookups", "System", "MDTOutCome");
+            ViewBag.MDTOutComeVB = MDTOutCome.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+
+            List<KeyAndValuePair> SiteOfAngioinvasion = await _CommonBL.GetDefinationData("Lookups", "System", "SiteOfAngioinvasion");
+            ViewBag.SiteOfAngioinvasionDropdown = SiteOfAngioinvasion.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+
+            List<KeyAndValuePair> TreatmentResponse = await _CommonBL.GetDefinationData("Lookups", "System", "TreatmentResponse");
+            ViewBag.TreatmentResponseVB = TreatmentResponse.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> RefusalReason = await _CommonBL.GetDefinationData("Lookups", "System", "RefusalReason");
+            ViewBag.RefusalReasonVB = RefusalReason.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> SitesOfExtraHepaticDisease = await _CommonBL.GetDefinationData("Lookups", "System", "SitesOfExtraHepaticDisease");
+            ViewBag.SitesOfExtraHepaticDiseaseVB = SitesOfExtraHepaticDisease.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> SVRStatus = await _CommonBL.GetDefinationData("Lookups", "System", "SVRStatus");
+            ViewBag.SVRStatusVB = SVRStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<VitalHistory> Data = new List<VitalHistory>();
 
             return View();
         }
 
+        public async Task<ActionResult> PatientVisitAdvanceSearchResult(int? ChildStatus, int? MeldStatus, int? BCLCStatus, int? ECOG, int? TreatmentResponse,
+        int? MdtOutcome, int? HepatitisStatus, int? AscitiesStatus, int? Svr, int? OtherComorbidities, int? AngioInvasion, double? AFP, bool LiverCirrhosis, bool PortalHypertension,bool Varices,bool MeetingMilan,bool UCSF,bool ASAN)
+        {
+            List<VitalHistory> Data = new List<VitalHistory>();
+            Data = _PatientBL.GetVisitListAgainstSearch(ChildStatus, MeldStatus, BCLCStatus, ECOG, TreatmentResponse,
+            MdtOutcome, HepatitisStatus, AscitiesStatus, Svr, OtherComorbidities, AngioInvasion, AFP, LiverCirrhosis, PortalHypertension, Varices, MeetingMilan, UCSF, ASAN);
+
+
+
+            return View(Data);
+        }
+
+        public async Task<ActionResult> PatientListForMDT(DateTime? fromDate, DateTime? toDate)
+        {
+            List<VitalHistory> Data = new List<VitalHistory>();
+            fromDate = fromDate ?? DateTime.Now;
+            toDate = toDate ?? DateTime.Now;
+
+            Data = _PatientBL.GetPatientListForMDTList(fromDate.Value, toDate.Value);
+
+            ViewBag.FromDate = fromDate.Value;
+            ViewBag.ToDate = toDate.Value;
+
+
+            return View(Data);
+        }
+
+        public ActionResult ExportPatientListForMDT(DateTime? fromDate, DateTime? toDate)
+        {
+            List<VitalHistory> Data = new List<VitalHistory>();
+            fromDate = fromDate ?? DateTime.Now;
+            toDate = toDate ?? DateTime.Now;
+
+            Data = _PatientBL.GetPatientListForMDTList(fromDate.Value, toDate.Value);
+
+            DataTable dt = ToDataTable<VitalHistory>(Data);
+
+            dt.Columns.Remove("EnteredOn");
+            dt.Columns.Remove("PatientId");
+            dt.Columns.Remove("VisitType");
+          
+            dt.Columns.Remove("CIC");
+            dt.Columns.Remove("EnteredBy");
+            dt.Columns.Remove("PatientDetailId");
+            dt.Columns.Remove("VisitId");
+
+            dt.Columns.Remove("MeldStatus");
+            dt.Columns.Remove("BCLC");
+            dt.Columns.Remove("ECOGStatus");
+            dt.Columns.Remove("HepStatus");
+            dt.Columns.Remove("AscitiesStatus");
+            dt.Columns.Remove("OtherComorbities");
+            dt.Columns.Remove("CTReportConclusion");
+            dt.Columns.Remove("Angioinvasion");
+            dt.Columns.Remove("SiteOfAngioinvasionVB");
+            dt.Columns.Remove("ExtraHepaticDisease");
+            dt.Columns.Remove("SiteOfHepaticDisease");
+            dt.Columns.Remove("LiverCirrhosis");
+            dt.Columns.Remove("PortalHypertension");
+            dt.Columns.Remove("Varices");
+            dt.Columns.Remove("SVRStatus");
+            dt.Columns.Remove("PreviousTreatment");
+            dt.Columns.Remove("TreatmentType");
+            dt.Columns.Remove("TreatmentResponse");
+            dt.Columns.Remove("DiagnosisName");
+            dt.Columns.Remove("DiagnosisDetails");
+            dt.Columns.Remove("MeetingMilan");
+            dt.Columns.Remove("UCSF");
+            dt.Columns.Remove("ASAN");
+            dt.Columns.Remove("other");
+            dt.Columns.Remove("otherDetail");
+            dt.Columns.Remove("PtWillingForTransplant");
+            dt.Columns.Remove("ReasonOfRefusal");
+            dt.Columns.Remove("MDTOutCome");
+            dt.Columns.Remove("ClinicId");
+            dt.Columns.Remove("PreviousLab");
+            dt.Columns.Remove("labreports");
+            dt.Columns.Remove("protocols");
+            dt.Columns.Remove("PatientDiagnosis");
+            dt.Columns.Remove("OtherComorbitiesString");
+            dt.Columns.Remove("Temp");
+            dt.Columns.Remove("ChildStatusValue");
+            dt.Columns.Remove("MeldStatusValue");
+            dt.Columns.Remove("BCLCValue");
+            dt.Columns.Remove("ECOGStatusValue");
+            dt.Columns.Remove("TreatmentResponseValue");
+            dt.Columns.Remove("HepStatusValue");
+            dt.Columns.Remove("AscitiesStatusValue");
+            dt.Columns.Remove("SVRStatusValue");
+            dt.Columns.Remove("SiteOfAngioinvasion");
+            dt.Columns.Remove("NumberOfLesionValue");
+
+dt.Columns.Remove("MDTOutComeOther");
+dt.Columns.Remove("TransplantDiscussion");
+dt.Columns.Remove("TransplantDiscussionDetail");
+  dt.Columns.Remove("ImagingDate"); 
+        //public string PatientName { get; set; }
+        //public string MDTOutComeString { get; set; }
+        //public string HospitalNumber { get; set; }
+
+
+        //Name of File  
+        string fileName = "MDT Patient.xlsx";
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                //Add DataTable in worksheet  
+                wb.Worksheets.Add(dt);
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    wb.SaveAs(stream);
+                    //Return xlsx Excel File  
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                }
+            }
+        }
+
+        private  DataTable ToDataTable<T>(List<T> items)
+        {
+            DataTable dataTable = new DataTable(typeof(T).Name);
+
+            //Get all the properties
+            PropertyInfo[] Props = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            foreach (PropertyInfo prop in Props)
+            {
+                //Defining type of data column gives proper data table 
+                var type = (prop.PropertyType.IsGenericType && prop.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>) ? Nullable.GetUnderlyingType(prop.PropertyType) : prop.PropertyType);
+                //Setting column names as Property names
+                dataTable.Columns.Add(prop.Name, type);
+            }
+            foreach (T item in items)
+            {
+                var values = new object[Props.Length];
+                for (int i = 0; i < Props.Length; i++)
+                {
+                    //inserting property values to datatable rows
+                    values[i] = Props[i].GetValue(item, null);
+                }
+                dataTable.Rows.Add(values);
+            }
+            //put a breakpoint here and check datatable
+            return dataTable;
+        }
+
+        public ActionResult NoData(string message)
+        {
+            ViewBag.Message = message;
+            return View();
+        }
     }
 }

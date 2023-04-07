@@ -6,7 +6,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <TimeStampOfAssociatedLegacyPublishXmlFile />
-    <_PublishTargetUrl>C:\Users\PKLI\Desktop\BDCS Deploy</_PublishTargetUrl>
+    <_PublishTargetUrl>C:\Users\PKLI\Desktop\mdt Deploy</_PublishTargetUrl>
   </PropertyGroup>
   <ItemGroup>
     <File Include="ApplicationInsights.config">
@@ -18,20 +18,26 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="bin/ApplicationInsights.config">
       <publishTime>08/16/2019 12:56:31</publishTime>
     </File>
+    <File Include="bin/App_global.asax.compiled">
+      <publishTime>09/25/2021 14:38:48</publishTime>
+    </File>
+    <File Include="bin/App_global.asax.dll">
+      <publishTime>09/25/2021 14:38:47</publishTime>
+    </File>
     <File Include="bin/BDCS.Bussiness.dll">
-      <publishTime>12/19/2020 14:40:20</publishTime>
+      <publishTime>09/25/2021 14:38:18</publishTime>
     </File>
     <File Include="bin/BDCS.Constants.dll">
-      <publishTime>12/19/2020 14:40:18</publishTime>
+      <publishTime>09/25/2021 14:38:17</publishTime>
     </File>
     <File Include="bin/BDCS.Data.dll">
-      <publishTime>12/19/2020 14:40:19</publishTime>
+      <publishTime>09/25/2021 14:38:18</publishTime>
     </File>
     <File Include="bin/BDCS.dll">
-      <publishTime>12/19/2020 14:40:28</publishTime>
+      <publishTime>09/25/2021 14:38:30</publishTime>
     </File>
     <File Include="bin/BDCS.Model.dll">
-      <publishTime>12/19/2020 14:40:19</publishTime>
+      <publishTime>09/25/2021 14:38:17</publishTime>
     </File>
     <File Include="bin/ClosedXML.dll">
       <publishTime>02/17/2020 14:43:40</publishTime>
@@ -133,10 +139,10 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>08/16/2019 12:56:00</publishTime>
     </File>
     <File Include="bin/Reports/Patient.rdlc">
-      <publishTime>09/03/2020 10:23:19</publishTime>
+      <publishTime>07/31/2021 11:26:30</publishTime>
     </File>
     <File Include="bin/Reports/PatientDetails.rdlc">
-      <publishTime>12/19/2020 14:38:54</publishTime>
+      <publishTime>07/09/2021 10:34:50</publishTime>
     </File>
     <File Include="bin/Reports/PreviousLabReport.rdlc">
       <publishTime>12/08/2020 11:39:21</publishTime>
@@ -513,6 +519,33 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="Content/Plugin/Bootstrap-datepicker/locales/bootstrap-datepicker.zh-TW.min.js">
       <publishTime>06/14/2019 14:27:13</publishTime>
     </File>
+    <File Include="Content/Plugin/chosen/chosen-sprite%402x.png">
+      <publishTime>02/25/2021 13:55:25</publishTime>
+    </File>
+    <File Include="Content/Plugin/chosen/chosen-sprite.png">
+      <publishTime>02/25/2021 13:55:25</publishTime>
+    </File>
+    <File Include="Content/Plugin/chosen/chosen.css">
+      <publishTime>02/25/2021 13:57:12</publishTime>
+    </File>
+    <File Include="Content/Plugin/chosen/chosen.jquery.min.js">
+      <publishTime>02/25/2021 13:55:25</publishTime>
+    </File>
+    <File Include="Content/Plugin/jquery-dropdown/slimselect.css">
+      <publishTime>02/23/2021 16:37:58</publishTime>
+    </File>
+    <File Include="Content/Plugin/jquery-dropdown/slimselect.js">
+      <publishTime>02/23/2021 16:37:58</publishTime>
+    </File>
+    <File Include="Content/Plugin/jquery-dropdown/slimselect.min.css">
+      <publishTime>02/23/2021 16:37:58</publishTime>
+    </File>
+    <File Include="Content/Plugin/jquery-dropdown/slimselect.min.js">
+      <publishTime>02/23/2021 16:37:58</publishTime>
+    </File>
+    <File Include="Content/Plugin/jquery-dropdown/slimselect.min.mjs">
+      <publishTime>02/23/2021 16:37:58</publishTime>
+    </File>
     <File Include="Content/Plugin/jquery-ui-1.12.1/AUTHORS.txt">
       <publishTime>09/20/2019 16:02:42</publishTime>
     </File>
@@ -613,13 +646,13 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>11/08/2019 14:32:23</publishTime>
     </File>
     <File Include="Content/theme/css/bootstrap.min.css">
-      <publishTime>08/22/2020 11:34:44</publishTime>
+      <publishTime>02/27/2021 10:46:50</publishTime>
     </File>
     <File Include="Content/theme/css/colors.css">
       <publishTime>11/08/2019 14:32:23</publishTime>
     </File>
     <File Include="Content/theme/css/custom.css">
-      <publishTime>08/22/2020 13:55:40</publishTime>
+      <publishTime>02/27/2021 15:59:05</publishTime>
     </File>
     <File Include="Content/theme/css/flaticon.css">
       <publishTime>11/08/2019 14:32:23</publishTime>
@@ -1296,6 +1329,9 @@ by editing this MSBuild file. In order to learn more about this please visit htt
     <File Include="packages.config">
       <publishTime>03/11/2020 13:49:02</publishTime>
     </File>
+    <File Include="PrecompiledApp.config">
+      <publishTime>09/25/2021 14:38:34</publishTime>
+    </File>
     <File Include="Scripts/ai.0.15.0-build58334.js">
       <publishTime>08/16/2019 12:56:33</publishTime>
     </File>
@@ -1303,7 +1339,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>08/16/2019 12:56:33</publishTime>
     </File>
     <File Include="Scripts/App/Global.js">
-      <publishTime>10/20/2020 12:22:33</publishTime>
+      <publishTime>06/11/2021 11:58:56</publishTime>
     </File>
     <File Include="Scripts/bootstrap.js">
       <publishTime>08/16/2019 12:55:15</publishTime>
@@ -1450,7 +1486,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/07/2020 16:48:23</publishTime>
     </File>
     <File Include="Scripts/_references.js">
-      <publishTime>03/02/2020 13:38:31</publishTime>
+      <publishTime>02/25/2021 13:56:11</publishTime>
     </File>
     <File Include="SqlServerTypes/readme.htm">
       <publishTime>03/11/2020 13:33:29</publishTime>
@@ -1516,7 +1552,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>08/16/2019 12:55:08</publishTime>
     </File>
     <File Include="Views/Home/Login.cshtml">
-      <publishTime>08/22/2020 13:55:31</publishTime>
+      <publishTime>03/16/2021 10:03:56</publishTime>
     </File>
     <File Include="Views/Manage/AddPhoneNumber.cshtml">
       <publishTime>08/16/2019 12:55:50</publishTime>
@@ -1540,19 +1576,19 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/19/2020 19:30:33</publishTime>
     </File>
     <File Include="Views/Patient/AddEditPatient.cshtml">
-      <publishTime>10/23/2020 15:39:04</publishTime>
+      <publishTime>07/29/2021 11:11:31</publishTime>
     </File>
     <File Include="Views/Patient/AddEditPatientDetail.cshtml">
-      <publishTime>10/24/2020 15:58:15</publishTime>
+      <publishTime>03/02/2021 13:37:17</publishTime>
     </File>
     <File Include="Views/Patient/AddPatientServices.cshtml">
       <publishTime>02/28/2020 16:10:10</publishTime>
     </File>
     <File Include="Views/Patient/GetLabOrders.cshtml">
-      <publishTime>08/22/2020 11:14:01</publishTime>
+      <publishTime>03/16/2021 14:12:33</publishTime>
     </File>
     <File Include="Views/Patient/GetPatientList.cshtml">
-      <publishTime>10/24/2020 15:02:05</publishTime>
+      <publishTime>09/25/2021 14:13:07</publishTime>
     </File>
     <File Include="Views/Patient/GetPreviousVisitLabTests.cshtml">
       <publishTime>03/14/2020 09:23:33</publishTime>
@@ -1561,13 +1597,25 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>08/22/2020 14:45:30</publishTime>
     </File>
     <File Include="Views/Patient/GetVisitHistory.cshtml">
-      <publishTime>03/11/2020 13:44:47</publishTime>
+      <publishTime>09/25/2021 14:24:58</publishTime>
+    </File>
+    <File Include="Views/Patient/NoData.cshtml">
+      <publishTime>09/25/2021 14:36:43</publishTime>
     </File>
     <File Include="Views/Patient/PatientCard.cshtml">
-      <publishTime>02/20/2020 14:19:04</publishTime>
+      <publishTime>03/16/2021 09:42:05</publishTime>
     </File>
     <File Include="Views/Patient/PatientHeader.cshtml">
-      <publishTime>10/24/2020 09:26:57</publishTime>
+      <publishTime>07/29/2021 11:40:55</publishTime>
+    </File>
+    <File Include="Views/Patient/PatientListForMDT.cshtml">
+      <publishTime>05/08/2021 09:11:21</publishTime>
+    </File>
+    <File Include="Views/Patient/PatientVisitAdvanceSearch.cshtml">
+      <publishTime>03/24/2021 09:46:23</publishTime>
+    </File>
+    <File Include="Views/Patient/PatientVisitAdvanceSearchResult.cshtml">
+      <publishTime>03/16/2021 09:25:50</publishTime>
     </File>
     <File Include="Views/Patient/PatientVisitReport.cshtml">
       <publishTime>03/06/2020 14:48:13</publishTime>
@@ -1576,7 +1624,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>02/17/2020 15:23:35</publishTime>
     </File>
     <File Include="Views/Patient/VitalHistory.cshtml">
-      <publishTime>12/08/2020 11:45:22</publishTime>
+      <publishTime>07/09/2021 10:39:15</publishTime>
     </File>
     <File Include="Views/Patient/_UserMenu.cshtml">
       <publishTime>11/18/2019 08:16:08</publishTime>
@@ -1597,7 +1645,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>11/08/2019 14:35:34</publishTime>
     </File>
     <File Include="Views/Shared/_Layout.cshtml">
-      <publishTime>10/20/2020 12:11:12</publishTime>
+      <publishTime>08/20/2021 16:42:28</publishTime>
     </File>
     <File Include="Views/Shared/_LoginPartial.cshtml">
       <publishTime>03/02/2020 08:54:47</publishTime>
@@ -1615,7 +1663,7 @@ by editing this MSBuild file. In order to learn more about this please visit htt
       <publishTime>08/16/2019 12:55:08</publishTime>
     </File>
     <File Include="Web.config">
-      <publishTime>12/19/2020 14:40:37</publishTime>
+      <publishTime>05/10/2021 15:40:50</publishTime>
     </File>
     <File Include="WebForm1.aspx">
       <publishTime>03/10/2020 16:35:44</publishTime>

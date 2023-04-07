@@ -68,15 +68,17 @@ function loadPage(url, name, targetElement)
 function ShowAlertMessage(message,type,title) {
     if (type!='info' && type!='warning' && type!='success' && type!='error'){
         type == 'info';
-        $.toast({
-            heading: title,
-            text: message,
-            icon: type,
-            ShowHideTransaction: 'fade',
-            hideAfter: 3000,
-            position:'top-right'
-        });
+        
     }
+
+    $.toast({
+        heading: title,
+        text: message,
+        icon: type,
+        ShowHideTransaction: 'fade',
+        hideAfter: 3000,
+        position: 'top-right'
+    });
 }
 
 function submitFormData(form) {

@@ -1,0 +1,108 @@
+﻿@model List<BDCS.Model.RoleRights.Role>
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+@*<div class="page-header">
+    <h2>Get Role List</h2>
+</div>*@
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+
+            @*<div class="container-fluid">*@
+                
+                <div class="row"  style="margin-top:47px;">
+                    <h3 class="heading"> User Roles List</h3>
+                </div>
+
+                <div class="row" style="margin-bottom:20px;">
+                    <div class="col-sm-3">
+             <label>&nbsp;</label>
+                            <input type="text" id="searchByRoleName" class="form-control padding-input full-width" style="max-width:100%" placeholder="Search Roles by Role Name" value="@ViewBag.searchRoleByNameVB" />
+                      
+                    </div>
+
+                    <div class="col-sm-1">
+                    <label>&nbsp;</label>
+                            <button type="button" class="btn btn-block btn-info" onclick="loadPageData();">
+                                <span class="glyphicon glyphicon glyphicon-search"></span> Search</button>
+                        @*</div>*@
+                    </div>
+                    <div class="col-sm-1">
+                        <label>&nbsp;</label>
+                            <button type="button" class="btn btn-block btn-success" onclick="AddEditRole(0);">
+                                <span class="glyphicon glyphicon glyphicon-plus-sign"></span> Add</button>
+                        </div>
+    
+                </div>
+            @*</div>*@
+            <div class="row">
+                <div class="col-sm-12">
+                    @if (Model!=null && Model.Any())
+                    {
+
+                    <table class="table table-bordered table-condensed">
+                        <thead>
+                            <tr style="background-color: #57b7fd;color:white;">
+                                <th>Role Name</th>
+                                <th>Active</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (BDCS.Model.RoleRights.Role item in Model)
+                            {
+                                <tr>
+                                    <td>@item.RoleName</td>
+                                    <td>
+                                        <input type="checkbox" class="Active" @(item.Active ? "checked=\"checked\"" : "") />
+                                    </td>
+                                    <td>
+                                        <a href="#" onclick="AddEditRole(@item.RoleId);">
+                                            <span class="glyphicon glyphicon-edit">
+                                               
+                                            </span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    }
+
+                    else
+                    {
+                        <h3>No Data found..</h3>
+                    }
+                </div>
+            </div>
+
+        </div>
+
+
+      
+
+
+    </div>
+
+</div>
+
+<script>
+    function loadPageData() {
+        var par = {
+            searchText: $("#searchByRoleName").val(),
+        }
+        var url = '@Url.Action("GetRoleList", "Role")' + '/?' + $.param(par);
+        loadPage(url,"GetRoleList")
+    }
+
+    function AddEditRole(id) {
+        debugger;
+        var url = '@Url.Action("AddEditRole", "Role")' + '/?id=' + id;
+        loadPage(url, "AddEditRole");
+    }
+</script>

@@ -1,0 +1,345 @@
+﻿@model List<BDCS.Model.Patient.Patient>
+    
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+
+            <div class="row" style="margin-top:47px;">
+                <h3 class="heading">Patient Search</h3>
+            </div>
+
+            <div class="row" style="padding-left:0px">
+                <div class="col-sm-3">
+                    <input type="text" id="SearchTextBox" class="form-control padding-input full-width" style="max-width:100%" , placeholder="Search Hospital Number, MRN,Name,Father Name,Contact Number,Address" value="@ViewBag.SearchText" />
+                </div>
+                <div class="col-xs-1">
+                    <button class="btn btn-block btn-dark btn-info" onclick="LoadPageData();"><span class="glyphicon glyphicon-search"></span> Search</button>
+                </div>
+                <div class="col-sm-1">
+                    <button class="btn btn-block btn-success" onclick="OpenPatientPopup();" @*onclick="loadPage('@Url.Action("AddEditPatient","Patient")','Patient');"*@><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+                </div>
+
+                <div class="col-sm-2">
+                    <input type="text" id="FollowupDate" class="form-control datepicker padding-input full-width" placeholder="Followup Date" />
+                </div>
+                <div class="col-sm-1">
+                    <button class="btn btn-block btn-warning" onclick="ViewFollowupPatients();">Followup</button>
+
+                </div>
+ 
+                <div class="col-sm-1">
+                    <button class="btn btn-block btn-success" id="btnsms" onclick="loadPage('@Url.Action("PatientVisitAdvanceSearch","Patient")','Patient');">Advanced Search</button>
+                </div>
+                
+                <div class="col-sm-1">
+                    <button class="btn btn-block btn-success" id="btnsms" onclick="loadPage('@Url.Action("PatientListForMDT","Patient")','Patient');">MDT Patient</button>
+                </div>               
+               
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12" style="margin-top:20px;padding-left:0px" id="PatientSearchList">
+                    <div class="col-lg-12">
+
+                       @if (Model != null && Model.Any())
+                       {
+                        <table class="table table-bordered table-striped">
+                            <thead>
+                                <tr style="background-color: #57b7fd;color:white;">
+                                    <th>Picture</th>
+                                    <th>Registration</th>
+                                    <th>Hospital Number</th>
+                                    <th>MRN</th>
+                                    <th>Name</th>
+                                    <th>Gender</th>
+                                    <th>Contact</th>
+                                    
+                                    
+                                    @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
+                                    {
+                                        <th>Discussion</th>
+                                        <th>Edit</th>
+                                        <th>Action</th>
+                                    }
+                                    
+                                    <th>MDT History</th>
+                                    <th>Reason</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (BDCS.Model.Patient.Patient item in Model)
+                                {
+                                    <tr class="crow">
+
+
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(item.ImageURL))
+                                            {
+                                                <img src="@Url.Content(item.ImageURL)" class="img img-thumbnail" style="max-width: 75px; height: auto;" />
+                                            }
+                                        </td>
+                                        <td>@item.EnteredOn.Value.ToString("dd-MMM-yyyy")</td>
+                                        <td>@item.HospitalNumber</td>
+                                        <td>@item.MrNumber</td>
+                                        <td>@item.FullName</td>
+                                        <td>@item.Gender</td>
+                                        <td>@item.MobileNumber</td>
+
+                                        @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
+                                        {
+
+                                            <td>@(item.DiscussionRequired ? "Yes" : "No")</td>
+
+                                            <td>
+                                                @*<a href="#" onclick="loadPage('@Url.Action("AddEditPatientDetail","Patient",new { item.PatientId,item.CountryId,item.FirstName})','Patient')">*@
+                                                <a href="#" onclick="AddEditPatientDemographics(@item.PatientId);">
+                                                    <span class="glyphicon glyphicon-edit"></span>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="#" onclick="CreateVisit(@item.PatientId,this);">
+                                                    <span class="glyphicon glyphicon-plus"></span>
+                                                </a>
+                                                |
+                                                <a href="#" onclick="ToggleDiscussionStatus(@item.PatientId,this);" title="Toggle Discussion Status">
+                                                    <span class="glyphicon glyphicon-tasks"></span>
+                                                </a>
+                                            </td>
+                                        }
+
+                                        <td>
+                                            <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName');">
+                                                <span class="glyphicon glyphicon-link"> History</span>
+                                            </a>
+
+                                            <a href="@Url.Action("PatientCard", new {PatientId = item.PatientId})" target="_blank">
+                                                <span class="glyphicon glyphicon-certificate">Card</span>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            @Html.DropDownListFor(a => item.Reason, (List<SelectListItem>)ViewBag.VisitType, new { @class = "form-control Reason" })
+
+                                            @*Secondway
+                                                    @foreach (SelectListItem items in ViewBag.VisitType)
+                                                {
+                                                    <select class="form-control Reason">
+                                                        <option value=@items.Value>@items.Text</option>
+                                                    </select>
+                                                }*@
+
+
+                                            @*@hardcoded form
+                                                    <select class="form-control Reason">
+                                                    <option value="Routine">Routine</option>
+                                                    <option value="Follow up">Followup</option>
+                                                </select>*@
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                       }
+                       else
+                       {
+                        <h3>No Data found</h3>
+                       }
+
+
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-lg-offset-0" id="PatientInfoBoxContainer" style="display:none;">
+                    <div id="PatientInfoBox">
+                        @*//Histordiv will load here*@
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+   
+
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        PostPageLoad();
+    });
+
+
+
+    function OpenPatientPopup() {
+        var Url = '@Url.Action("AddEditPatient", "Patient")';
+        OpenPopup(Url, "Add New Patient");
+    }
+
+    function PostPageLoad() {
+        InitializeDateTimePicker('.datepicker');
+        @if (Request.QueryString["PreloadList"] != null && Request.QueryString["PreloadList"] == "Yes")
+        {
+            <text>LoadPageData();</text>
+        }
+
+        $("#SearchTextBox").focus();
+        $("#SearchTextBox").keypress(function (event) {
+
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if (keycode == '13') {
+                LoadPageData();
+
+                //which view is ot sr
+            }
+
+        });
+    }
+
+    function LoadPatientVisitHistory(patId, patName) {
+        //$("#PatientSearchList").toggleClass("col-lg-12 col-lg-6");
+        $("#PatientSearchList").removeClass("col-lg-12").addClass("col-lg-8");
+        $("#PatientInfoBoxContainer").show();
+        $("#btnsms").hide();
+        var par = {
+            patId: patId,
+            patName: patName
+        };
+        var url = '@Url.Action("GetVisitHistory", "Patient")' + '/?' + $.param(par);
+        loadPage(url, "Patient", "PatientInfoBox");
+
+    }
+
+    function ClosePatientInfoBox() {
+
+        //$("#PatientSearchList").toggleClass("col-lg-12 col-lg-6");
+        $("#PatientSearchList").removeClass("col-lg-8").addClass("col-lg-12");
+        $("#PatientInfoBoxContainer").hide();
+        $("#PatientInfoBox").empty();
+        $("#btnsms").show();
+
+    }
+
+    function LoadPageData() {
+        debugger;
+        var par = {
+            searchText: $("#SearchTextBox").val(),
+
+        };
+        var url = '@Url.Action("GetPatientList", "Patient")' + '/?' + $.param(par);
+        loadPage(url, "Patient");
+    }
+
+    function CreateVisit(patId, tag) {
+        var Reason = $(tag).closest("tr").find('.Reason option:selected').text();
+        debugger;
+        $.ajax({
+            url: '@Url.Action("CreatePatientVisit","Patient")',
+            type: 'Post',
+            dataType: 'Json',
+            data: { patId: patId, reason: Reason },
+
+            success: (function (msg) {
+                if (parseInt(msg.Code) == 200) {
+                    loadPage('@Url.Action("AddEditPatientDetail", "Patient")' + '/?patId=' + patId + ' &visitId=' + msg.ResponseObject + ' &reason=' + Reason, "Prescription");
+                }
+                else {
+                    ShowAlertMessage('Unable to Create Visit', 'warning');
+                }
+            }),
+            error: function () {
+                ShowAlertMessage("An error occured", 'error');
+            }
+        });
+    }
+
+    function ToggleDiscussionStatus(patId,tag)
+    {
+        $.ajax({
+            url: '@Url.Action("ToggleDiscussionStatus", "Patient")',
+            type: 'Post',
+            dataType: 'Json',
+            data: { patientId: patId },
+
+            success: (function (msg) {
+                if (parseInt(msg.Code) == 200) {
+                    alert('Status updated');
+                }
+                else {
+                    ShowAlertMessage('Unable to Update Status', 'warning');
+                }
+            }),
+            error: function () {
+                ShowAlertMessage("An error occured", 'error');
+            }
+        });
+    }
+
+    function AddEditPatientFunction(patId, visitId, reason, visitDateTime) {
+
+        debugger;
+        var par = {
+
+            patId: patId,
+            visitId: visitId,
+            reason: reason,
+        };
+        var url = '@Url.Action("AddEditPatientDetail", "Patient")' + '/?' + $.param(par);
+        loadPage(url, "Patient");
+
+    }
+
+    function ShowVisitHistory(patId) {
+        var par = {
+            patId: patId,
+        }
+        var url = '@Url.Action("GetVisitHistory","Patient")' + '/?' + $.param(par);
+        loadPage(url, "GetVisitHistory")
+    }
+
+    function AddEditPatientDemographics(patId) {
+        var url = '@Url.Action("AddEditPatient","Patient")' + '/?patId=' + patId;
+        //loadPage(url, "AddEditPatient");
+        OpenPopup(url, "Edit Patient Details");
+
+    }
+
+    function ViewFollowupPatients() {
+        var par = {
+            followupDate: $("#FollowupDate").val(),
+        }
+        var url = '@Url.Action("ViewFollowupPatientList", "Patient")' + '/?' + $.param(par);
+        loadPage(url, "Patient Search", "PatientSearchList")
+    }
+
+    function SendFollowupSms() {
+
+        debugger;
+        $.ajax({
+            url: '@Url.Action("SendSMSForFollowUp", "Patient")',
+            type: 'Post',
+            dataType: 'Json',
+            data: { followupDate: $("#FollowupDate").val() },
+
+            success: (function (msg) {
+                if (parseInt(msg.Code) == 200) {
+                    ShowAlertMessage("Sms messages sent.", 'info');
+                }
+                else {
+                    ShowAlertMessage('Unable to Send SMS', 'warning');
+                }
+            }),
+            error: function () {
+                ShowAlertMessage("An error occured", 'error');
+            }
+        });
+    }
+
+</script>

@@ -69,7 +69,7 @@
                     <div class="col-sm-3 col-xs-6">
                         <div class="form-group">
                             <label>Hospital No.</label>
-                            @Html.TextBoxFor(a => a.HospitalNumber, new { @class = "form-control" })
+                            @Html.TextBoxFor(a => a.HospitalNumber, new { @class = "form-control",@required="required" })
                         </div>
                     </div>
 
@@ -160,7 +160,7 @@
                     <div class="col-sm-3 col-xs-6">
                         <div class="form-group">
                             <label>Mobile</label>
-                            @Html.TextBoxFor(a => a.MobileNumber, new { @class = "form-control" })
+                            @Html.TextBoxFor(a => a.MobileNumber, new { @class = "form-control",@required="required" })
                         </div>
                     </div>
 
@@ -204,6 +204,10 @@
                     <div class="col-sm-3 col-xs-6" style="margin-top:10px">
                             <label>Diabeties</label>
                             @Html.CheckBoxFor(a => a.IsDiabeties, new { @style = " width: 25px; height: 15px; " })
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
+                        <label>Blood Group</label>
+                        @Html.DropDownListFor(a => a.BloodGroupId, (List<SelectListItem>)ViewBag.BloodGroupVB, "--Select--", new { @class = "form-control"})
                     </div>
                 </div>
 
@@ -326,6 +330,10 @@
         });
 
 
+        $("#HospitalNumber").on("blur", function () {
+            DoesHospitalNumberAlreadyExist();
+        });
+
         //Webcam.set({
         //    width: 320,
         //    height: 240,
@@ -398,8 +406,10 @@
     function SaveData() {
         debugger;
 
-        submitFormData("#PatientForm");
-        ClosePopup();
+        var Result = submitFormData("#PatientForm");
+        if (Result > 0) {
+            ClosePopup();
+        }
 
         if (typeof LoadPatientHeader == "function") {
             LoadPatientHeader();
@@ -431,6 +441,35 @@
                 }),
                 error: function () {
                     ShowAlertMessage("An error occured", 'error');
+                }
+            });
+        }
+    }
+
+    function DoesHospitalNumberAlreadyExist() {
+        var PatId = $("#PatientId").val();
+        var HospitalNumber = $.trim($("#HospitalNumber").val());
+
+
+        if (HospitalNumber != "") {
+
+            $.ajax({
+                url: '@Url.Action("DoesPatientHospitalNumberExists", "Patient")',
+                type: 'Post',
+                dataType: 'Json',
+                data: { hospitalNumber: HospitalNumber, patientId: PatId},
+
+                success: (function (msg) {
+                    if (parseInt(msg.Code) != 200 && msg.Message != null) {
+
+                        ShowAlertMessage(msg.Message, msg.MessageClass);
+                    }
+                    else {
+
+                    }
+                }),
+                error: function () {
+                    ShowAlertMessage("An error occured while Validating Hospital number", 'error');
                 }
             });
         }

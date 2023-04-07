@@ -1,0 +1,73 @@
+﻿@model BDCS.Model.RoleRights.Users
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+@*<div>
+    <h2 class="page-header">AddEditUsers</h2>
+</div>*@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="row" style="margin-top:47px;">
+                <h3 class="heading">Add Edit User</h3>
+            </div>
+
+            <form id="frmUser" action="@Url.Action("InsertUpdateUser","User")" method="post" onsubmit="return saveUser();">
+                <div class="container-fluid">
+                    @Html.HiddenFor(a => a.UserId)
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                @Html.TextBoxFor(a => a.UserFullName, new { @class = "form-control", style = "max-width:100%" })
+                            </div>
+                        </div>
+                        <div class="col-sm-1">
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                @Html.CheckBoxFor(a => a.Active, new { @class = "form-control" })
+                            </div>
+                        </div>
+
+
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label>Role</label>
+                                @Html.DropDownListFor(a => a.RoleId, (List<SelectListItem>)ViewBag.RoleListVB, new { @class = "form-control" })
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label>LoginId</label>
+                                @Html.TextBoxFor(a => a.LoginId, new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <label>Password</label>
+                                @Html.TextBoxFor(a => a.Password, new { @class = "form-control" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+</div>
+
+<script type="text/javascript">
+
+    function saveUser()
+    {
+        submitFormData("#frmUser");
+        return false;
+    }
+</script>

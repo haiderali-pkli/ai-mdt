@@ -18,7 +18,7 @@
                         <th>Result</th>
                         <th>Result Unit</th>
                         <th>Result Label</th>
-                        <th>Action</th>
+                        @*<th>Action</th>*@
                         <th><span class="glyphicon glyphicon-plus-sign" onclick="addRowLabReports();"></span></th>
                     </tr>
                 </thead>
@@ -30,10 +30,18 @@
                             <td>@Html.TextBoxFor(a => item.TestDate, item.TestDate.HasValue ? item.TestDate.Value.ToString("dd-MMM-yyyy") : "", new { @class = "form-control TestDate datepicker", tabindex = "-1" })</td>
                             <td class="hidden">@Html.TextBoxFor(a => item.TestId, new { @class = "form-control TestId" })</td>
                             <td>@Html.TextBoxFor(a => item.TestName, new { @class = "form-control TestName",@list= "dlLabTestList", tabindex = "-1" })</td>
-                            <td>@Html.TextBoxFor(a => item.TestResult, new { @class = "form-control TestResult" })</td>
+                            @if (".TestName" == "CEA")
+                            {
+		                            <td>@Html.TextBoxFor(a => item.TestResult, new { @class = "form-control TestResult" })</td>       
+                            }
+                            else
+                            {
+                                <td>@Html.TextBoxFor(a => item.TestResult, new { @class = "form-control TestResult", style = "border-color:red;" })</td>
+                            }
+                            
                             <td>@Html.TextBoxFor(a => item.TestUnit, new { @class = "form-control TestUnit", @list = "dlResultUnit" , tabindex = "-1" })</td>
                             <td>@Html.TextBoxFor(a => item.TestResultLabel, new { @class = "form-control TestResultLabel", @list = "dlResultLabel", tabindex = "-1" })</td>
-                            <td align="center"><span class="glyphicon glyphicon-remove-circle" onclick="removeRow(this);"></span></td>
+                            @*<td align="center"><span class="glyphicon glyphicon-remove-circle" onclick="removeRow(this);"></span></td>*@
                         </tr>
                     }
                 </tbody>
@@ -47,7 +55,7 @@
                 <td>@Html.TextBox("TestResult", null, new { @class = "form-control TestResult" })</td>
                 <td>@Html.TextBox("TestUnit", null, new { @class = "form-control TestUnit", @list = "dlResultUnit" , tabindex = "-1" })</td>
                 <td>@Html.TextBox("TestResultLabel", null, new { @class = "form-control TestResultLabel", @list = "dlResultLabel", tabindex = "-1" })</td>
-                <td align="center"><span class="glyphicon glyphicon-remove-circle" onclick="removeRowLabReports(this);"></span></td>
+                @*<td align="center"><span class="glyphicon glyphicon-remove-circle" onclick="removeRowLabReports(this);"></span></td>*@
             </tr>
         </table>
 
@@ -101,6 +109,7 @@
 
     function PostPageLoad() {
         InitializeDateTimePicker(".datepicker");
+        SetSpecificLabTestsAsOptional();
     }
     function removeRowLabReports(tag) {
         $(tag).closest('tr').remove();
@@ -148,6 +157,23 @@
         }
     }
 
+
+    function SetSpecificLabTestsAsOptional()
+    {
+        var OptionalTests = ["CEA", "CA19-9", "CA125", "Pivica"];
+
+        $(".DataRowLabReports").each(function () {
+            
+            var Name = $(this).find(".TestName").val();
+
+            if (OptionalTests.includes(Name)) {
+                debugger;
+                this.querySelector(".TestResult").style.removeProperty('border-color');
+                
+            }
+
+        });
+    }
     
     
 </script>

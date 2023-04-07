@@ -25,6 +25,11 @@ namespace BDCS.Bussiness
         public List<Patient> GetPatientList(string searchText,int clinicId) => _patientBL.PatientSearchByText("PatientSearchByText", "Clinical", searchText,clinicId);
         public List<Patient> GetFollowupPatientsForDate(DateTime date) => _patientBL.GetFollowupPatientsForDate(date);
         public async Task<int> InsertUpdatePatient(Patient patient) =>await _patientBL.InsertUpdatePatient(patient, "InsertUpdatePatient", "Clinical");
+
+        public async Task<int> DoesPatientHospitalNumberExists(string hospitalNumber, int patientId)
+            => await _patientBL.DoesPatientHospitalNumberExists(hospitalNumber, patientId);
+
+        public async Task<int> ToggleDiscussionStatus(int patientId) => await _patientBL.ToggleDiscussionStatus(patientId);
         public async Task<int> CreateVisit(Visit vist) => await _patientBL.CreateVisit(vist, "InsertUpdateVisit", "Clinical");
 
         public Patient GetPatientById(int patId) => _patientBL.GetPatientById(patId, "GetPatientById", "Clinical");
@@ -93,6 +98,66 @@ namespace BDCS.Bussiness
                 {
                     //MasterTable
                     patientDetailId = await _patientBL.insertUpdatePatientDetail(vitalHistory, "InsertUpdatePatientDetail", "Clinical");
+
+                    if (vitalHistory.OtherComorbities != null && vitalHistory.OtherComorbities.Any())
+                    {
+                        string csv = vitalHistory.OtherComorbities[0];
+                        int deleted = await _patientBL.DeleteOtherComorbidities(vitalHistory.VisitId);
+                        foreach (string cm in csv.Split(','))
+                        {
+
+                            int b = await _patientBL.InsertOtherComorbidities(vitalHistory.VisitId, vitalHistory.PatientId, cm);
+                        }
+                    }
+                    if (vitalHistory.SiteOfAngioinvasionVB != null && vitalHistory.SiteOfAngioinvasionVB.Any())
+                    {
+                        string csv = vitalHistory.SiteOfAngioinvasionVB[0];
+                        int deleted = await _patientBL.DeleteSiteOfAngioInvasion(vitalHistory.VisitId);
+                        foreach (string cm in csv.Split(','))
+                        {
+
+                            int b = await _patientBL.InsertSiteOfAngioinvasion(vitalHistory.VisitId, vitalHistory.PatientId, cm);
+                        }
+                    }
+                    if (vitalHistory.MDTOutCome != null && vitalHistory.MDTOutCome.Any())
+                    {
+                        string csv = vitalHistory.MDTOutCome[0];
+
+                        int deleted = await _patientBL.DeleteMDTOutcome(vitalHistory.VisitId);
+
+                        foreach (string mo in csv.Split(','))
+                        {
+
+                            int b = await _patientBL.InsertMDTOutCome(vitalHistory.VisitId, vitalHistory.PatientId, mo);
+                        }
+                    }
+                    
+                    if (vitalHistory.SiteOfHepaticDisease != null && vitalHistory.SiteOfHepaticDisease.Any())
+                    {
+                        string csv = vitalHistory.SiteOfHepaticDisease[0];
+
+                        int deleted = await _patientBL.DeleteSiteOfHepaticDisease(vitalHistory.VisitId);
+
+                        foreach (string sh in csv.Split(','))
+                        {
+
+                            int b = await _patientBL.InsertSiteOfHepaticDisease(vitalHistory.VisitId, vitalHistory.PatientId, sh);
+                        }
+                    }
+
+     
+                    if (vitalHistory.TreatmentType != null && vitalHistory.TreatmentType.Any())
+                    {
+                        string csv = vitalHistory.TreatmentType[0];
+
+                        int deleted = await _patientBL.DeleteTreatmentType(vitalHistory.VisitId);
+
+                        foreach (string tt in csv.Split(','))
+                        {
+
+                            int b = await _patientBL.InsertTreatmentType(vitalHistory.VisitId, vitalHistory.PatientId, tt);
+                        }
+                    }
 
                     //OldLabReport
                     if (vitalHistory.PreviousLab != null && vitalHistory.PreviousLab.Any())
@@ -195,6 +260,14 @@ namespace BDCS.Bussiness
 
         public async Task<int> DiscontinueMedicine(int protocolDetailId)
             => await _patientBL.DiscontinueMedicine(protocolDetailId);
+
+        public List<VitalHistory> GetVisitListAgainstSearch(int? ChildStatus, int? MeldStatus, int? BCLCStatus, int? ECOG, int? TreatmentResponse,
+            int? MdtOutcome, int? HepatitisStatus, int? AscitiesStatus, int? Svr, int? OtherComorbidities, int? AngioInvasion, double? AFP, bool LiverCirrhosis, bool PortalHypertension, bool Varices, bool MeetingMilan, bool UCSF, bool ASAN)
+            => _patientBL.GetVisitListAgainstSearch(ChildStatus, MeldStatus, BCLCStatus, ECOG, TreatmentResponse,
+            MdtOutcome, HepatitisStatus, AscitiesStatus, Svr, OtherComorbidities, AngioInvasion, AFP, LiverCirrhosis, PortalHypertension, Varices, MeetingMilan, UCSF, ASAN);
+
+        public List<VitalHistory> GetPatientListForMDTList(DateTime fromDate, DateTime toDate)
+            => _patientBL.GetPatientListForMDTList(fromDate, toDate);
     }
 
 }

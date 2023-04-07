@@ -16,7 +16,7 @@
 
             <div class="row" style="padding-left:0px">
                 <div class="col-sm-3">
-                    <input type="text" id="SearchTextBox" class="form-control padding-input full-width" style="max-width:100%" , placeholder="Search MRN,Name,Father Name,Contact Number,Address" value="@ViewBag.SearchText" />
+                    <input type="text" id="SearchTextBox" class="form-control padding-input full-width" style="max-width:100%" , placeholder="Search Hospital Number, MRN,Name,Father Name,Contact Number,Address" value="@ViewBag.SearchText" />
                 </div>
                 <div class="col-xs-1">
                     <button class="btn btn-block btn-dark btn-info" onclick="LoadPageData();"><span class="glyphicon glyphicon-search"></span> Search</button>
@@ -34,9 +34,12 @@
                 </div>
  
                 <div class="col-sm-1">
-                    <button class="btn btn-block btn-success" id="btnsms" onclick="SendFollowupSms();"><span class="glyphicon glyphicon-send"></span> SMS</button>
+                    <button class="btn btn-block btn-success" id="btnsms" onclick="loadPage('@Url.Action("PatientVisitAdvanceSearch","Patient")','Patient');">Advanced Search</button>
                 </div>
-                               
+                
+                <div class="col-sm-1">
+                    <button class="btn btn-block btn-success" id="btnsms" onclick="loadPage('@Url.Action("PatientListForMDT","Patient")','Patient');">MDT Patient</button>
+                </div>               
                
             </div>
 
@@ -51,13 +54,21 @@
                                 <tr style="background-color: #57b7fd;color:white;">
                                     <th>Picture</th>
                                     <th>Registration</th>
+                                    <th>Hospital Number</th>
                                     <th>MRN</th>
                                     <th>Name</th>
                                     <th>Gender</th>
                                     <th>Contact</th>
-                                    <th>Edit</th>
-                                    <th>Action</th>
-                                    <th>Visit History</th>
+                                    
+                                    
+                                    @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
+                                    {
+                                        <th>Discussion</th>
+                                        <th>Edit</th>
+                                        <th>Action</th>
+                                    }
+                                    
+                                    <th>MDT History</th>
                                     <th>Reason</th>
                                 </tr>
                             </thead>
@@ -74,22 +85,34 @@
                                             }
                                         </td>
                                         <td>@item.EnteredOn.Value.ToString("dd-MMM-yyyy")</td>
+                                        <td>@item.HospitalNumber</td>
                                         <td>@item.MrNumber</td>
                                         <td>@item.FullName</td>
                                         <td>@item.Gender</td>
                                         <td>@item.MobileNumber</td>
 
-                                        <td>
-                                            @*<a href="#" onclick="loadPage('@Url.Action("AddEditPatientDetail","Patient",new { item.PatientId,item.CountryId,item.FirstName})','Patient')">*@
-                                            <a href="#" onclick="AddEditPatientDemographics(@item.PatientId);">
-                                                <span class="glyphicon glyphicon-edit"></span>
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <a href="#" onclick="CreateVisit(@item.PatientId,this);">
-                                                <span class="glyphicon glyphicon-plus"></span>
-                                            </a>
-                                        </td>
+                                        @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
+                                        {
+
+                                            <td>@(item.DiscussionRequired ? "Yes" : "No")</td>
+
+                                            <td>
+                                                @*<a href="#" onclick="loadPage('@Url.Action("AddEditPatientDetail","Patient",new { item.PatientId,item.CountryId,item.FirstName})','Patient')">*@
+                                                <a href="#" onclick="AddEditPatientDemographics(@item.PatientId);">
+                                                    <span class="glyphicon glyphicon-edit"></span>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="#" onclick="CreateVisit(@item.PatientId,this);">
+                                                    <span class="glyphicon glyphicon-plus"></span>
+                                                </a>
+                                                |
+                                                <a href="#" onclick="ToggleDiscussionStatus(@item.PatientId,this);" title="Toggle Discussion Status">
+                                                    <span class="glyphicon glyphicon-tasks"></span>
+                                                </a>
+                                            </td>
+                                        }
+
                                         <td>
                                             <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName');">
                                                 <span class="glyphicon glyphicon-link"> History</span>
@@ -132,11 +155,10 @@
                 </div>
 
                 <div class="col-lg-4 col-lg-offset-0" id="PatientInfoBoxContainer" style="display:none;">
-
-
                     <div id="PatientInfoBox">
                         @*//Histordiv will load here*@
                     </div>
+
                 </div>
 
             </div>
@@ -150,7 +172,7 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-       
+
         PostPageLoad();
     });
 
@@ -230,6 +252,28 @@
                 }
                 else {
                     ShowAlertMessage('Unable to Create Visit', 'warning');
+                }
+            }),
+            error: function () {
+                ShowAlertMessage("An error occured", 'error');
+            }
+        });
+    }
+
+    function ToggleDiscussionStatus(patId,tag)
+    {
+        $.ajax({
+            url: '@Url.Action("ToggleDiscussionStatus", "Patient")',
+            type: 'Post',
+            dataType: 'Json',
+            data: { patientId: patId },
+
+            success: (function (msg) {
+                if (parseInt(msg.Code) == 200) {
+                    alert('Status updated');
+                }
+                else {
+                    ShowAlertMessage('Unable to Update Status', 'warning');
                 }
             }),
             error: function () {

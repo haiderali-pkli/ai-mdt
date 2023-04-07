@@ -1,0 +1,479 @@
+﻿@model BDCS.Model.Patient.Patient
+
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+
+
+<style type="text/css">
+    input[required], select[required]
+    {
+        border: 1px solid #ff0000;
+    }
+</style>
+
+<script src="~/Scripts/webcamjs-master/webcam.min.js"></script>
+
+<div class="container-fluid">
+
+
+    <div class="row">
+        <div class="col-sm-12">
+            @*If type of button is submit then it will call, not for plain button*@
+            <form id="PatientForm" action="@Url.Action("InsertUpdatePatient","Patient")" enctype="multipart/form-data" method="post" onsubmit="return SaveData();">
+                @Html.HiddenFor(a => Model.PatientId)
+                @Html.HiddenFor(a=> a.ImageURL)
+                
+                
+                <div class="row">
+                   
+                   <h3 class="heading">
+                       Patient Demographics   
+                       <button type="button" style="margin-top:1px;margin-right: 2px" class="btn btn-primary pull-right" onclick="SavePatientAndCreateVisit();"><span class="glyphicon glyphicon-save"></span> Save &amp; Create Visit</button>
+                    </h3>
+
+
+                </div>
+
+
+
+                <div class="row">
+
+                    
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label>Registration Date</label>
+                            @Html.TextBoxFor(a => a.EnteredOn, Model.EnteredOn.HasValue ? Model.EnteredOn.Value.ToString("dd-MM-yyyy") : "", new { @class = "form-control", @readonly = "readonly"})
+                        </div>
+                    </div>
+
+                    @*<div class="col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label>Diagnosis</label>
+                            @Html.DropDownListFor(a => a.DiagnosisId, (List<SelectListItem>)ViewBag.DiagnosisVB, "--Select--", new { @class = "form-control" })
+                     
+                        </div>
+                    </div>*@
+
+              
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label>MRN</label>
+                            @Html.TextBoxFor(a => a.MrNumber, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label>Hospital No.</label>
+                            @Html.TextBoxFor(a => a.HospitalNumber, new { @class = "form-control",@required="required" })
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label>First Name</label>
+                            @Html.TextBoxFor(a => a.FirstName, new { @class = "form-control", @required = "required" })
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label>Last Name</label>
+                            @Html.TextBoxFor(a => a.LastName, new { @class = "form-control", @required = "required" })
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label>Relationship</label>
+                            @Html.DropDownListFor(a => a.Relationship, (List<SelectListItem>)ViewBag.RelationshipVB, "--Select--", new { @class = "form-control" })
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label>Father Spouse Name</label>
+                            @Html.TextBoxFor(a => a.FatherSpouseName, new { @class = "form-control" })
+                        </div>
+                    </div>
+
+
+                    <div class="col-sm-3 col-xs-3">
+                        <div class="form-group">
+                            <label>Gender</label>
+                            @Html.DropDownListFor(a => a.GenderId, (List<SelectListItem>)ViewBag.GenderVB, "--Select--", new { @class = "form-control", @required = "required" })
+                        </div>
+                    </div>
+
+                    <div class="col-sm-1 col-xs-6">
+                        <div class="form-group">
+                            <label>Age</label>
+                            @Html.TextBoxFor(a => a.Age, new { @class = "form-control", @required = "required" })
+                        </div>
+                    </div>
+
+                    <div class="col-sm-2 col-xs-6">
+                        <div class="form-group">
+                            <label>&nbsp;</label>
+                            @Html.DropDownListFor(a => a.AgeUnit, (List<SelectListItem>)ViewBag.AgeUnit, new { @class = "form-control"})
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            @Html.TextBoxFor(a => a.DOB, Model.DOB.HasValue ? Model.DOB.Value.ToString("dd-MMM-yyyy") : "", new { @class = "form-control datepicker" })
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3 col-xs-3">
+                        <div class="form-group">
+                            <label>Country</label>
+                            @*a is anyonymus object which is declear and a.means model (patient) assing the value to a.countryid*@
+                            @Html.DropDownListFor(a => a.CountryId, (List<SelectListItem>)ViewBag.CountryVB, "--Select--", new { @class = "form-control AddressField", onchange = "LoadProvince();", id = "CountryId" })
+                        </div>
+                    </div>
+
+                    <div class="cols-sm-3 col-xs-3">
+                        <div class="form-group">
+                            <label>Province</label>
+                            @Html.DropDownListFor(a => a.ProvinceId, new List<SelectListItem>(), new { @class = "form-control AddressField", onchange = "LoadDistrict();", id = "ProvinceId" })
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3 col-xs-3">
+                        <div class="form-group">
+                            <label>District</label>
+                            @Html.DropDownListFor(a => a.DistrictId, new List<SelectListItem>(), new { @class = "form-control AddressField", id = "districtId" })
+                        </div>
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label>Address</label>
+                            @Html.TextBoxFor(a => a.Address, new { @class = "form-control" })
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label>Mobile</label>
+                            @Html.TextBoxFor(a => a.MobileNumber, new { @class = "form-control",@required="required" })
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label>Contact Number</label>
+                            @Html.TextBoxFor(a => a.ContactNumber, new { @class = "form-control" })
+                        </div>
+                    </div>
+
+           
+
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label>Ethnicity</label>
+                            @Html.TextBoxFor(a => a.Ethnicity, new { @class = "form-control" ,@list="dlEthnicity"})
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label>email</label>
+                            @Html.TextBoxFor(a => a.EmailId, new { @class = "form-control", type = "email"})
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label>Referred By</label>
+                            @Html.TextBoxFor(a => a.ReferredBy, new { @class = "form-control", @list= "ReferredbyDL" })
+                        </div>
+                    </div>
+
+                    <div class="col-sm-3 col-xs-6">
+                        <div class="form-group">
+                            <label>Comments</label>
+                            @Html.TextBoxFor(a => a.Comments, new { @class = "form-control" })
+                        </div>
+                    </div>
+                
+                    <div class="col-sm-3 col-xs-6" style="margin-top:10px">
+                            <label>Diabeties</label>
+                            @Html.CheckBoxFor(a => a.IsDiabeties, new { @style = " width: 25px; height: 15px; " })
+                    </div>
+                    <div class="col-sm-3 col-xs-6">
+                        <label>Blood Group</label>
+                        @Html.DropDownListFor(a => a.BloodGroupId, (List<SelectListItem>)ViewBag.BloodGroupVB, "--Select--", new { @class = "form-control"})
+                    </div>
+                </div>
+
+
+
+
+                @*<input type=button value="Start Camera" style="margin-top:7px"; onClick="InitiliazeCamera()">*@
+                @*<input type=button value="Take Snapshot" style="margin-top:7px"; onClick="take_snapshot()">*@
+
+                <div id="my_camera">
+
+
+
+
+                </div>
+
+
+                <div id="results">
+
+
+                </div>
+
+                <div class="row" style="padding-bottom: 30px;">
+                    <div class="col-sm-2 col-xs-6">
+                        <div class="form-group">
+                            <label>Image</label>
+                            <input type="file" name="PatientImage" />
+
+                        </div>
+                    </div>
+
+
+                    <div class="col-sm-1 col-sm-offset-1 col-xs-6">
+                        <button type="button" style="margin-top:8px" class="btn btn-warning" onclick="InitiliazeCamera();"><span class="glyphicon glyphicon-facetime-video"></span> Camera</button>
+
+                    </div>
+
+
+                    <div class="col-sm-1 col-xs-6">
+                        <button type="button" style="margin-top:8px" class="btn btn-success" onclick="take_snapshot();"><span class="glyphicon glyphicon-camera "></span> Capture</button>
+                    </div>
+
+
+                    <div class="col-sm-offset-5 col-sm-1">
+                        <button type="submit" style="margin-top:8px" class="btn btn-success  pull-right"><span class="glyphicon glyphicon-save"></span> Save</button>
+                    </div>
+
+
+                    <div class="col-sm-1">
+                        <button type="button" style="margin-top:8px" class="btn btn-danger  pull-right" onclick="ClosePopup(); loadPage('@Url.Action("GetPatientList", "Patient", new { PreloadList="Yes"})')"><span class="glyphicon glyphicon-eye-close "></span> Close  </button>
+
+                    </div>
+                </div>
+            </form>
+
+
+
+        </div>
+    </div>
+</div>
+
+<datalist id="ReferredbyDL">
+@foreach (SelectListItem item in ViewBag.ReferredbyVb)
+{
+    <option value="@item.Text"></option>
+}
+</datalist>
+<datalist id="dlEthnicity">
+@foreach (SelectListItem item in ViewBag.EthnicityVB)
+{
+    <option value="@item.Text"></option>
+}
+</datalist>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        PostPageLoad();
+
+        $(document).on("change", ".AddressField", function () {
+            CreatePatientAddress();
+        });
+    });
+
+   
+
+
+    function InitiliazeCamera() {
+        Webcam.set({
+            width: 320,
+            height: 240,
+            image_format: 'jpeg',
+            jpeg_quality: 90
+        });
+        Webcam.attach('#my_camera');
+    }
+
+    function CreatePatientAddress()
+    {
+
+        
+        var Country = $("#CountryId option:selected").text();
+        var Province = $("#ProvinceId option:selected").text();
+        var District = $("#districtId option:selected").text();
+
+        var Address = District + " , " + Province + " - " + Country;
+
+        $("#Address").val(Address);
+
+
+    }
+
+    function PostPageLoad() {
+        LoadProvince();
+        LoadDistrict();
+        InitializeDateTimePicker(".datepicker");
+        $(document).on("change", ".AddressField", function () {
+            CreatePatientAddress();
+        });
+
+
+        $("#HospitalNumber").on("blur", function () {
+            DoesHospitalNumberAlreadyExist();
+        });
+
+        //Webcam.set({
+        //    width: 320,
+        //    height: 240,
+        //    image_format: 'jpeg',
+        //    jpeg_quality: 90
+        //});
+        //Webcam.attach('#my_camera');
+    }
+
+    function take_snapshot() {
+
+        // take snapshot and get image data
+        Webcam.snap(function (data_uri) {
+            // display results in page
+            document.getElementById('results').innerHTML = '<input type="hidden" name="CameraPicture" value="' + data_uri + '"/>' +
+                '<img src="' + data_uri + '"/>';
+        });
+    }
+
+    function LoadProvince() {
+        debugger;
+        var VcountryId = $("#CountryId").val();
+        if (VcountryId<0) {
+
+        }
+        else {
+            $.ajax({
+                url: '@Url.Action("GetProvinceListById", "Patient")',
+                type: 'Get',
+                async:false,
+                dataType: 'Json',
+                data: { Id: VcountryId },
+                success: function (data) {
+                    $("#ProvinceId").empty();
+                    if (data != null && data.length > 0) {
+                        $(data).each(function () {
+                            $("#ProvinceId").append($("<option/>").val(this.Id).html(this.Value));
+                        })
+                        $("#ProvinceId").val('@Model.ProvinceId');
+                    }
+                },
+            });
+        }
+    }
+
+    function LoadDistrict() {
+        var VProvinceId = $("#ProvinceId").val();
+        if (VProvinceId < 0) {
+
+        }
+        else {
+            $.ajax({
+                url: '@Url.Action("GetDistrictListById", "Patient")',
+                type: 'Get',
+                dataType: 'Json',
+                data: { Id: VProvinceId },
+
+                success: function (data) {
+                    $("#districtId").empty();
+                    if (data != null && data.length > 0) {
+                        $(data).each(function () {
+                            $("#districtId").append($("<option/>").val(this.Id).html(this.Value));
+                        })
+                    }
+                    $("#districtId").val('@Model.DistrictId');
+                },
+            });
+        }
+    }
+    function SaveData() {
+        debugger;
+
+        var Result = submitFormData("#PatientForm");
+        if (Result > 0) {
+            ClosePopup();
+        }
+
+        if (typeof LoadPatientHeader == "function") {
+            LoadPatientHeader();
+        }
+
+        return false;
+    }
+
+    function SavePatientAndCreateVisit()
+    {
+        var PatId = submitFormData("#PatientForm");
+
+        if (parseInt(PatId) > 0) {
+            $(".modal-backdrop").remove();
+            $.ajax({
+                url: '@Url.Action("CreatePatientVisit","Patient")',
+                type: 'Post',
+                dataType: 'Json',
+                data: { patId: PatId, reason: "Routine" },
+
+                success: (function (msg) {
+                    if (parseInt(msg.Code) == 200) {
+                        loadPage('@Url.Action("AddEditPatientDetail", "Patient")' + '/?patId=' + PatId + ' &visitId=' + msg.ResponseObject + ' &reason=' + "Routine", "Prescription");
+                    }
+                    else {
+                        ShowAlertMessage('Unable to Create Visit', 'warning');
+                    }
+                    ClosePopup();
+                }),
+                error: function () {
+                    ShowAlertMessage("An error occured", 'error');
+                }
+            });
+        }
+    }
+
+    function DoesHospitalNumberAlreadyExist() {
+        var PatId = $("#PatientId").val();
+        var HospitalNumber = $.trim($("#HospitalNumber").val());
+
+
+        if (HospitalNumber != "") {
+
+            $.ajax({
+                url: '@Url.Action("DoesPatientHospitalNumberExists", "Patient")',
+                type: 'Post',
+                dataType: 'Json',
+                data: { hospitalNumber: HospitalNumber, patientId: PatId},
+
+                success: (function (msg) {
+                    if (parseInt(msg.Code) != 200 && msg.Message != null) {
+
+                        ShowAlertMessage(msg.Message, msg.MessageClass);
+                    }
+                    else {
+
+                    }
+                }),
+                error: function () {
+                    ShowAlertMessage("An error occured while Validating Hospital number", 'error');
+                }
+            });
+        }
+    }
+
+
+</script>

@@ -1,0 +1,215 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Basic -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- Mobile Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <!-- Site Metas -->
+    <title>MDT</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <!-- Site Icons -->
+    <link rel="shortcut icon" href="~/Content/theme/images/fevicon.ico.png" type="image/x-icon" />
+    <link rel="apple-touch-icon" href="~/Content/theme/images/apple-touch-icon.png">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/Content/theme/css/bootstrap.min.css">
+    <!-- Site CSS -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Colors CSS -->
+    <link rel="stylesheet" href="~/Content/theme/css/colors.css">
+    <!-- ALL VERSION CSS -->
+    <link rel="stylesheet" href="~/Content/theme/css/versions.css">
+    <!-- Responsive CSS -->
+    <link rel="stylesheet" href="~/Content/theme/css/responsive.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/Content/theme/css/custom.css">
+
+
+    <link href="~/Content/Plugin/Jquery.toast/jquery.toast.min.css" rel="stylesheet" />
+
+    <link href="~/Content/Plugin/Bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
+
+    <!-- Modernizer for Portfolio -->
+    <script src="js/modernizer.js"></script>
+    <!-- [if lt IE 9] -->
+    <!-- all js files -->
+    <script src="~/Content/theme/js/all.js"></script>
+    <!-- all plugins -->
+    <script src="~/Content/theme/js/custom.js"></script>
+
+</head>
+<body class="clinic_version">
+   
+     <!-- LOADER -->
+    <div id="preloader">
+        <img class="preloader" src="~/Content/theme/images/loaders/heart-loading2.gif" alt="">
+    </div>
+    <!-- END LOADER -->
+
+    <header>
+        
+        <div class="header-bottom wow fadeIn hidden-print">
+            <div class="container">
+                <nav class="main-menu">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar"><i class="fa fa-bars" aria-hidden="true"></i></button>
+                    </div>
+
+
+
+                    <div id="navbar" class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav">
+                            @if (Session["User"] != null)
+                            {
+                                <li><a href="@Url.Action("GetPatientList","Patient")">Home</a></li>
+                                
+
+                            }
+
+                            <li><a href="@Url.Action("AddEditLookupData","Patient")">Add Lookup</a></li>
+
+                            @*<li><a class="active" href="@Url.Action("GetPatientList","Patient")">Patient</a></li>
+                            
+                            <li><a href="@Url.Action("Dashboard","Home")">Dashboard</a></li>
+                            
+                            <li><a href="#" onclick="$('#MenuContainer').toggle();">Menu</a> </li>*@
+                          
+                     
+                        </ul>
+                        @*@if (Session["User"] != null)
+                        {
+
+                            <a>@((Session["User"] as BDCS.Model.RoleRights.Users).UserFullName)</a>
+
+                        }*@
+                    </div>
+                </nav>
+                <div class="serch-bar">
+                    <div id="custom-search-input">
+                        <div class="input-group col-md-12">
+                            @*<input type="text" class="form-control input-lg" placeholder="Search" />
+                            <span class="input-group-btn">
+                                <button class="btn btn-info btn-lg" type="button">
+                                    <i class="fa fa-search" aria-hidden="true">
+
+                                    </i>
+                                </button>
+                            </span>*@
+                            <div class="form-group">
+                                @if (Session["User"] != null)
+                                {
+                                    <a class="form-control">@((Session["User"] as BDCS.Model.RoleRights.Users).UserFullName)</a>
+                                }
+                            </div>
+                           
+                          
+                        </div>
+                       
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </header>
+    <div id="MainContent" class="parallax first-section wow fadeIn" data-stellar-background-ratio="0.4" >
+        <div class="container-fluid">
+           @* @Html.Action("UserMenu","Patient")*@
+
+            @RenderBody()
+
+        </div>
+        <!-- end container -->
+    </div>
+
+
+    <div class="copyright-area wow fadeIn hidden-print">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="footer-text">
+                        <p>© 2018 Lifecare. All Rights Reserved.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="social">
+                        <ul class="social-links">
+                            <li><a href=""><i class="fa fa-rss"></i></a></li>
+                            <li><a href=""><i class="fa fa-facebook"></i></a></li>
+                            <li><a href=""><i class="fa fa-twitter"></i></a></li>
+                            <li><a href=""><i class="fa fa-google-plus"></i></a></li>
+                            <li><a href=""><i class="fa fa-youtube"></i></a></li>
+                            <li><a href=""><i class="fa fa-pinterest"></i></a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end copyrights -->
+    <a href="#home" data-scroll class="dmtop global-radius"><i class="fa fa-angle-up"></i></a>
+    
+
+
+    @RenderSection("scripts", required: false)
+
+
+    <script src="~/Content/Plugin/Jquery.toast/jquery.toast.min.js"></script>
+    @*<script src="~/Scripts/bootstrap.min.js"></script>*@
+
+    <script src="~/Content/Plugin/Bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+    <script src="~/Scripts/App/Global.js"></script>
+
+
+
+
+    <div class="modal fade modal-lg" tabindex="-1" modal hide" data-backdrop="static" data-keyboard="false" role="dialog" id="GenericModal" style="margin:auto; width: 75%;">
+        <div class="modal-dialog modal-lg" style="width: 100%;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h3 id="GenericModalTitle" class="modal-title" style="text-align:center">&nbsp;</h3>
+                </div>
+                <div class="modal-body" id="GenericModalBody">
+                </div>
+                <div class="modal-footer">
+
+
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+</body>
+
+</html>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        InitializeHeartbeat();
+        
+    });
+
+    function InitializeHeartbeat()
+    {
+        HeartbeatTimer = setInterval(Heartbeat, 60000);
+    }
+
+    function Heartbeat() {
+        $.ajax({
+            url: '@Url.Action("Heartbeat", "Home")',
+            type: 'post',
+            success: function(data)
+            {
+                // do nothing
+            }
+        });
+    }
+
+
+</script>
+

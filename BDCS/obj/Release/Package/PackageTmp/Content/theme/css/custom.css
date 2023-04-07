@@ -563,6 +563,7 @@ hr.hr1 {
     color: #333;
     height: 90px;
     border-color: #5bc0de;
+    background-color:#fafeff;
 
 }
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus {

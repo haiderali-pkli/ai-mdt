@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1">
     <!-- Site Metas -->
-    <title>Blood Disease Clinic</title>
+    <title>MDT</title>
     <meta name="keywords" content="">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -63,20 +63,29 @@
 
                     <div id="navbar" class="navbar-collapse collapse">
                         <ul class="nav navbar-nav">
-                            <li><a class="active" href="@Url.Action("GetPatientList","Patient")">Patient</a></li>
+                            @if (Session["User"] != null)
+                            {
+                                <li><a href="@Url.Action("GetPatientList","Patient")">Home</a></li>
+                                
+
+                            }
+
                             <li><a href="@Url.Action("AddEditLookupData","Patient")">Add Lookup</a></li>
+
+                            @*<li><a class="active" href="@Url.Action("GetPatientList","Patient")">Patient</a></li>
+                            
                             <li><a href="@Url.Action("Dashboard","Home")">Dashboard</a></li>
                             
-                            <li><a href="#" onclick="$('#MenuContainer').toggle();">Menu</a> </li>
+                            <li><a href="#" onclick="$('#MenuContainer').toggle();">Menu</a> </li>*@
                           
                      
                         </ul>
-                        @if (Session["User"] != null)
+                        @*@if (Session["User"] != null)
                         {
 
                             <a>@((Session["User"] as BDCS.Model.RoleRights.Users).UserFullName)</a>
 
-                        }
+                        }*@
                     </div>
                 </nav>
                 <div class="serch-bar">
@@ -108,7 +117,7 @@
     </header>
     <div id="MainContent" class="parallax first-section wow fadeIn" data-stellar-background-ratio="0.4" >
         <div class="container-fluid">
-            @Html.Action("UserMenu","Patient")
+           @* @Html.Action("UserMenu","Patient")*@
 
             @RenderBody()
 

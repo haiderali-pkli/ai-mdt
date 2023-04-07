@@ -22,7 +22,7 @@
 <div class="container-fluid">
 
     <div>
-        <h2 class="media-heading">AddEditPatientDetail</h2>
+        <h2 class="media-heading">.</h2>
     </div>
 
     <form id="PatientDetial" action="" method="post">
@@ -30,7 +30,7 @@
         <input type="hidden" id="patientId" value="@TempData["patientIdVB"]" />
         <input type="hidden" id="reason" value="@TempData["reasonVB"]" />
 
-        <div class="row" style="background-color: #57b7fd;color:white;" id="PatientHeaderContainer">
+        <div class="row" style="background-color: #57b7fd;color:white;box-sizing: border-box; padding-right: 40px;" id="PatientHeaderContainer">
 
             @Html.Action("PatientHeader","Patient", new { patId  = TempData["patientIdVB"] })
 
@@ -74,7 +74,7 @@
         </div>
 
 
-        <div class="panel-group top" style="margin-top:5px;">
+        @*<div class="panel-group top" style="margin-top:5px;">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
@@ -113,36 +113,27 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>*@
 
         
 
         @*//Tab coloring*@
-        <div class="row">
+        <div class="row" style="padding-bottom: 50px;">
             <div class="col-md-12" >
 
-                <ul class="nav nav-tabs"  style="border-bottom: 1px solid #57b7fd;margin-top: 2px;">
+                @*<ul class="nav nav-tabs"  style="border-bottom: 1px solid #57b7fd;margin-top: 2px;">
                     <li class="active"><a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#VitalHx" role="tab" aria-controls="nav-home" aria-selected="true" style="background-color: #57b7fd; color: white;">Vital History</a></li>
                     <li><a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false" style="background-color: #57b7fd; color: white;">Protocol History</a></li>
                     <li><a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#lab-profile" role="tab" aria-controls="nav-profile" aria-selected="false" style="background-color: #57b7fd; color: white;">Lab History</a></li>
-                </ul>
-                @*<nav>
-                    <div class="nav nav-tabs nav-fill" id="nav-tab" role="tablist">
-                        
-                       
-                    </div>
-                </nav>*@
-
-                <div class="tab-content" id="nav-tabContent " style="height: 550px; width: 100%; overflow: scroll;">
+                </ul>*@
+      
+                <div class="tab-content" id="nav-tabContent " style="/*height: 550px; width: 100%; overflow: scroll;*/">
                     <div class="tab-pane fade active in" id="VitalHx" role="tabpanel" aria-labelledby="nav-home-tab">
 
-                        @*<div id="VitalHx">
-
-                        </div>*@
 
                     </div>
 
-                    <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                    @*<div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
 
                         <div id="ProtocolHx">
 
@@ -154,7 +145,7 @@
                         <div id="LabHx">
 
                         </div>
-                    </div>
+                    </div>*@
                 </div>
             </div>
         </div>

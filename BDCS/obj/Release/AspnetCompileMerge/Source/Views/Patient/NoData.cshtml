@@ -1,0 +1,17 @@
+﻿
+@{
+    ViewBag.Title = "NoData";
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+
+<div class="row" style="padding-top: 40px;">
+    <div class="col-sm-12">
+        <h2>@ViewBag.Message</h2>
+    </div>
+</div>
+
+
+

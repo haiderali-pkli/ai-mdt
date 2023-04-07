@@ -1,0 +1,52 @@
+﻿@model List<BDCS.Model.RoleRights.RoleRight>
+@{
+    ViewBag.Title = "_UserMenu";
+    Layout = null;
+}
+
+
+<div class="container" id="MenuContainer" style="display: none;padding-top:50px;">
+    <div class="row">
+        <div class="col-sm-12">
+            <input class="form-control input-lg" id="MenuSearchText" onkeyup="SearchMenu();"  />
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            @foreach (BDCS.Model.RoleRights.RoleRight rr in Model)
+            {
+                <div class="col-xs-12 col-sm-3 MenuBox" >
+                    <a href="#" onclick="LoadPage('@rr.Url','@rr.MenuName');" class="MenuItem" >@rr.MenuName</a>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>
+
+
+
+<script type="text/javascript">
+
+    function SearchMenu()
+    {
+        var text = $.trim($("#MenuSearchText").val().toLowerCase());
+
+        if (text == "") {
+            $(".MenuBox").show();
+        }
+
+        $(".MenuBox").each(function(){
+            var MenuName = $(this).find(".MenuItem").html().toLowerCase();
+
+            if (MenuName.indexOf(text) >= 0) {
+                $(this).show();
+            }
+            else {
+                $(this).hide();
+            }
+        });
+    }
+
+</script>

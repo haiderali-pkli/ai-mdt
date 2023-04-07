@@ -8,6 +8,8 @@
 }
 @*for next followup column it make each row heigh in column equal where absoulate:Position Bottom makt its posstion to bottom <div class="row" style="position: absolute; bottom:15px;">*@
 
+
+
     <style type="text/css">
         .equal {
             display:flex;
@@ -16,11 +18,10 @@
     </style>
     
     <div class="row equal">
-        <!--VisitDetail-->
+
+        <!--Column-1-->
         <div class="col-lg-4 col-xs-6">
             @Html.HiddenFor(a => a.PatientDetailId, new { @class = "form-control" })
-
-
             <div class="row">
                 <div class="col-sm-3">
                     <div class="form-group">
@@ -41,355 +42,323 @@
                     </div>
                 </div>
             </div>
-            <!--Vitals-->
-            <div class="row">
-                <div class="col-sm-3">
-                    <div class="form-group">
-                        <label>Weight</label>
-                        @Html.TextBoxFor(a => a.Weight, new { @class = "form-control", maxlength = "2", type = "number" })
-                    </div>
-                </div>
-                <div class="col-sm-3">
-                    <div class="form-group">
-                        <label>Weight-U</label>
-                        @Html.DropDownListFor(a => a.WeightUnit, (List<SelectListItem>)ViewBag.WeightUnitVB, new { @class = "form-control" })
-                    </div>
-                </div>
-                <div class="col-sm-3">
-                    <div class="form-group">
-                        <label>Height</label>
-                        @Html.TextBoxFor(a => a.Height, new { @class = "form-control", maxlength = 3, type = "number" })
-                    </div>
-                </div>
-                <div class="col-sm-3">
-                    <div class="form-group">
-                        <label>Height-U</label>
-                        @Html.DropDownListFor(a => a.HeightUnit, (List<SelectListItem>)ViewBag.HeightUnitVB, new { @class = "form-control" })
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-3">
-                    <div class="form-group">
-                        <label>BP-Sys</label>
-                        @Html.TextBoxFor(a => a.BPSystolic, new { @class = "form-control", maxlength = 3, type = "number" })
-                    </div>
-                </div>
-                <div class="col-sm-3">
-                    <div class="form-group">
-                        <label>BP-Dis</label>
-                        @Html.TextBoxFor(a => a.BPDistolic, new { @class = "form-control", maxlength = 3, type = "number" })
-                    </div>
-                </div>
-                <div class="col-sm-6">
-                    <div class="form-group">
-                        <label>Temperature</label>
-                        @Html.TextBoxFor(a => a.Temp, new { @class = "form-control" })
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-3 col-xs-2" style="width:12%">
-                    <div class="form-group">
-                        <label>GPEJ</label>
-                        @Html.CheckBoxFor(a => a.GPEJ, new { @class = "form-control" })
-                    </div>
-                </div>
-                <div class="col-sm-3 col-xs-2" style="width:12%">
-                    <div class="form-group">
-                        <label>GPEA</label>
-                        @Html.CheckBoxFor(a => a.GPEA, new { @class = "form-control"})
-                    </div>
-                </div>
-                <div class="col-sm-3 col-xs-2" style="width:12%">
-                    <div class="form-group">
-                        <label>GPEL</label>
-                        @Html.CheckBoxFor(a => a.GPEL, new { @class = "form-control" })
-                    </div>
-                </div>
-                <div class="col-sm-3 col-xs-2" style="width:12%">
-                    <div class="form-group">
-                        <label>GPEC</label>
-                        @Html.CheckBoxFor(a => a.GPEC, new { @class = "form-control" })
-                    </div>
-                </div>
 
-                <div class="col-sm-3 col-xs-2" style="width:12%">
-                    <div class="form-group">
-                        <label>GPEK</label>
-                        @Html.CheckBoxFor(a => a.GPEK, new { @class = "form-control" })
-                    </div>
-                </div>
-                <div class="col-sm-3 col-xs-2" style="width:12%">
-                    <div class="form-group">
-                        <label>GPEE</label>
-                        @Html.CheckBoxFor(a => a.GPEE, new { @class = "form-control" })
-                    </div>
-                </div>
-                <div class="col-sm-3 col-xs-2" style="width:12%">
-                    <div class="form-group">
-                        <label>GPET</label>
-                        @Html.CheckBoxFor(a => a.GPET, new { @class = "form-control" })
-                    </div>
-                </div>
-            </div>
             <div class="row">
-                <div class="col-sm-12 col-xs-6">
-                    <div class="form-group">
-                        <label>Comments</label>
-                        @Html.TextAreaFor(a => a.GPEComments, new { @class = "form-control", style = "max-width:100%;", pattern = "[a-zA-Z0-9]+" })
-                    </div>
-                </div>
-            @*</div>
-            <div class="row">*@
-                <div class="col-sm-12 col-xs-6">
-                    <div class="form-group">
-                        <label>Cardiovascular System</label>
-                        @Html.TextAreaFor(a => a.SystemicCVS, new { @class = "form-control", style = "max-width:100%;" })
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12 col-xs-6">
-                    <div class="form-group">
-                        <label>Respiratory System</label>
-                        @Html.TextAreaFor(a => a.SystemicRes, new { @class = "form-control", style = "max-width:100%", @list = "dlsresp" })
-                    </div>
-                </div>
-            @*</div>
-            <div class="row">*@
-                <div class="col-sm-12 col-xs-6">
-                    <div class="form-group">
-                        <label>Liver(cm)</label>
-                        @Html.TextAreaFor(a => a.SystemicLiver, new { @class = "form-control", style = "max-width:100%;", @list = "dlsliver" })
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-sm-12 col-xs-6">
-                    <div class="form-group">
-                        <label>Spleen(cm)</label>
-                        @Html.TextAreaFor(a => a.SystemicSpleen, new { @class = "form-control", style = "max-width:100%;", @list = "dlsspleen" })
-                    </div>
-                </div>
-            </div>
-        </div>
-  
-        <!--CIC and Previous Result-->
-        <div class="col-lg-4 col-xs-6">
-            <div class="row hidden-print">
                 <div class="col-lg-12 col-xs-6">
                     <div class="form-group">
-                        <label>Cheif Complaints</label>
+                        <label>CHIEF COMPLAINTS</label>
                         @Html.TextAreaFor(a => a.CIC, new { @class = "form-control ", style = "max-width:100%" })
                     </div>
                 </div>
+            </div>
 
-                <div class="col-lg-12 col-xs-6">
-                    <div class="form-group">
-                        <label>Diagnosis</label>
-                        @Html.DropDownList("DiagnosisName", (IEnumerable<SelectListItem>)ViewBag.DiagnosisVB,"--Select--" ,new { @class = "form-control", style = "max-width:100%", onchange="AddDiagnosisRow();" })
-                    </div>
+            <div class="row">
+                <div class="col-sm-3 col-xs-2">
+                    <label>CHILD STATUS</label>
+                    @Html.DropDownListFor(a => a.ChildStatus, (List<SelectListItem>)ViewBag.ChildStatusVB, "--Select--", new { @class = "form-control"})
                 </div>
-
-                <div class="col-lg-12 col-xs-6">
-                    <div class="form-group">
-                        <label>Diagnosis Details</label>
-                        @Html.TextBoxFor(a => a.DiagnosisDetails, new { @class = "form-control ", style = "max-width:100%" })
-                    </div>
+                <div class="col-sm-3 col-xs-2">
+                    <label>MELD-Na STATUS</label>
+                    @Html.DropDownListFor(a => a.MeldStatus, (List<SelectListItem>)ViewBag.MeldStatusVB, "--Select--", new { @class = "form-control" })
+                </div>
+                <div class="col-sm-3 col-xs-2">
+                    <label>BCLC STATUS</label>
+                    @Html.DropDownListFor(a => a.BCLC, (List<SelectListItem>)ViewBag.BCLCVB, "--Select--", new { @class = "form-control" })
+                </div>
+                <div class="col-sm-3 col-xs-2">
+                    <label>ECOG STATUS</label>
+                    @Html.DropDownListFor(a => a.ECOGStatus, (List<SelectListItem>)ViewBag.ECOGStatusVB, "--Select--", new { @class = "form-control" })
                 </div>
             </div>
 
-            <!-- Diagnosis table-->
-
+            @*LabOrders*@
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="form-group">
-                        <table id="tblDiagnosis" class="table table-bordered table-striped">
-                            <thead>
-                                <tr style="background-color: #57b7fd; color: white;">
-                                    <th>Diagnosis Name</th>
-                                    <th>Active</th>
-                                    <th>
-                                        
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (Model != null && Model.PatientDiagnosis.Count > 0)
-                                {
-                                    foreach (BDCS.Model.VitalHistory.PatientDiagnosis item in Model.PatientDiagnosis)
-                                    {
-                                        <tr class="DataRowDagnosis" data-recordidPrv="@item.PatientDiagnosisId">
-                                            <td>@Html.TextBoxFor(a => item.Diagnosis, new { @class = "form-control DiagnosisName"})</td>
-                                            <td>@(item.IsActive ? "Yes" : "No")</td> 
-                                            <td>
-                                                @if (item.IsActive)
-	                                            {
-		                                             <span class="glyphicon glyphicon-comment" title="Mark this diagnosis as Inactive" onclick="MarkDianosisAsInactive(@item.PatientDiagnosisId,this);"></span>
-	                                            }
-                                            </td>
-                                        </tr>
-                                    }
-                                }
-                            </tbody>
-                        </table>
-                        <table style="display:none">
-                            <tr id="sampleDataRowDiagnosis" class="DataRowDagnosis">
-                                <td>@Html.TextBox("DiagnosisName", null, new { @class = "DiagnosisName form-control" })</td>
-                                <td><span class="glyphicon glyphicon-remove-circle" onclick="removeRow(this);"></span></td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <!--Previous Result Table-->
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="form-group">
-                        <table id="tblPreviousResult" class="table table-bordered table-striped">
-                            <thead>
-                                <tr style="background-color: #57b7fd; color: white;">
-                                    <th>Test Name</th>
-                                    <th>Test Date</th>
-                                    <th>Result</th>
-                                    <th>Result Label</th>
-                                    <th>
-                                        <span class="glyphicon glyphicon-plus-sign" onclick="addRowPreviousResult();"></span>
-                                        <span class="glyphicon" onclick="OpenModalPopup();">G</span>
-                                        <span class="glyphicon glyphicon-book" onclick="AppendPreviousResultsToCic();"></span>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @if (Model != null && Model.PreviousLab.Count > 0)
-                                {
-                                    foreach (BDCS.Model.VitalHistory.LabReports item in Model.PreviousLab)
-                                    {
-                                        <tr id="sampleDataRowPreviousResult" class="DataRowPreviousResult" data-recordidPrv="@item.PreviousReportId">
-                                            @*<tr id="sampleDataRowPreviousResult" class="DataRowPreviousResult" data-recordidPrv="@item.PreviousReportId">*@
-                                            <td>@Html.TextBoxFor(a => item.TestName, new { @class = "form-control TestName", @list= "dlLabTestList", tabindex = "-1" })</td>
-                                            <td>@Html.TextBoxFor(a => item.TestDate, item.TestDate.HasValue ? item.TestDate.Value.ToString("dd-MMM-yyyy") : "", new { @class = "form-control TestDate datepicker", tabindex = "-1" })</td>
-                                            <td>@Html.TextBoxFor(a => item.TestResult, new { @class = "form-control TestResult" })</td>
-                                            <td>@Html.TextBoxFor(a => item.TestResultLabel, new { @class = "form-control TestResultLabel",@list= "dlResultLabel", tabindex = "-1" })</td>
-                                        </tr>
-                                    }
-                                }
-                            </tbody>
-                        </table>
-                        <table style="display:none">
-                            <tr id="sampleDataRowPreviousResult" class="DataRowPreviousResult">
-                                <td>@Html.TextBox("TestName", null, new { @class = "TestName form-control", @list = "dlLabTestList", tabindex = "-1" })</td>
-                                <td>@Html.TextBox("TestDate", null, new { @class = "TestDate form-control datepicker", tabindex = "-1" })</td>
-                                <td>@Html.TextBox("TestResult", null, new { @class = "TestResult form-control" })</td>
-                                <td>@Html.TextBox("TestResultLabel", null, new { @class = "TestResultLabel form-control", @list = "dlResultLabel", tabindex = "-1" })</td>
-                                <td><span class="glyphicon glyphicon-remove-circle" onclick="removeRow(this);"></span></td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+                    <div id="labOrders" class="row">
+                        <div class="col-sm-12">
 
-        <!--Present History Div-->
-        <div class="col-lg-4 col-xs-12">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @*Hepatitis Status*@
+            <div class="row hidden-print">
+                <div class="col-sm-4 col-xs-2">
+                    <label>HEPATITIS STATUS</label>
+                    @Html.DropDownListFor(a => a.HepStatus, (List<SelectListItem>)ViewBag.HepStatusVB, "--Select--", new { @class = "form-control" })
+                </div>
+                <div class="col-sm-4 col-xs-2">
+                    <label>ASCITIES STATUS</label>
+                    @Html.DropDownListFor(a => a.AscitiesStatus, (List<SelectListItem>)ViewBag.AscitiesStatusVB, "--Select--", new { @class = "form-control" })
+                </div>
+                <div class="col-sm-4 col-xs-2">
+                    <label>SVR STATUS</label>
+                    @Html.DropDownListFor(a => a.SVRStatus, (List<SelectListItem>)ViewBag.SVRStatusVB, "--Select--", new { @class = "form-control" })
+                </div>
+            </div>
+        </div>    
+        <!--Column-2-->
+        <div class="col-lg-4 col-xs-12"style="padding: 25px;   padding-top: 0px;">
             <div class="row">
-                @*<div class="col-lg-12">*@
                 <div class="form-group">
-                    <label>Present History</label>
-                    @Html.TextAreaFor(a => a.PresentHx, new { @class = "form-control" })
+                    <label>CT/MRI CONCLUSION</label>
+                    @Html.TextAreaFor(a => a.CTReportConclusion, new { @class = "form-control" })
                 </div>
-                @*</div>*@
                 <div class="row">
                     <div class="col-lg-12 col-xs-12">
                         <div class="form-group">
-                            <label>Past History</label>
-                            
-                            @Html.DropDownListFor(a => a.PastHx, (List<SelectListItem>)ViewBag.PastHxVB, "--Select--", new { @class="form-control" })
-                          
-                        </div>
-                    </div>
-                    <div class="col-lg-12 col-xs-12">
-                        <div class="form-group">
-                           @Html.TextAreaFor(a => a.PastHxNAT, new { @class = "form-control" })
-                        </div>
-                    </div>
-
-                    <div class="col-lg-12 col-xs-6">
-                        <div class="form-group">
-                            <label>Family History</label>
-                            @Html.TextAreaFor(a => a.FamilyHx, new { @class = "form-control" })
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-12 col-xs-6">
-                        <div class="form-group">
-                            <label>Drug History</label>
-                            @Html.TextAreaFor(a => a.DrugHx, new { @class = "form-control" })
-                        </div>
-                    </div>
-                    @*</div>
-                <div class="row">*@
-                    <div class="col-lg-12 col-xs-6">
-                        <div class="form-group">
-                            <label>Socio-ecnomic History</label>
-                            @Html.TextAreaFor(a => a.SecHx, new { @class = "form-control" })
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12 col-xs-6">
-                        <div class="form-group">
-                            <label>Comorbidites</label>
-                            @Html.TextAreaFor(a => a.Comorbidites, new { @class = "form-control" })
-                        </div>
-                    </div>
-                    @*</div>
-                <div class="row">*@
-                    <div class="col-lg-12 col-xs-6">
-                        <div class="form-group">
-                            <label>Transfusion History</label>
-                            @Html.TextAreaFor(a => a.TransfusionHx, new { @class = "form-control" })
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12 col-xs-6 FemaleOnly">
-                        <div class="form-group FemaleOnly">
-                            <label>Gynae/OBS History</label>
-                            @Html.TextBoxFor(a => a.GynaeObsHx, new { @class = "form-control" })
+                            <label>ANY OTHER COMORBIDITIES</label>
+                            @Html.ListBoxFor(a => a.OtherComorbities, (List<SelectListItem>)ViewBag.DiagnosisVB, new { @class = "form-control MuliDropdown" })   @*  (a => a.PastHx ,  (List<SelectListItem>)ViewBag.PastHxVB, "--Select--", new { @class="form-control" })*@
                         </div>
                     </div>
                 </div>
                 
                 <div class="row">
-                    <div class="col-lg-12 col-xs-6">
-                        <label>Next Followup</label>
-                        @Html.TextBoxFor(a => a.NextFollowup, new { @class = "form-control" })
+                    <div class="col-sm-3 col-xs-2">
+                        <div class="form-group pull-right">
+                            <label class="text-center">ANGIOINVASION</label>
+                            @Html.CheckBoxFor(a => a.Angioinvasion, new { @class = "form-control" })
+                        </div>
                     </div>
+                    <div class="col-lg-9 col-xs-6">
+                        <div class="form-group" id="SiteOfAngioinvasionContainer">
+                            <label>SITE OF ANGIOINVASION</label>
+                            @Html.ListBoxFor(a => a.SiteOfAngioinvasionVB, (List<SelectListItem>)ViewBag.SiteOfAngioinvasionDropdown, new { @class = "form-control MuliDropdown" })
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="form-group">
+                            <label>EXTRA HEPATIC</label>
+                            @Html.CheckBoxFor(a => a.ExtraHepaticDisease, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="col-lg-9 col-xs-6">
+                        <div class="form-group" id="ExtraHepaticDiseaseContainer">
+                            <label>SITE OF EXTRA HEPATIC DISEASE HISTORY</label>
+                            @Html.ListBoxFor(a => a.SiteOfHepaticDisease, (List<SelectListItem>)ViewBag.SitesOfExtraHepaticDiseaseVB, new { @class = "form-control MuliDropdown" })
+                            @*@Html.TextBoxFor(a => a.SiteOfHepaticDisease, new { @class = "form-control", @list= "lstOfSitesOfExtraHepaticDisease" })*@
+                        </div>
+                    </div>
+
+
 
                 </div>
                 <div class="row">
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="form-group">
+                            <label>LIVER CIRRHOSIS</label>
+                            @Html.CheckBoxFor(a => a.LiverCirrhosis, new { @class = "form-control" })
+                        </div>
+                    </div>
+
+                    <div class="col-sm-5 col-xs-2">
+                        <div class="form-group pull-right">
+                            <label class="text-center" style="margin-left:25px;">Portal Hypertension</label>
+                            @Html.CheckBoxFor(a => a.PortalHypertension, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="col-sm-4 col-xs-2">
+                        <div class="form-group pull-right">
+                            <label class="text-center" style="margin-left:62px;">Varices</label>
+                            @Html.CheckBoxFor(a => a.Varices, new { @class = "form-control" })
+                        </div>
+                    </div>
+                </div>
+                <div class=" row">
+                    <div class="col-lg-3 col-xs-12">
+                        <div class="form-group">
+                            <label>LARGEST LESION</label>
+                            @Html.TextBoxFor(a => a.LargestLesionSize, new { @class = "form-control" })
+
+                        </div>
+                    </div>
+
+                    <div class="col-sm-9 col-xs-12">
+                        <div class="form-group">
+                            <label class="text-center">NO OF LESION</label>
+                     
+                            @Html.DropDownListFor(a => a.NumberOfLesion, (List<SelectListItem>)ViewBag.LargestLesionSizeVB, "--Select--", new { @class = "form-control" })
+                            
+                            @*@Html.TextBoxFor(a => a.NumberOfLesion, new { @class = "form-control" })*@
+                        </div>
+                    </div>
+
+                </div>
+              
+                <div class="row">
+                    <div class="col-lg-3 col-xs-6">
+                        <div class="form-group">
+                            <label>PREVIOUS TREAT</label>
+                            @Html.CheckBoxFor(a => a.PreviousTreatment, new { @class = "form-control" })
+                        </div>
+                    </div>
+                    <div class="col-lg-9 col-xs-6" id="TreatmentTypeDiv">
+                        <label>Treatment Type</label>
+                        @*@Html.DropDownListFor(a => a.TreatmentType, (List<SelectListItem>)ViewBag.MDTOutComeVB, "--Select--", new { @class = "form-control" })*@
+                        @Html.ListBoxFor(a => a.TreatmentType, (List<SelectListItem>)ViewBag.MDTOutComeVB, new { @class = "form-control MuliDropdown" })
+                        
+
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-lg-12 col-xs-6">
-                   
-                            <label>Next Followup Date</label>
-                            @Html.TextBoxFor(a => a.NextFollowupDate, Model.NextFollowupDate.HasValue && Model.NextFollowupDate.Value.Date != DateTime.MinValue.Date ? Model.NextFollowupDate.Value.ToString("dd-MMM-yyyy") : "", new { @class = "form-control datepicker", id = "nextFollowupDate" })
+                        <label>Response to Treatment</label>
+                        
 
-                       
-                    </div>
+                        @Html.DropDownListFor(a => a.TreatmentResponse, (List<SelectListItem>)ViewBag.TreatmentResponseVB, "--Select--", new { @class = "form-control" })
                     </div>
                 </div>
+            </div>
 
-            @*<div class="row" style="position: absolute; bottom:15px;">
-                <div class="col-sm-12">
-                    <label>Next Followup</label>
-                    @Html.TextBoxFor(a => a.NextFollowup, new { @class = "form-control" })
-                </div>
+      
 
-            </div>*@
         </div>
+   <div class="col-lg-4">
+       <!--Column-3-->
+       <div class="row">
+           <div class="col-lg-12 col-xs-6">
+               <div class="form-group">
+                   <label>FINAL DIAGNOSIS</label>
+                   @Html.DropDownList("DiagnosisName", (IEnumerable<SelectListItem>)ViewBag.DiagnosisVB, "--Select--", new { @class = "form-control", style = "max-width:100%", onchange = "AddDiagnosisRow();" })
+               </div>
+           </div>
+           <div class="col-lg-12 col-xs-6">
+               <div class="form-group">
+                   <label>DIAGNOSIS DETAIL</label>
+                   @Html.TextBoxFor(a => a.DiagnosisDetails, new { @class = "form-control ", style = "max-width:100%" })
+               </div>
+           </div>
+           <div class="col-lg-12">
+               <div class="form-group">
+                   <table id="tblDiagnosis" class="table table-bordered table-striped table-responsive" >
+                       <thead>
+                           <tr style="background-color: #57b7fd; color: white;">
+                               <th>Diagnosis Name</th>
+                               <th>Active</th>
+                               <th>
+
+                               </th>
+                           </tr>
+                       </thead>
+                       <tbody>
+                           @if (Model != null && Model.PatientDiagnosis.Count > 0)
+                           {
+                               foreach (BDCS.Model.VitalHistory.PatientDiagnosis item in Model.PatientDiagnosis)
+                               {
+                                   <tr class="DataRowDagnosis" data-recordidPrv="@item.PatientDiagnosisId">
+                                       <td>@Html.TextBoxFor(a => item.Diagnosis, new { @class = "form-control DiagnosisName" })</td>
+                                       <td>@(item.IsActive ? "Yes" : "No")</td>
+                                       <td>
+                                           @if (item.IsActive)
+                                           {
+                                               <span class="glyphicon glyphicon-comment" title="Mark this diagnosis as Inactive" onclick="MarkDianosisAsInactive(@item.PatientDiagnosisId,this);"></span>
+                                           }
+                                       </td>
+                                   </tr>
+                               }
+                           }
+                       </tbody>
+                   </table>
+                   <table style="display:none">
+                       <tr id="sampleDataRowDiagnosis" class="DataRowDagnosis">
+                           <td>@Html.TextBox("DiagnosisName", null, new { @class = "DiagnosisName form-control" })</td>
+                           <td><span class="glyphicon glyphicon-remove-circle" onclick="removeRow(this);"></span></td>
+                       </tr>
+                   </table>
+               </div>
+           </div>
+       </div>
+       <div class="row">
+           <div class="col-lg-3 col-xs-6">
+               <label>Meeting Milan</label>
+               @Html.CheckBoxFor(a => a.MeetingMilan, new { @class = "form-control" })
+           </div>
+           <div class="col-lg-3 col-xs-6">
+               <label>UCSF</label>
+               @Html.CheckBoxFor(a => a.UCSF, new { @class = "form-control" })
+           </div>
+
+           <div class="col-lg-3 col-xs-6">
+               <label>ASAN</label>
+               @Html.CheckBoxFor(a => a.ASAN, new { @class = "form-control" })
+           </div>
+          
+           <div class="col-lg-3 col-xs-6">
+               <label>Other</label>
+               @Html.CheckBoxFor(a => a.other, new { @class = "form-control" })
+           </div>
+       </div>
+       <div class="row">
+           <div class="col-lg-12">
+                <div class="form-group" id="otherDetailDiv">
+                    <label>OTHER DETAIL</label>
+                    @Html.TextAreaFor(a => a.otherDetail, new { @class = "form-control", style = "max-width:100%" })
+                </div>
+           </div>
+       </div>
+        <div class="row">
+            <div class="col-lg-3 col-xs-6">
+                <label>Patient NOT Willing</label>
+                @Html.CheckBoxFor(a => a.PtWillingForTransplant, new { @class = "form-control" })
+            </div>
+            <div class="col-lg-9 col-xs-6">
+                <label>REFUSAL REASON</label>
+                @Html.TextBoxFor(a => a.ReasonOfRefusal, new { @class = "form-control", placeholder = "Reason for Resfusal", @list = "lstRefusalReason" })
+            </div>
+        </div>
+          
+        <div class="row">
+            <div class="col-lg-12 col-xs-12">
+                <div class="form-group">
+                    <label>MDT ADDIONAL DISCUSSION</label>
+                    @Html.TextAreaFor(a => a.MDTDiscussion, new { @class = "form-control ", style = "max-width:100%" })
+                </div>
+            </div>
+        </div>
+    <div>
+</div>
+    <div class="row">          
+        <div class="col-lg-12 col-xs-6">
+            <label>MDT OUT COME</label>
+            @Html.ListBoxFor(a => a.MDTOutCome, (List<SelectListItem>)ViewBag.MDTOutComeVB, new { @class = "form-control MuliDropdown" })
+        </div>
+    </div>
+       <div class="row">
+           <div class="col-lg-12 col-xs-6">
+               <label>Other MDT OUT COME</label>
+               @Html.TextAreaFor(a => a.MDTOutComeOther, new { @class = "form-control", style = "max-width:100%" })
+           </div>
+       </div>
+       <div class="row">
+           <div class="col-lg-2 col-xs-6">
+               <label>Transplant Discussion</label>
+               @Html.CheckBoxFor(a => a.TransplantDiscussion, new { @class = "form-control"})
+           </div>
+           <div class="col-lg-10 col-xs-6">
+               <div class="form-group" id="TransplantDiscussionDiv">
+                   <label>Transplant Discussion Detail</label>
+                   @Html.TextAreaFor(a => a.TransplantDiscussionDetail, new { @class = "form-control", rows = "2", style = "max-width:100%" })
+               </div>
+           </div>
+       </div>
+       <div class="row">
+
+      
+
+       </div>
+       <div class="row">
+           <div class="col-lg-12 col-xs-6">
+               <label>Imaging Date</label>
+               @Html.TextBoxFor(a => a.ImagingDate, Model.ImagingDate.HasValue ? Model.ImagingDate.Value.ToString("dd-MMM-yyyy") : "", new { @class = "form-control datepicker" })
+               
+           </div>
+
+       </div>
+ </div>
+</div>
 
         <!--datalists-->
         <datalist id="dlLabTestList">
@@ -422,19 +391,19 @@
                 <option value="@li.Text"></option>
             }*@
         </datalist>
-    </div>
-
-    <!--GetLabOrders Partial Div-->
-    <div class="row">
-        <div class="col-lg-12">
-            <div id="labOrders" class="row">
-                <div class="col-sm-12">
-
-                </div>
-            </div>
-        </div>
-    </div>
-
+        <datalist id="lstRefusalReason">
+            @foreach (SelectListItem item in ViewBag.RefusalReasonVB)
+            {
+                <option value="@item.Text"></option>
+            }
+           
+        </datalist>
+<datalist id="lstOfSitesOfExtraHepaticDisease">
+    @foreach (SelectListItem item in ViewBag.SitesOfExtraHepaticDiseaseVB)
+    {
+        <option>@item.Text</option>
+    }
+</datalist>
 
 <div class="modal fade modal-sm" tabindex="-1" modal hide" data-backdrop="static" data-keyboard="false" role="dialog" id="TestGroupModal" style="margin:auto">
     <div class="modal-dialog modal-sm">
@@ -470,6 +439,8 @@
     </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<script src="~/Content/Plugin/chosen/chosen.jquery.min.js"></script>
+<link href="~/Content/Plugin/chosen/chosen.css" rel="stylesheet" />
     <!--Script Portion-->
     <script type="text/javascript">
         //This will call before pageload so the values will be filled in the array
@@ -573,7 +544,7 @@
         {
             <text>
             ComorbiditiesSuggestion.push('@item.Text')
-    </text>
+            </text>
         }
 
         var TransfusionHxSuggestion = new Array();
@@ -594,49 +565,82 @@
 
         $(document).ready(function () {
             PostPageLoad();
-            setTimeout(LoadPageData, 100);
         });
 
-
-
-
         function PostPageLoad() {
-            debugger;
+
+            setTimeout(LoadPageData, 100);
             //plugin added in top of patientdeail view, on clikc this will call the function body
             $("#SystemicRes").asuggest(SystemicResSuggestions, { 'cycleOnTab': false });
-
             $("#SystemicCVS").asuggest(SystemicCVSSuggestions, { 'cycleOnTab': false });
-
             $("#SystemicLiver").asuggest(SystemicLiverSuggestions, { 'cycleOnTab': false });
-
             $("#SystemicSpleen").asuggest(SpleenSuggestions, { 'cycleOnTab': false });
-
             $("#PresentHx").asuggest(PresentHistory, { 'cycleOnTab': false });
-
             $("#FamilyHx").asuggest(FamilyHistory, { 'cycleOnTab': false });
-
             $("#DrugHx").asuggest(DrugHistory, { 'cycleOnTab': false });
-
             $("#SecHx").asuggest(SecHistory, { 'cycleOnTab': false });
-
             $("#Comorbidites").asuggest(ComorbiditiesSuggestion, { 'cycleOnTab': false });
-
             $("#TransfusionHx").asuggest(TransfusionHxSuggestion, { 'cycleOnTab': false });
             $("#CIC").asuggest(CICSuggestion, { 'cycleOnTab': false });
-
             $("#PresentHx").asuggest(PresentHistory, { 'cycleOnTab': false });
 
+            $(".MuliDropdown").chosen();
             InitializeDateTimePicker(".datepicker");
 
             ShowHideGenderSpecificFields();
+            ShowHideSiteAngioInvasion();
+            ShowHidePtWillingForTransplant();
+            ShowHidePtSiteOfHepaticDisease();
+            ShowHidPreviousTreatmentResponse();
+            ShowHideOtherDetail();
+            ShowHideTransplantDiscussionDetail();
+
+
+            $("#tblDiagnosis").trigger('rowAddOrRemove');
+
+            $('#tblDiagnosis').bind('rowAddOrRemove', function (event) {
+                var rows = $("#tblDiagnosis tr.DataRowDagnosis").length;
+                
+                if (rows > 0) {
+                    $('#tblDiagnosis').show();
+                }
+                else {
+                    $('#tblDiagnosis').hide();
+                }
+            });
 
             $(document).on("change", ".DataRowLabReports input", function () {
                 PopulateLabResultValue($(this).closest(".DataRowLabReports"));
             });
 
+            $(document).on("change", "#Angioinvasion", function () {
+                ShowHideSiteAngioInvasion();
+            });
+
+            $(document).on("change", "#PtWillingForTransplant", function () {
+                ShowHidePtWillingForTransplant();
+            });
+
+            $(document).on("change", "#ExtraHepaticDisease", function () {
+                ShowHidePtSiteOfHepaticDisease();
+            });
+
+            $(document).on("change", "#PreviousTreatment", function () {
+                ShowHidPreviousTreatmentResponse();
+            });
+
             if ($("#nextFollowupDate").val() == "01/01/0001 12:00:00 AM") {
                 $("#nextFollowupDate").val("");
             }
+
+            $(document).on("change", "#other", function () {
+                ShowHideOtherDetail();
+            });
+
+            $(document).on("change", "#TransplantDiscussion", function () {
+                ShowHideTransplantDiscussionDetail();
+            });
+
         }
 
         function addRowPreviousResult() {
@@ -653,7 +657,6 @@
         }
 
         function LoadPageData() {
-
             var visitId = $("#visitId").val();
             var url = '@Url.Action("GetLabOrders","Patient")'+'/?visitId=' + visitId;
             loadPage(url, "LabOrders", "labOrders");
@@ -665,6 +668,8 @@
             var currentReports = new Array();
             var protocolDetail = new Array();
             var patientDiagnosis = new Array();
+
+            var Valid = true;
 
             $("#tblPreviousResult .DataRowPreviousResult").each(function () {
                 debugger;
@@ -679,8 +684,13 @@
                 previousResult.push(Data);
             });
 
+            var OptionalTests = ["CEA", "CA19-9", "CA125", "Pivica"];
+            
             $("#tblLabReports .DataRowLabReports").each(function () {
-                debugger;
+                
+                if (!Valid) {
+                    return;
+                }
                 var Data = {
                     LabReportId: $(this).data("recordid"),
                     VisitId: $("#VisitId").val(),
@@ -691,28 +701,34 @@
                     TestUnit: $(this).find(".TestUnit").val(),
                     TestResultLabel: $(this).find(".TestResultLabel").val(),
                 };
+
+                if (!OptionalTests.includes(Data.TestName) && (Data.TestName == "" || Data.TestDate == "" || Data.TestResult == "")) {
+                    alert("Please fill all the fields for lab Reports");
+                    Valid = false;
+                    return false;
+                }
                 currentReports.push(Data);
             });
 
-            $("#tblProtocols .DataRowProtocol").each(function () {
-                debugger;
-                var Data = {
+            //$("#tblProtocols .DataRowProtocol").each(function () {
+            //    debugger;
+            //    var Data = {
 
-                    ProtocolDetailId: $(this).data("protocoldetailid"),
-                    VisitId: $("#VisitId").val(),
-                    PatientId: $("#patientId").val(),
-                    ProtocolId: $(this).find(".ProtocolId").val(),
-                    ProtocoName: $(this).find(".ProtocoName").val(),
-                    MedicineType: $(this).find(".MedicineType").val(),
-                    Medicine: $(this).find(".Medicine").val(),
-                    DoseUnit: $(this).find(".DoseUnit").val(),
-                    Dose: $(this).find(".Dose").val(),
-                    Route: $(this).find(".Route").val(),
-                    Frequency: $(this).find(".Frequency").val(),
-                    Duration: $(this).find(".Duration").val(),
-                };
-                protocolDetail.push(Data);
-            });
+            //        ProtocolDetailId: $(this).data("protocoldetailid"),
+            //        VisitId: $("#VisitId").val(),
+            //        PatientId: $("#patientId").val(),
+            //        ProtocolId: $(this).find(".ProtocolId").val(),
+            //        ProtocoName: $(this).find(".ProtocoName").val(),
+            //        MedicineType: $(this).find(".MedicineType").val(),
+            //        Medicine: $(this).find(".Medicine").val(),
+            //        DoseUnit: $(this).find(".DoseUnit").val(),
+            //        Dose: $(this).find(".Dose").val(),
+            //        Route: $(this).find(".Route").val(),
+            //        Frequency: $(this).find(".Frequency").val(),
+            //        Duration: $(this).find(".Duration").val(),
+            //    };
+            //    protocolDetail.push(Data);
+            //});
 
 
             $("#tblDiagnosis .DataRowDagnosis").each(function () {
@@ -733,86 +749,89 @@
                 VisitId: $("#VisitId").val(),
                 VisitDateTime: $("#VisitDateTime").val(),
                 VisitType: $("#VisitType").val(),
-                Weight: $("#Weight").val(),
-                WeightUnit: $("#WeightUnit").val(),
-                Height: $("#Height").val(),
-                HeightUnit: $("#HeightUnit").val(),
-                BPSystolic: $("#BPSystolic").val(),
-                BPDistolic: $("#BPDistolic").val(),
-                Temp:$("#Temp").val(),
-                GPEJ: $("#GPEJ").is(":checked") ? 1 : 0,
-                GPEA: $("#GPEA").is(":checked") ? 1 : 0,
-
-                GPEL: $("#GPEL").is(":checked") ? 1 : 0,
-                GPEC: $("#GPEC").is(":checked") ? 1 : 0,
-                GPEK: $("#GPEK").is(":checked") ? 1 : 0,
-                GPEE: $("#GPEE").is(":checked") ? 1 : 0,
-                GPET: $("#GPET").is(":checked") ? 1 : 0,
-                GPEComments: $("#GPEComments").val(),
-                SystemicCVS: $("#SystemicCVS").val(),
-                SystemicRes: $("#SystemicRes").val(),
-                SystemicLiver: $("#SystemicLiver").val(),
-                SystemicSpleen: $("#SystemicSpleen").val(),
-                CIC: $("#CIC").val(),
                 DiagnosisName: $("#DiagnosisName").val(),
                 DiagnosisDetails: $("#DiagnosisDetails").val(),
-                PastHx: $("#PastHx").val(),
-                PastHxNAT: $("#PastHxNAT").val(),
-                FamilyHx: $("#FamilyHx").val(),
-                DrugHx: $("#DrugHx").val(),
-                SecHx: $("#SecHx").val(),
-                TransfusionHx: $("#TransfusionHx").val(),
-                Comorbidites: $("#Comorbidites").val(),
-                GynaeObsHx: $("#GynaeObsHx").val(),
-                PresentHx: $("#PresentHx").val(),
-                NextFollowup: $("#NextFollowup").val(),
-                NextFollowupDate: $("#nextFollowupDate").val(),
-                PreviousLab: previousResult,
-                protocols: protocolDetail,
+                CTReportConclusion: $("#CTReportConclusion").val(),
+                CIC:$("#CIC").val(),
+                         
+                ChildStatus: $("#ChildStatus").val(),
+                MeldStatus: $("#MeldStatus").val(),
+                BCLC: $("#BCLC").val(),
+                ECOGStatus: $("#ECOGStatus").val(),
+                HepStatus: $("#HepStatus").val(),
+                AscitiesStatus: $("#AscitiesStatus").val(),
+                OtherComorbities: $("#OtherComorbities").val() != null ? $("#OtherComorbities").val().toString() :"",
+                Angioinvasion: $("#Angioinvasion").is(":checked") ? 1 : 0,
+                SiteOfAngioinvasionVB: $("#SiteOfAngioinvasionVB").val() != null ? $("#SiteOfAngioinvasionVB").val().toString() : "",
+
+                ExtraHepaticDisease: $("#ExtraHepaticDisease").is(":checked") ? 1 : 0,
+                //lstOfSitesOfExtraHepaticDisease: $("#lstOfSitesOfExtraHepaticDisease").val(),
+                SiteOfHepaticDisease: $("#SiteOfHepaticDisease").val() != null ? $("#SiteOfHepaticDisease").val().toString() : "",
+
+                LiverCirrhosis: $("#LiverCirrhosis").is(":checked") ? 1 : 0,
+                PortalHypertension: $("#PortalHypertension").is(":checked") ? 1 : 0,
+                Varices: $("#PortalHypertension").is(":checked") ? 1 : 0,
+                NumberOfLesion: $("#NumberOfLesion").val(),
+                LargestLesionSize: $("#LargestLesionSize").val(),
+                SVRStatus: $("#SVRStatus").val(),
+                PreviousTreatment: $("#PreviousTreatment").is(":checked") ? 1 : 0,
+                TreatmentType: $("#TreatmentType").val() != null ? $("#TreatmentType").val().toString() : "",
+                TreatmentResponse: $("#TreatmentResponse").val(),
+                MeetingMilan: $("#MeetingMilan").is(":checked") ? 1 : 0,
+                UCSF: $("#UCSF").is(":checked") ? 1 : 0,
+                ASAN: $("#ASAN").is(":checked") ? 1 : 0,
+                other: $("#other").is(":checked") ? 1 : 0,
+                otherDetail:$("#otherDetail").val(),
+                PtWillingForTransplant: $("#PtWillingForTransplant").is(":checked") ? 1 : 0,
+                ReasonOfRefusal: $("#ReasonOfRefusal").val(),
+                MDTDiscussion: $("#MDTDiscussion").val(),
+                MDTOutCome: $("#MDTOutCome").val() != null ? $("#MDTOutCome").val().toString() : "",
+
+        
+
+                MDTOutComeOther: $("#MDTOutComeOther").val()!= null ? $("#MDTOutComeOther").val().toString() :"",
+                TransplantDiscussion: $("#TransplantDiscussion").is(":checked") ? 1 : 0,
+                TransplantDiscussionDetail: $("#TransplantDiscussionDetail").val() != null ? $("#TransplantDiscussionDetail").val().toString() : "",
+                ImagingDate: $("#ImagingDate").val(),
+                
+                //PreviousLab: previousResult,
+                //protocols: protocolDetail,
                 labreports: currentReports,
                 PatientDiagnosis: patientDiagnosis
             };
 
-            $.ajax({
+            if (ValidateMandatoryFields(vitalHistory) && Valid) {
+                debugger;
+                $.ajax({
 
-                url: '@Url.Action("savePatientDetail1", "Patient")',
-                type: 'Post',
-                dataType: 'Json',
-                data: JSON.stringify(vitalHistory),
-                contentType: 'application/Json',
-                success: function (msg) {
-                    debugger;
-                    ShowAlertMessage(msg.Message, msg.MessageClass, msg.MessageTitle);
+                    url: '@Url.Action("savePatientDetail1", "Patient")',
+                    type: 'Post',
+                    dataType: 'Json',
+                    data: JSON.stringify(vitalHistory),
+                    contentType: 'application/Json',
+                    success: function (msg) {
+                        debugger;
+                        ShowAlertMessage(msg.Message, msg.MessageClass, msg.MessageTitle);
 
-                @*   window.open("@Url.Action("PatientVisitReportRdlc","Patient")/?patId="+$("#patientId").val() + "&visitId="+$("#VisitId").val(),"_blank"); *@
+                    @*   window.open("@Url.Action("PatientVisitReportRdlc","Patient")/?patId="+$("#patientId").val() + "&visitId="+$("#VisitId").val(),"_blank"); *@
 
-                    var Url = '@Url.Action("AddEditPatientDetail", "Patient")/?patId=' + $("#patientId").val() + "&visitId=" + $("#VisitId").val() + "&visitDateTime=" + $("#VisitDateTime").val() + "&reason=" + $("#VisitType").val();
+                        var Url = '@Url.Action("AddEditPatientDetail", "Patient")/?patId=' + $("#patientId").val() + "&visitId=" + $("#VisitId").val() + "&visitDateTime=" + $("#VisitDateTime").val() + "&reason=" + $("#VisitType").val();
 
-                    loadPage(Url, "Patient visit");
+                        loadPage(Url, "Patient visit");
 
-                    //if (msg.RedirectUrl!==null) {
 
-                    //    if (msg.DoFullRedirect==true)
-                    //    {
-                    //        window.location = msg.RedirectUrl;
-                    //    }
-                    //    else {
-                    //        ShowAlertMessage(msg.Message, msg.MessageClass, msg.MessageTitle);
-                    //    }
-                    //}
-                    //alert(msg);
-                },
-                error: function () {
-                    alert('an error occured');
-                }
-            });
+                    },
+                    error: function () {
+                        alert('an error occured');
+                    }
+                });
+            }
+
         };
 
 
-        function PopulatePreviousTestAgainstGroupName(GroupName)
+        @*function PopulatePreviousTestAgainstGroupName(GroupName)
         {
-
-
             $.ajax({
 
                 url: '@Url.Action("GetTestsAgainstGroupName", "Patient")',
@@ -839,7 +858,7 @@
                     alert('an error occured');
                 }
             });
-        }
+        }*@
 
         function OpenModalPopup()
         {
@@ -873,8 +892,7 @@
             $(row).removeAttr('id');
             $(row).find(".DiagnosisName").val($("#DiagnosisName").val());
 
-            $("#tblDiagnosis").append(row);
-
+            $("#tblDiagnosis").append(row).trigger('rowAddOrRemove');
         }
 
         function MarkDianosisAsInactive(id,tag)
@@ -885,7 +903,7 @@
                 dataType: 'Json',
                 data: { patientDiagnosisId: id },
                 success: function (msg) {
-                    
+
                     ShowAlertMessage(msg.Message, msg.MessageClass);
                     debugger;
                     var PastHxText = $("#PastHxNAT").val();
@@ -900,6 +918,87 @@
             });
         }
 
+        function ShowHideSiteAngioInvasion(){
+            if($("#Angioinvasion").is(":checked"))
+            {
+                $("#SiteOfAngioinvasionContainer").show();   
+            }
+            else {
+                $("#SiteOfAngioinvasionContainer").hide();
+            }
+        }
+        function ShowHidePtWillingForTransplant() {
+            if($("#PtWillingForTransplant").is(":checked"))
+            {
+                $("#ReasonOfRefusal").removeProp("disabled");   
+            }
+            else {
+                $("#ReasonOfRefusal").prop("disabled",'true');
+            }
+        }
+        function ShowHidePtSiteOfHepaticDisease() {
+            if($("#ExtraHepaticDisease").is(":checked"))
+            {
+                $("#ExtraHepaticDiseaseContainer").show();
+            }
+        else {
+                $("#ExtraHepaticDiseaseContainer").hide();
+            }
+        }
+        function ShowHidPreviousTreatmentResponse() {
+            if ($("#PreviousTreatment").is(":checked")) {
+                $("#TreatmentTypeDiv").show();
+            }
+            else {
+                $("#TreatmentTypeDiv").hide();
+            }
+        }
+        function ShowHideOtherDetail() {
+            if ($("#other").is(":checked")) {
+                $("#otherDetailDiv").show();
+            }
+            else {
+                $("#otherDetailDiv").hide();
+            }
+        }
+
+        function ShowHideTransplantDiscussionDetail() {
+            if ($("#TransplantDiscussion").is(":checked")) {
+                $("#TransplantDiscussionDiv").show();
+            }
+            else {
+                $("#TransplantDiscussionDiv").hide();
+            }
+        }
+
+        function ValidateMandatoryFields(master)
+        {
+            var Valid = true;
+
+            //if (master.ChildStatus == "" || master.ChildStatus == null) {
+            //    alert("Child Status is required");
+            //    Valid = false;
+            //    return false;
+            //}
+            //if (master.MeldStatus=="" || master.MeldStatus==null) {
+            //    alert("Meld Status is required");
+            //    valid = false;
+            //    return false;
+            //}
+            //if (master.BCLC=="" || master.BCLC==null) {
+            //    alert("BCLC Status is required");
+            //    valid = false;
+            //    return false;
+            //}
+            //if (master.ECOGStatus=="" || master.ECOGStatus==null) {
+            //    alert("ECOG Status is required");
+            //    valid = false;
+            //    return false;
+            //}
+
+            return Valid;
+             
 
 
+        }
     </script>

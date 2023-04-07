@@ -69,7 +69,10 @@
             @Html.TextBoxFor(a => a.Gender, new { @class = "form-control", @readonly = "readonly", style = "border-bottom-style: outset" })
         </div>
     </div>
-
+    <div class="col-sm-2 col-xs-6">
+        <label>Blood Group</label>
+        @Html.TextBoxFor(a => a.BloodGroupName, new { @class = "form-control", @readonly = "readonly", style = "border-bottom-style: outset" })
+    </div>
     <div class="col-sm-2 col-xs-6">
         <div class="form-group">
             <label>Mobile Number</label>
@@ -91,5 +94,6 @@
             @Html.TextBoxFor(a => a.Address, new { @class = "form-control", @readonly = "readonly", style = "border-bottom-style: outset", id="PatientAddress" })
         </div>
     </div>
+   
     
 </div>

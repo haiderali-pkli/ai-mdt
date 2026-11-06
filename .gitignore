@@ -66,3 +66,6 @@ Desktop.ini
 appsettings.*.local.json
 .env
 .env.*
+
+## Patient-related uploaded files must never be committed
+BDCS/Uploads/

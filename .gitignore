@@ -69,3 +69,7 @@ appsettings.*.local.json
 
 ## Patient-related uploaded files must never be committed
 BDCS/Uploads/
+
+## Database backups must never be committed
+*.bak
+DB/backups/

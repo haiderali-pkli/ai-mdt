@@ -21,5 +21,15 @@ namespace BDCS.Bussiness
 
 
         public async Task<List<KeyAndValuePair>> GetUserWiseVisitData(DateTime date) => await _common.GetUserWiseVisitData(date);
+
+        public List<KeyAndValuePair> GetMDTTypes(int userId)
+            =>_common.GetMDTTypes(userId);
+        public async Task<List<KeyAndValuePair>> GetDiseaseStatusById(string procedureName, string schema, string parameters)
+            => await _common.GetDiseaseStatusById(procedureName, schema, parameters);
+
+        public List<KeyAndValuePair> GetMDTTypesNameByUserId(int userId)
+            => _common.GetMDTTypesNameByUserId(userId);
+        public List<KeyAndValuePair> GetDiagnosisList()
+            =>_common.GetDiagnosisList();
     }
 }

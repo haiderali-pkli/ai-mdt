@@ -1,0 +1,86 @@
+@model List<BDCS.Model.RoleRights.Clinic>
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+
+<div class="admin-module">
+    <div class="container-fluid">
+
+        <div class="am-page-head">
+            <div>
+                <h3><i class="fa fa-map-marker"></i> Locations</h3>
+                <span class="am-subtitle">Hospital sites this system serves &mdash; e.g. PKLI Lahore, PKLI Rawalpindi</span>
+            </div>
+            <button type="button" class="btn btn-am-primary" onclick="AddEditClinic(0);">
+                <i class="fa fa-plus"></i> Add Location
+            </button>
+        </div>
+
+        <div class="am-card">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="am-table">
+                        <thead>
+                            <tr>
+                                <th>Location</th>
+                                <th>Contact Person</th>
+                                <th>Contact Number</th>
+                                <th>Status</th>
+                                <th style="width:60px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (BDCS.Model.RoleRights.Clinic item in Model)
+                            {
+                                <tr>
+                                    <td><strong>@item.ClinicName</strong></td>
+                                    <td>@(string.IsNullOrEmpty(item.ContactPerson) ? "N/A" : item.ContactPerson)</td>
+                                    <td>@(string.IsNullOrEmpty(item.ContactNumber) ? "N/A" : item.ContactNumber)</td>
+                                    <td>
+                                        @if (item.IsActive)
+                                        {
+                                            <span class="am-pill am-pill-active"><i class="fa fa-circle"></i> Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="am-pill am-pill-inactive"><i class="fa fa-circle"></i> Inactive</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a href="#" title="Edit" onclick="AddEditClinic(@item.ClinicId); return false;">
+                                            <i class="fa fa-pencil"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="am-empty">
+                    <i class="fa fa-map-marker"></i>
+                    No locations configured yet.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function AddEditClinic(clinicId) {
+        var url = '@Url.Action("AddEditClinic", "Clinic")' + '/?ClinicId=' + clinicId;
+        OpenPopup(url, clinicId > 0 ? "Edit Location" : "Add Location");
+    }
+
+    function ReloadClinicList() {
+        loadPage('@Url.Action("GetClinicList", "Clinic")', "GetClinicList");
+    }
+
+</script>

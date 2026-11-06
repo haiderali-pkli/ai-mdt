@@ -59,6 +59,7 @@ namespace BDCS.Model.Patient
         public bool DiscussionRequired { get; set; }
         public string BloodGroupName { get; set; }
 
+        public string mdtType { get; set; }
         string CalculateYourAge(DateTime Dob)
         {
             if (Dob == null || Dob.Date == DateTime.MinValue.Date)
@@ -88,6 +89,7 @@ namespace BDCS.Model.Patient
             int Seconds = Now.Subtract(PastYearDate).Seconds;
             return String.Format("Age: {0} Year(s) {1} Month(s) {2} Day(s)",
             Years, Months, Days);
-        }
+            
+    }
     }
 }

@@ -58,12 +58,18 @@
 
             <div class="col-sm-2 col-xs-12">
                 <div class="form-group">
-                    <label>ANY OTHER COMORBIDITIES</label>
+                    <label>Diagnosis</label>
                     @Html.DropDownList("OtherComorbities", (List<SelectListItem>)ViewBag.DiagnosisVB, "--Select--", new { @class = "form-control MuliDropdown" })
                 </div>
             </div>
-        
 
+
+            <div class="col-sm-2 col-xs-6">
+                <div class="form-group" id="SiteOfAngioinvasionContainer">
+                    <label>SITE OF ANGIOINVASION</label>
+                    @Html.DropDownList("SiteOfAngioinvasionVB", (List<SelectListItem>)ViewBag.SiteOfAngioinvasionDropdown, "--Select--", new { @class = "form-control" })
+                </div>
+            </div>
             <div class="col-sm-2 col-xs-6">
                 <div class="form-group" id="SiteOfAngioinvasionContainer">
                     <label>SITE OF ANGIOINVASION</label>
@@ -72,10 +78,10 @@
             </div>
             <div class="col-sm-2">
                 @*<label>Match:</label>
-                <select class="form-control" id="MatchingCriteria" name="MatchingCriteria">
-                    <option value="AND">Match All</option>
-                    <option value="OR">Match Either</option>
-                </select>*@
+            <select class="form-control" id="MatchingCriteria" name="MatchingCriteria">
+                <option value="AND">Match All</option>
+                <option value="OR">Match Either</option>
+            </select>*@
             </div>
         </div>
 

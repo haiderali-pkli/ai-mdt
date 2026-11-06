@@ -93,6 +93,39 @@ namespace BDCS.Data
             return Data;
         }
 
+        public List<RoleRight> GetRoleRightsAgainstRoles(string procedureName, string schema, string roleIdsCsv)
+        {
+            List<RoleRight> Data = new List<RoleRight>();
+            string Query = QueryHelper.GetQueryString(procedureName, schema);
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="RoleIds", Type=DbType.String, Value=roleIdsCsv}
+            };
+            try
+            {
+                DataSet ds = _db.LoadDataSet(Query, CommandType.StoredProcedure, pars);
+                if (ds?.Tables.Count > 0)
+                {
+                    Data = ds.Tables[0].AsEnumerable().Select(a => new RoleRight
+                    {
+                        MenuId = Convert.ToInt32(a["MenuId"]),
+                        MenuName = a["MenuName"].ToString(),
+                        MenuGroupName = a["MenuGroupName"].ToString(),
+                        MenuParentId = Convert.ToInt32(a["MenuParentId"]),
+                        CanView = Convert.ToBoolean(a["CanView"]),
+                        CanAddEdit = Convert.ToBoolean(a["CanAddEdit"]),
+                        CanDelete = Convert.ToBoolean(a["CanDelete"])
+                    }).ToList();
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return Data;
+        }
+
         public List<Role> GetRoleList(string procedureName, string schema)
         {
             List<Role> Data = new List<Role>();
@@ -142,13 +175,13 @@ namespace BDCS.Data
                         LoginId = a["LoginId"].ToString(),
                         UserFullName = a["UserFullName"].ToString(),
                         Password = a["Password"].ToString(),
-                        Active=Convert.ToBoolean(a["Active"])
+                        Active=Convert.ToBoolean(a["Active"]),
+                        //mdtType = a["mdtType"].ToString()
                     }).ToList();
                 }
             }
             catch (Exception ex)
             {
-
                 throw;
             }
             return Data;
@@ -240,6 +273,76 @@ namespace BDCS.Data
                 throw;
             }
             return Data;
+        }
+
+        public List<Role> GetUserRoles(int userId)
+        {
+            List<Role> Data = new List<Role>();
+            string Query = QueryHelper.GetQueryString("GetUserRoles", "System");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="UserId", Type=DbType.Int32, Value=userId}
+            };
+            try
+            {
+                DataSet ds = _db.LoadDataSet(Query, CommandType.StoredProcedure, pars);
+                if (ds?.Tables.Count > 0)
+                {
+                    Data = ds.Tables[0].AsEnumerable().Select(a => new Role
+                    {
+                        RoleId = Convert.ToInt32(a["RoleId"]),
+                        RoleName = a["RoleName"].ToString(),
+                    }).ToList();
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return Data;
+        }
+
+        public async Task<int> InsertUpdateUserRoles(int userId, string roleIdsCsv)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString("InsertUpdateUserRoles", "System");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="UserId", Type=DbType.Int32, Value=userId },
+                new DbParameters() {Name="RoleIds", Type=DbType.String, Value=roleIdsCsv },
+            };
+            try
+            {
+                result = await _db.ExecuteNonQueryAsync(Query, CommandType.StoredProcedure, pars);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return result;
+        }
+
+        public async Task<int> InsertUpdateUserClinics(int userId, string clinicIdsCsv)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString("InsertUpdateUserClinics", "Clinical");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="UserId", Type=DbType.Int32, Value=userId },
+                new DbParameters() {Name="ClinicIds", Type=DbType.String, Value=clinicIdsCsv },
+            };
+            try
+            {
+                result = await _db.ExecuteNonQueryAsync(Query, CommandType.StoredProcedure, pars);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return result;
         }
     }
 

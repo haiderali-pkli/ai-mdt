@@ -1,156 +1,192 @@
 ﻿@model List<BDCS.Model.Patient.Patient>
-    
+
 @{
     if (Request.IsAjaxRequest())
     {
         Layout = null;
     }
+
+    List<string> userMdtRight = (ViewBag.mdtTypesNameVb as List<SelectListItem>).Select(a => a.Text).ToList();
 }
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-sm-12">
-
-            <div class="row" style="margin-top:47px;">
+            <div class="row" style="margin-top: 47px;">
                 <h3 class="heading">Patient Search</h3>
             </div>
+            <!-- Container for buttons alignment -->
+            <div class="row">
+                <!-- Left side: Search and Add buttons -->
+                <div class="col-sm-8">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <input type="text" id="SearchTextBox" class="form-control padding-input full-width" style="max-width:100%" placeholder="Search Hospital Number, MRN,Name,Father Name,Contact Number,Address" value="@ViewBag.SearchText" />
+                        </div>
+                        <div class="col-sm-2">
+                            <button class="btn btn-block btn-dark btn-info" onclick="LoadPageData();"><span class="glyphicon glyphicon-search"></span> Search</button>
+                        </div>
+                        <div class="col-sm-2">
+                            <button class="btn btn-block btn-success" onclick="OpenPatientPopup();"><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
+                        </div>
+                    </div>
+                </div>
 
-            <div class="row" style="padding-left:0px">
-                <div class="col-sm-3">
-                    <input type="text" id="SearchTextBox" class="form-control padding-input full-width" style="max-width:100%" , placeholder="Search Hospital Number, MRN,Name,Father Name,Contact Number,Address" value="@ViewBag.SearchText" />
-                </div>
-                <div class="col-xs-1">
-                    <button class="btn btn-block btn-dark btn-info" onclick="LoadPageData();"><span class="glyphicon glyphicon-search"></span> Search</button>
-                </div>
-                <div class="col-sm-1">
-                    <button class="btn btn-block btn-success" onclick="OpenPatientPopup();" @*onclick="loadPage('@Url.Action("AddEditPatient","Patient")','Patient');"*@><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-                </div>
+                <!-- Right side: Advanced Search, MDT, BMT buttons -->
+                <div class="col-sm-4 text-right">
+                    <div class="row">
 
-                <div class="col-sm-2">
-                    <input type="text" id="FollowupDate" class="form-control datepicker padding-input full-width" placeholder="Followup Date" />
+                        @if (userMdtRight.Contains("Liver"))
+                        {
+                            <div class="col-sm-3">
+                                <button class="btn btn-blockbtn-warning" id="btnsms" onclick="loadPage('@Url.Action("PatientListForMDT","Patient")','Patient');">MDT Patient</button>
+                            </div>
+                            <div class="col-sm-4">
+                                <button class="btn btn-block btn-info" id="btnsms" onclick="loadPage('@Url.Action("PatientVisitAdvanceSearch","Patient")','Patient');">Advance Search</button>
+                            </div>
+                        }
+                        @if (userMdtRight.Contains("Bone Marrow"))
+                        {
+                            <div class="col-sm-3">
+                                <button class="btn btn-blockbtn-warning" id="btnsms" onclick="loadPage('@Url.Action("PatientListOfBMTForMDT","Patient")','Patient');">BMT Patient</button>
+                            </div>
+                        }
+                    </div>
                 </div>
-                <div class="col-sm-1">
-                    <button class="btn btn-block btn-warning" onclick="ViewFollowupPatients();">Followup</button>
-
-                </div>
- 
-                <div class="col-sm-1">
-                    <button class="btn btn-block btn-success" id="btnsms" onclick="loadPage('@Url.Action("PatientVisitAdvanceSearch","Patient")','Patient');">Advanced Search</button>
-                </div>
-                
-                <div class="col-sm-1">
-                    <button class="btn btn-block btn-success" id="btnsms" onclick="loadPage('@Url.Action("PatientListForMDT","Patient")','Patient');">MDT Patient</button>
-                </div>               
-               
             </div>
 
             <div class="row">
                 <div class="col-lg-12" style="margin-top:20px;padding-left:0px" id="PatientSearchList">
                     <div class="col-lg-12">
-
-                       @if (Model != null && Model.Any())
-                       {
-                        <table class="table table-bordered table-striped">
-                            <thead>
-                                <tr style="background-color: #57b7fd;color:white;">
-                                    <th>Picture</th>
-                                    <th>Registration</th>
-                                    <th>Hospital Number</th>
-                                    <th>MRN</th>
-                                    <th>Name</th>
-                                    <th>Gender</th>
-                                    <th>Contact</th>
-                                    
-                                    
-                                    @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
-                                    {
-                                        <th>Discussion</th>
-                                        <th>Edit</th>
-                                        <th>Action</th>
-                                    }
-                                    
-                                    <th>MDT History</th>
-                                    <th>Reason</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (BDCS.Model.Patient.Patient item in Model)
-                                {
-                                    <tr class="crow">
-
-
-                                        <td>
-                                            @if (!string.IsNullOrEmpty(item.ImageURL))
-                                            {
-                                                <img src="@Url.Content(item.ImageURL)" class="img img-thumbnail" style="max-width: 75px; height: auto;" />
-                                            }
-                                        </td>
-                                        <td>@item.EnteredOn.Value.ToString("dd-MMM-yyyy")</td>
-                                        <td>@item.HospitalNumber</td>
-                                        <td>@item.MrNumber</td>
-                                        <td>@item.FullName</td>
-                                        <td>@item.Gender</td>
-                                        <td>@item.MobileNumber</td>
-
+                        @if (Model != null && Model.Any())
+                        {
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr style="background-color: #57b7fd;color:white;">
+                                        <th>Picture</th>
+                                        <th>Registration</th>
+                                        <th>Hospital Number</th>
+                                        <th>MRN</th>
+                                        <th>Name</th>
+                                        <th>Gender</th>
+                                        <th>Contact</th>
                                         @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
                                         {
-
-                                            <td>@(item.DiscussionRequired ? "Yes" : "No")</td>
-
-                                            <td>
-                                                @*<a href="#" onclick="loadPage('@Url.Action("AddEditPatientDetail","Patient",new { item.PatientId,item.CountryId,item.FirstName})','Patient')">*@
-                                                <a href="#" onclick="AddEditPatientDemographics(@item.PatientId);">
-                                                    <span class="glyphicon glyphicon-edit"></span>
-                                                </a>
-                                            </td>
-                                            <td>
-                                                <a href="#" onclick="CreateVisit(@item.PatientId,this);">
-                                                    <span class="glyphicon glyphicon-plus"></span>
-                                                </a>
-                                                |
-                                                <a href="#" onclick="ToggleDiscussionStatus(@item.PatientId,this);" title="Toggle Discussion Status">
-                                                    <span class="glyphicon glyphicon-tasks"></span>
-                                                </a>
-                                            </td>
+                                            <th>Discussion</th>
+                                            <th>Edit</th>
+                                            <th style="column-width:41px;">Action</th>
                                         }
+                                        <th>MDT History</th>
 
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (BDCS.Model.Patient.Patient item in Model)
+                                    {
+                                        <tr class="crow">
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(item.ImageURL))
+                                                {
+                                                    <img src="@Url.Content(item.ImageURL)" class="img img-thumbnail" style="max-width: 75px; height: auto;" />
+                                                }
+                                            </td>
+                                            <td>@item.EnteredOn.Value.ToString("dd-MMM-yyyy")</td>
+                                            <td>@item.HospitalNumber</td>
+                                            <td>@item.MrNumber</td>
+                                            <td>@item.FullName</td>
+                                            <td>@item.Gender</td>
+                                            <td>@item.MobileNumber</td>
+                                            @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
+                                            {
+                                                @*<td>@(item.DiscussionRequired ? "Yes" : "No")</td><td></td>*@
+
+                                                <td>@(item.DiscussionRequired.Equals(true)  ? "Yes" : "No")</td>
+                                                <td>
+                                                    <a href="#" onclick="AddEditPatientDemographics(@item.PatientId);">
+                                                        <span class="glyphicon glyphicon-edit"></span>
+                                                    </a>
+                                                </td>
+                                                <td style="column-width:41px;">
+                                                    <div class="dropdown">
+                                                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                            MDT
+                                                            <span class="caret"></span>
+                                                        </button>
+                                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                                                            @foreach (SelectListItem items in ViewBag.mdtTypesNameVb)
+                                                            {
+                                                                if (items.Text == "Liver")
+                                                                {
+                                                                    <li><a href="#" onclick=" CreateVisit(@item.PatientId, this, 'Liver');">Liver</a></li>
+                                                                }
+                                                                else if (items.Text == "Bone Marrow")
+                                                                {
+                                                                    <li><a href="#" onclick=" CreateVisit(@item.PatientId, this, 'BoneMarrow');">Bone Marrow</a></li>
+                                                                }
+                                                            }
+                                                        </ul>
+                                                    </div>
+                                                    |
+                                                    <a href="#" onclick="ToggleDiscussionStatus(@item.PatientId,this);" title="Toggle Discussion Status">
+                                                        <span class="glyphicon glyphicon-tasks"></span>
+                                                    </a>
+                                                </td>
+                                            }
                                         <td>
-                                            <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName');">
-                                                <span class="glyphicon glyphicon-link"> History</span>
-                                            </a>
+
+                                                            @*@if (userMdtRight.Contains("Liver"))
+                        {
+                            <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','Liver');">
+                                <span class="glyphicon glyphicon-link"> History1</span>
+                            </a>
+                        }
+                        @if (userMdtRight.Contains("Bone Marrow"))
+                        {
+                            <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','BoneMarrow');">
+                                <span class="glyphicon glyphicon-link"> History2</span>
+                            </a>
+                        }*@
+
+                                            @if (userMdtRight.Contains("Liver") && !userMdtRight.Contains("Bone Marrow"))
+                                            {
+                                                // Only Liver
+                                                <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','Liver');">
+                                                    <span class="glyphicon glyphicon-link"></span> Liver History
+                                                </a>
+                                            }
+                                            else if (!userMdtRight.Contains("Liver") && userMdtRight.Contains("Bone Marrow"))
+                                            {
+                                                // Only Bone Marrow
+                                                <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','BoneMarrow');">
+                                                    <span class="glyphicon glyphicon-link"></span> BMT History
+                                                </a>
+                                            }
+                                            else if (userMdtRight.Contains("Liver") && userMdtRight.Contains("Bone Marrow"))
+                                            {
+                                                // Both
+                                                <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','Liver');">
+                                                    <span class="glyphicon glyphicon-link"></span> Liver History
+                                                </a>
+                                                <span>&nbsp;|&nbsp;</span>
+                                                <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','BoneMarrow');">
+                                                    <span class="glyphicon glyphicon-link"></span> BMT History
+                                                </a>
+                                            }
 
                                             <a href="@Url.Action("PatientCard", new {PatientId = item.PatientId})" target="_blank">
                                                 <span class="glyphicon glyphicon-certificate">Card</span>
                                             </a>
                                         </td>
-                                        <td>
-                                            @Html.DropDownListFor(a => item.Reason, (List<SelectListItem>)ViewBag.VisitType, new { @class = "form-control Reason" })
-
-                                            @*Secondway
-                                                    @foreach (SelectListItem items in ViewBag.VisitType)
-                                                {
-                                                    <select class="form-control Reason">
-                                                        <option value=@items.Value>@items.Text</option>
-                                                    </select>
-                                                }*@
-
-
-                                            @*@hardcoded form
-                                                    <select class="form-control Reason">
-                                                    <option value="Routine">Routine</option>
-                                                    <option value="Follow up">Followup</option>
-                                                </select>*@
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                       }
-                       else
-                       {
-                        <h3>No Data found</h3>
-                       }
-
-
+                                     
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <h3>No Data found</h3>
+                        }
                     </div>
                 </div>
 
@@ -158,17 +194,35 @@
                     <div id="PatientInfoBox">
                         @*//Histordiv will load here*@
                     </div>
-
                 </div>
-
             </div>
-
         </div>
     </div>
-   
-
 </div>
 
+
+<div class="modal fade modal-sm" tabindex="-1" modal hide" data-backdrop="static" data-keyboard="false" role="dialog" id="MDTTypePopup" style="margin:auto">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" style="text-align:center">Choose MDT Type</h5>
+            </div>
+            <div class="modal-body" id="MDTTypeBody">
+                @Html.Hidden("hfpatientId")
+                <div class="row">
+                    <div class="col-xs-12">
+
+                        @Html.DropDownList("MDTType", (List<SelectListItem>)ViewBag.MDTTypes, new { @class = "form-control", id = "ddlMDTTypeId" })
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" onclick="CreateVisit($('#hfpatientId').val(), this);">Create Visit</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 
 <script type="text/javascript">
     $(document).ready(function () {
@@ -176,7 +230,7 @@
         PostPageLoad();
     });
 
-
+    
 
     function OpenPatientPopup() {
         var Url = '@Url.Action("AddEditPatient", "Patient")';
@@ -203,14 +257,15 @@
         });
     }
 
-    function LoadPatientVisitHistory(patId, patName) {
+    function LoadPatientVisitHistory(patId, patName,type) {
         //$("#PatientSearchList").toggleClass("col-lg-12 col-lg-6");
         $("#PatientSearchList").removeClass("col-lg-12").addClass("col-lg-8");
         $("#PatientInfoBoxContainer").show();
         $("#btnsms").hide();
         var par = {
             patId: patId,
-            patName: patName
+            patName: patName,
+            mdtType:type
         };
         var url = '@Url.Action("GetVisitHistory", "Patient")' + '/?' + $.param(par);
         loadPage(url, "Patient", "PatientInfoBox");
@@ -228,7 +283,6 @@
     }
 
     function LoadPageData() {
-        debugger;
         var par = {
             searchText: $("#SearchTextBox").val(),
 
@@ -237,18 +291,38 @@
         loadPage(url, "Patient");
     }
 
-    function CreateVisit(patId, tag) {
+    function CreateVisit(patId, tag, type) {
         var Reason = $(tag).closest("tr").find('.Reason option:selected').text();
-        debugger;
+
+        type = type || "Default";
+
         $.ajax({
             url: '@Url.Action("CreatePatientVisit","Patient")',
             type: 'Post',
             dataType: 'Json',
-            data: { patId: patId, reason: Reason },
+            data: { patId: patId, reason: Reason, mdttype:type },
 
             success: (function (msg) {
                 if (parseInt(msg.Code) == 200) {
-                    loadPage('@Url.Action("AddEditPatientDetail", "Patient")' + '/?patId=' + patId + ' &visitId=' + msg.ResponseObject + ' &reason=' + Reason, "Prescription");
+
+                    loadPage('@Url.Action("AddEditPatientDetail", "Patient")' +
+                        '?patId=' + patId +
+                        '&visitId=' + msg.ResponseObject +
+                        '&reason=' + Reason +
+                        '&MDTType=' + type,
+                        "Prescription");
+
+                    @*switch (type) {
+                        case "Liver":
+                            loadPage('@Url.Action("AddEditPatientDetail", "Patient")' + '/?patId=' + patId + ' &visitId=' + msg.ResponseObject + ' &reason=' + Reason, "Prescription");
+                            break;
+                        case "BoneMarrow":
+                            loadPage('@Url.Action("AddEditPatientDetailBoneMarrow", "Patient")' + '/?patId=' + patId + ' &visitId=' + msg.ResponseObject + ' &reason=' + Reason, "Prescription");
+                            break;
+                        default:
+                            alert("Invalid MDT Type");
+                            break;
+                    }*@
                 }
                 else {
                     ShowAlertMessage('Unable to Create Visit', 'warning');
@@ -284,7 +358,7 @@
 
     function AddEditPatientFunction(patId, visitId, reason, visitDateTime) {
 
-        debugger;
+
         var par = {
 
             patId: patId,
@@ -321,7 +395,7 @@
 
     function SendFollowupSms() {
 
-        debugger;
+
         $.ajax({
             url: '@Url.Action("SendSMSForFollowUp", "Patient")',
             type: 'Post',
@@ -340,6 +414,12 @@
                 ShowAlertMessage("An error occured", 'error');
             }
         });
+    }
+
+    //Changes
+    function openVisitPopup(patId) {
+        $("#hfpatientId").val(patId);
+        $("#MDTTypePopup").modal('show');
     }
 
 </script>

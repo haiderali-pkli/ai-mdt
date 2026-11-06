@@ -20,6 +20,9 @@ using Microsoft.Reporting.WebForms;
 using System.Data;
 using System.IO;
 using System.Reflection;
+using Microsoft.Ajax.Utilities;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using static Antlr.Runtime.Tree.TreeWizard;
 
 namespace BDCS.Controllers
 {
@@ -81,7 +84,7 @@ namespace BDCS.Controllers
             List<KeyAndValuePair> Gender = await _CommonBL.GetDefinationData("lookups", "System", "GenderType");
             List<KeyAndValuePair> Country = await _CommonBL.GetDefinationData("GetCountryList", "System", "");
             List<KeyAndValuePair> Referredby=await _CommonBL.GetDefinationData("lookups", "System", "ReferredBy");
-  List<KeyAndValuePair> Ethnicity = await _CommonBL.GetDefinationData("lookups", "System", "Ethnicity");
+            List<KeyAndValuePair> Ethnicity = await _CommonBL.GetDefinationData("lookups", "System", "Ethnicity");
 
             List<KeyAndValuePair> BloodGroup = await _CommonBL.GetDefinationData("lookups", "System", "BloodGroup");
 
@@ -99,7 +102,7 @@ namespace BDCS.Controllers
             ViewBag.CountryVB = Country.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
             ViewBag.ReferredbyVB = Referredby.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
             ViewBag.AgeUnit = AgeUnit.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-     ViewBag.EthnicityVB = Ethnicity.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            ViewBag.EthnicityVB = Ethnicity.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
             ViewBag.BloodGroupVB = BloodGroup.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
@@ -120,6 +123,12 @@ namespace BDCS.Controllers
         }
         #endregion
 
+        public ActionResult Logout()
+        {
+            Session.Clear();
+            Session.Abandon();
+            return RedirectToAction("Login", "Home");
+        }
         //LoginView Submit--> and call the -->ValidageLoginId and Rights-->PatientDAL-->AuthenticationFilter(check session values userId and Rigts)-->SessionHelper(check userobject and rights exists in session)-->
         #region [GetPatientList]
         [CheckUserRights(MenuName  = "Search Patient", Order = 1, UserRightType = RightType.View)]
@@ -127,18 +136,46 @@ namespace BDCS.Controllers
          {
             List<Patient> pat = new List<Patient>();
             int clinicId = Convert.ToInt32(Session["ClinicId"]);
-            if (searchText!=null)
-            {
-                await Task.Run(() =>
-                {
-                    pat = _PatientBL.GetPatientList(searchText,clinicId);
-                });
-            }
-            ViewBag.SearchText = searchText;
-            List<KeyAndValuePair> visit = await _CommonBL.GetDefinationData("lookups", "System", "VisitType");
-            ViewBag.VisitType = visit.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-           return View(pat);
+            searchText = searchText ?? string.Empty;
+            Users user = Session["user"] as Users;
+            int userId = user.UserId;
+            if (user==null)
+            {
+                return RedirectToAction("Home", "Login");
+            }
+            if (userId>0)
+            {
+                if (searchText !=null)
+                {
+                    await Task.Run(() =>
+                    {
+                        pat = _PatientBL.GetPatientList(searchText, clinicId);
+                    });
+                }
+                ViewBag.SearchText = searchText;
+                List<KeyAndValuePair> visit = await _CommonBL.GetDefinationData("lookups", "System", "VisitType");
+                ViewBag.VisitType = visit.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+
+
+                List<KeyAndValuePair> data = new List<KeyAndValuePair>();
+                //Users user = Session["user"] as Users;
+                //int userId = user.UserId;
+                data = _CommonBL.GetMDTTypes(userId);
+                ViewBag.MDTTypes = data.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+                List<KeyAndValuePair> mdtTypesName = new List<KeyAndValuePair>();
+                mdtTypesName = _CommonBL.GetMDTTypesNameByUserId(userId);
+                ViewBag.mdtTypesNameVb = mdtTypesName.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            }
+            else
+            {
+                return RedirectToAction("Home", "Login");
+            }
+            
+
+            return View(pat);
         }
 
         [CheckUserRights(MenuName = "Add Patient", Order = 1, UserRightType = RightType.AddEdit)]
@@ -407,13 +444,14 @@ namespace BDCS.Controllers
         }
 
         [CheckUserRights(MenuName = "Create Visit", Order = 1, UserRightType = RightType.AddEdit)]
-        public async Task<ActionResult> CreatePatientVisit(int patId,string reason)
+        public async Task<ActionResult> CreatePatientVisit(int patId,string reason,string mdttype= "")
         {
             Visit visit = new Visit();
             AjaxResponse response = new AjaxResponse();
             visit.PatientId = patId;
             visit.Reason = reason;
             visit.VisitDate = DateTime.Now;
+            visit.MDTType = mdttype?.ToString();
             int result = 0;
             try
             {
@@ -488,13 +526,14 @@ namespace BDCS.Controllers
 
         #endregion
 
-        #region [AddEditPatientDetail]
-        public async Task<ActionResult> AddEditPatientDetail(int patId, string visitDateTime, int visitId = 0, string reason = "")
+
+        #region [AddEditPatientDetail--BoneMarrow]
+        public async Task<ActionResult> AddEditPatientDetailBoneMarrow(int patId, string visitDateTime, int visitId = 0, string reason = "")
         {
             Patient Data = new Patient();
             List<PatientAlert> alert = new List<PatientAlert>();
 
-            if (patId!=0 && visitId!=0)
+            if (patId != 0 && visitId != 0)
             {
                 await Task.Run(() =>
                     Data = _PatientBL.GetPatientById(patId)
@@ -536,6 +575,65 @@ namespace BDCS.Controllers
             List<KeyAndValuePair> labTest = await _CommonBL.GetDefinationData("lookups", "System", "Lab");
             ViewBag.LabTestVB = labTest.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id.ToString() }).ToList();
 
+            return View(Data);
+        }
+        #endregion
+
+
+        #region [AddEditPatientDetail]
+        public async Task<ActionResult> AddEditPatientDetail(int patId, string MDTType,string visitDateTime, int visitId = 0, string reason = "")
+        {
+            Patient Data = new Patient();
+            List<PatientAlert> alert = new List<PatientAlert>();
+
+            if (patId!=0 && visitId!=0)
+            {
+                await Task.Run(() =>
+                    Data = _PatientBL.GetPatientById(patId)
+               );
+            }
+
+            //alert = _PatientBL.GetPatientActiveAlerts(patId);
+
+            if (Data.DOB.HasValue && Data.DOB.Value.Date != DateTime.MinValue.Date)
+            {
+                int PatientAgeDays = Convert.ToInt32((DateTime.Now.Date - Data.DOB.Value.Date).TotalDays);
+
+                if (PatientAgeDays >= 365)
+                {
+                    Data.Age = Math.Round((PatientAgeDays * 1.0) / 365, 2);
+                    Data.AgeUnit = "Years";
+
+                }
+                else if (PatientAgeDays >= 30 && PatientAgeDays < 365)
+                {
+                    Data.Age = PatientAgeDays / 30;
+                    Data.AgeUnit = "Months";
+                }
+                else if (PatientAgeDays < 30)
+                {
+                    Data.Age = PatientAgeDays;
+                    Data.AgeUnit = "Days";
+                }
+            }
+
+            TempData["VisitIdVB"] = visitId;
+            TempData["patientIdVB"] = patId;
+            TempData["reasonVB"] = reason;
+            TempData["VisitDateTimeVB"] = Convert.ToDateTime(visitDateTime ?? DateTime.Now.ToString()).ToString("dd-MMM-yyyy");
+            TempData["MDTType"] = MDTType;
+            //ViewBag.Alerts = alert;
+
+            if(MDTType== "BoneMarrow")
+            {
+                List<KeyAndValuePair> labTest = await _CommonBL.GetDefinationData("lookups", "System", "Labbmt");
+                ViewBag.LabTestVB = labTest.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id.ToString() }).ToList();
+            }
+            else if (MDTType == "Liver")
+            {
+                List<KeyAndValuePair> labTest = await _CommonBL.GetDefinationData("lookups", "System", "Lab");
+                ViewBag.LabTestVB = labTest.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id.ToString() }).ToList();
+            }
             return View(Data);
         }
 
@@ -597,8 +695,9 @@ namespace BDCS.Controllers
             return View("VitalHistory", Data);
         }
 
+
         #region [VitalHistory]
-        public async Task <ActionResult> VitalHistory(int visitId,string reason,int patId)
+        public async Task <ActionResult> VitalHistory(int visitId,string reason,int patId, string mdtype = "")
         {
             ViewBag.VisitIdVB = visitId;
             ViewBag.VisitTypeVB = reason;
@@ -682,9 +781,6 @@ namespace BDCS.Controllers
             ViewBag.MDTOutComeVB = MDTOutCome.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
 
 
-         
-
-
             List<KeyAndValuePair> SiteOfAngioinvasion = await _CommonBL.GetDefinationData("Lookups", "System", "SiteOfAngioinvasion");
             ViewBag.SiteOfAngioinvasionDropdown = SiteOfAngioinvasion.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
 
@@ -712,15 +808,12 @@ namespace BDCS.Controllers
                         if (Data.Count>0)
                         {
                             //Data[0].labreports = _PatientBL.GetLabOrders(visitId);
-
                             //Data[0].PreviousLab = _PatientBL.GetPreviousLabReport(visitId);
                             Data[0].PatientDiagnosis = _PatientBL.GetPatientDiagnosisAgainstVisit(visitId);
-                            
                         }
                     }
                 );
             //}
-
             ViewBag.VisitIdVB = visitId;
             ViewBag.patientIdVB = patId;
             ViewBag.reasonVB = TempData["reasonVB"];
@@ -954,27 +1047,24 @@ namespace BDCS.Controllers
             return Json(response);
         }
 
-        public ActionResult GetPreviousVisitLabTests(int patientId, int visitId)
-        {
-            List<LabReports> reports = _PatientBL.GetPreviousVisitLabTests(patientId, visitId);
-
-
-
-            return View(reports);
-        }
+        //public ActionResult GetPreviousVisitLabTests(int patientId, int visitId)
+        //{
+        //    List<LabReports> reports = _PatientBL.GetPreviousVisitLabTests(patientId, visitId);
+        //    return View(reports);
+        //}
 
         #endregion
 
         #region [PatientVisitHisotry]
         [CheckUserRights(MenuName = "Visit History", Order = 1, UserRightType = RightType.View)]
-        public async Task<ActionResult> GetVisitHistory(int patId, string patName)
+        public async Task<ActionResult> GetVisitHistory(int patId, string patName,string mdtType)
         {
             List<Visit> data = new List<Visit>();
             if (patId>0)
             {
                 await Task.Run(() =>
                 {
-                    data = _PatientBL.GetVisitHistory(patId);
+                    data =  _PatientBL.GetVisitHistory(patId,mdtType);
                 });
             }
             ViewBag.PatientName = patName;
@@ -1011,8 +1101,12 @@ namespace BDCS.Controllers
                 else
                 {
                     Session["User"] = data;
-                    //here we want a list of rights and we pcik form roleId because we gave rights to role not to user
-                    List<RoleRight> Rights = _user.GetRoleRightsAgainstRole(data.RoleId);
+                    //a user can now hold multiple roles (System.UserRole); rights are the union of all assigned roles.
+                    //fall back to the legacy single-role lookup if no UserRole rows exist yet for this user.
+                    List<int> roleIds = _user.GetUserRoles(data.UserId).Select(a => a.RoleId).ToList();
+                    List<RoleRight> Rights = roleIds.Any()
+                        ? _user.GetRoleRightsAgainstRoles(roleIds)
+                        : _user.GetRoleRightsAgainstRole(data.RoleId);
                     Session["Rights"] = Rights;
                     res.Code = 200;
                     res.DoFullRedirect = true;
@@ -1038,7 +1132,6 @@ namespace BDCS.Controllers
         [CheckUserRights(MenuName = "Visit History", Order = 1, UserRightType = RightType.View)]
         public async  Task<ActionResult> PatientVisitReport(int patId, int visitId, string reason="")
         {
-
             Patient Patient = new Patient();
             if (patId != 0 && visitId != 0)
             {
@@ -1069,9 +1162,6 @@ namespace BDCS.Controllers
             List<KeyAndValuePair> PresentHx = await _CommonBL.GetDefinationData("Lookups", "System", "PHx");
             ViewBag.presentHistoryVB = PresentHx.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-          
-
-
             VitalHistory Data = new VitalHistory();
 
             //if (Data != null && Data.Count > 0)
@@ -1085,9 +1175,8 @@ namespace BDCS.Controllers
 
                     Data.PreviousLab = _PatientBL.GetPreviousLabReport(visitId);
                     Data.protocols = _PatientBL.GetPatientProtocolDetail(visitId);
-                   
                 }
-            }
+                }
             );
             //}
 
@@ -1119,12 +1208,26 @@ namespace BDCS.Controllers
             return View(Data);
         }
 
+        private string _mdtType;
 
         [CheckUserRights(MenuName = "Visit History", Order = 1, UserRightType = RightType.View)]
-        public async Task<ActionResult> PatientVisitReportRdlc(int patId, int visitId, string reason = "")
+        public async Task<ActionResult> PatientVisitReportRdlc(int patId, int visitId, string reason = "", string mdtType="")
         {
+            globalPatiId = patId;
+            globalVisitId = visitId;
+
+            _mdtType = mdtType;
+            Warning[] warnings;
+            string mimeType;
+            string[] streamids;
+            string encoding;
+            string filenameExtension;
 
             List<Patient> Patient = new List<Patient>();
+            
+            List<VitalHistory> Data = new List<VitalHistory>();
+            List<VitalHistoryBMT> DataBMT = new List<VitalHistoryBMT>();
+
             if (patId != 0 && visitId != 0)
             {
                 await Task.Run(() =>
@@ -1132,89 +1235,177 @@ namespace BDCS.Controllers
                );
             }
 
-
-            List<VitalHistory> Data = new List<VitalHistory>();
-
             //if (Data != null && Data.Count > 0)
             //{
             await Task.Run(() =>
             {
-                Data = _PatientBL.GetPatientDetail(visitId, patId);
-                if (Data != null && Data.Count > 0)
+                if (mdtType == "Liver")
                 {
-                    Data[0].PreviousLab = _PatientBL.GetPreviousLabReport(visitId);
-                    Data[0].labreports = _PatientBL.GetLabOrders(visitId);
-                    Data[0].protocols = _PatientBL.GetPatientProtocolDetail(visitId);
+                    Data = _PatientBL.GetPatientDetail(visitId, patId);
+                    if (Data != null && Data.Count > 0)
+                    {
+                        //Data[0].PreviousLab = _PatientBL.GetPreviousLabReport(visitId);
+                        //Data[0].labreports = _PatientBL.GetLabOrders(visitId);
+                        //Data[0].protocols = _PatientBL.GetPatientProtocolDetail(visitId);
+                    }
                 }
+                else if (mdtType == "BoneMarrow")
+                {
+                    DataBMT = _PatientBL.GetBMTPatientDetail(visitId, patId);
+                    if (DataBMT != null && DataBMT.Count > 0)
+                    {
+                        //DataBMT[0].PreviousLab = _PatientBL.GetPreviousLabReport(visitId);
+                        DataBMT[0].labreports = _PatientBL.GetLabOrdersBMT(visitId);
+                        //DataBMT[0].protocols = _PatientBL.GetPatientProtocolDetail(visitId);
+                    }
+                }
+
               }
             );
 
-
-            Warning[] warnings;
-            string mimeType;
-            string[] streamids;
-            string encoding;
-            string filenameExtension;
-
-            if (Data == null || Data.Count <1)
+            if (mdtType == "Liver")
             {
-                return RedirectToAction("NoData", new { message = "No Report data found.." });
+                if (Data == null || Data.Count < 1)
+                {
+                    return RedirectToAction("NoData", new { message = "No Report data found.." });
+                }
             }
-
+            else if (mdtType == "BoneMarrow")
+            {
+                if (DataBMT == null || DataBMT.Count < 1)
+                {
+                    return RedirectToAction("NoData", new { message = "No Report data found.." });
+                }
+            }
             LocalReport Report = new LocalReport();
-
             Report.EnableExternalImages = true;
-            Report.ReportPath = Server.MapPath("~/Reports/Patient.rdlc");
-            Report.DataSources.Add(new ReportDataSource("PreviousLabReports", Data[0].PreviousLab));
-            Report.DataSources.Add(new ReportDataSource("CurrentLabs", Data[0].labreports));
-            Report.DataSources.Add(new ReportDataSource("Protocols", Data[0].protocols ));
-            Report.DataSources.Add(new ReportDataSource("Patient", Patient));
-            Report.DataSources.Add(new ReportDataSource("PatientDetail", Data));
-            Report.SetParameters(new ReportParameter("PatientId", patId.ToString()));
-            Report.SetParameters(new ReportParameter("VisitId", visitId.ToString()));
-            Report.SetParameters(new ReportParameter("Reason", reason));
-            string imagePath = new Uri(Server.MapPath(Patient[0].ImageURL)).AbsoluteUri;
-            ReportParameter p = new ReportParameter("ImagePath", imagePath);
+            
+            if (mdtType == "Liver")
+            {
+        
+                Report.ReportPath = Server.MapPath("~/Reports/Patient.rdlc");
+                Report.DataSources.Add(new ReportDataSource("PreviousLabReports", Data[0].PreviousLab));
+                Report.DataSources.Add(new ReportDataSource("CurrentLabs", Data[0].labreports));
+                Report.DataSources.Add(new ReportDataSource("Protocols", Data[0].protocols));
+                Report.DataSources.Add(new ReportDataSource("Patient", Patient));
+                Report.DataSources.Add(new ReportDataSource("PatientDetail", Data));
+                Report.SetParameters(new ReportParameter("PatientId", patId.ToString()));
+                Report.SetParameters(new ReportParameter("VisitId", visitId.ToString()));
+                Report.SetParameters(new ReportParameter("Reason", reason));
+                string imagePath = new Uri(Server.MapPath(Patient[0].ImageURL)).AbsoluteUri;
+                ReportParameter p = new ReportParameter("ImagePath", imagePath);
 
-            Report.SetParameters(p);
-            Report.SubreportProcessing += new SubreportProcessingEventHandler(LocalReport_SubreportProcessing);
-          //  Report.SubreportProcessing += new SubreportProcessingEventHandler(PreviousResult_SubreportProcessing);
+                Report.SetParameters(p);
+                Report.SubreportProcessing += new SubreportProcessingEventHandler(LocalReport_SubreportProcessing);
+            }
+            else if (mdtType == "BoneMarrow")
+            {
+                Report.ReportPath = Server.MapPath("~/Reports/PatientMaster.rdlc");
+                Report.DataSources.Add(new ReportDataSource("dsPatientMaster", Patient));
+                Report.DataSources.Add(new ReportDataSource("dsPatientChild", DataBMT));
 
-            Report.Refresh();
+                Report.SetParameters(new ReportParameter("PatientId", patId.ToString()));
+                Report.SetParameters(new ReportParameter("VisitId", visitId.ToString()));
 
+                //string imagePath = new Uri(Server.MapPath(Patient[0].ImageURL)).AbsoluteUri;
+                //ReportParameter p = new ReportParameter("ImagePath", imagePath);
+                // Report.SetParameters(p);
+                Report.SubreportProcessing += new SubreportProcessingEventHandler(LocalReport_SubreportProcessing);
+            }
+            //Report.Refresh();
+            
             var bytes = Report.Render("PDF", null, out mimeType, out encoding, out filenameExtension, out streamids, out warnings);
-
             return new FileContentResult(bytes, mimeType);
-
         }
-
+        private int globalPatiId;
+        private int globalVisitId;
         void LocalReport_SubreportProcessing(object sender, SubreportProcessingEventArgs e)
         {
-
-            int PatientId = Convert.ToInt32(e.Parameters["PatientId"].Values[0]);
-            // our subreport has only 1 parameter
-            int VisitId = Convert.ToInt32(e.Parameters["VisitId"].Values[0]);
-            // our subreport has only 1 dataset
-            string dataSourceName = e.DataSourceNames[0];
-            List<VitalHistory> Data = new List<VitalHistory>();
-            Data = new PatientBL().GetPatientDetail(VisitId, PatientId);
-
-            List<PatientDiagnosis> Diagnosis = _PatientBL.GetPatientDiagnosisAgainstVisit(VisitId);
-            if (Diagnosis != null && Diagnosis.Any())
+            
+            if (_mdtType == "Liver")
             {
-                Diagnosis = Diagnosis.Where(a => a.IsActive == true).ToList();
+                int PatientId = Convert.ToInt32(e.Parameters["PatientId"].Values[0]);
+                int VisitId = Convert.ToInt32(e.Parameters["VisitId"].Values[0]);
+
+                string dataSourceName = e.DataSourceNames[0];
+
+                List<VitalHistory> Data = new List<VitalHistory>();
+                Data = new PatientBL().GetPatientDetail(VisitId, PatientId);
+
+                List<PatientDiagnosis> Diagnosis = _PatientBL.GetPatientDiagnosisAgainstVisit(VisitId);
+                if (Diagnosis != null && Diagnosis.Any())
+                {
+                    Diagnosis = Diagnosis.Where(a => a.IsActive == true).ToList();
+                }
+
+                List<PatientAlert> Alerts = new List<PatientAlert>();// _PatientBL.GetPatientActiveAlerts(PatientId);
+
+                e.DataSources.Add(new ReportDataSource("PatientDetail", Data));
+                e.DataSources.Add(new ReportDataSource("PreviousLabReports", new PatientBL().GetPreviousLabReport(VisitId)));
+                e.DataSources.Add(new ReportDataSource("CurrentLabs", new PatientBL().GetLabOrders(VisitId)));
+                e.DataSources.Add(new ReportDataSource("PreviousVisitsLabs", new List<LabReports>()));
+                //new PatientBL().GetLabOrdersAgainstPreviousVisits(VisitId).Where(a => a.VisitId == VisitId).ToList()));) ;
+                e.DataSources.Add(new ReportDataSource("Protocols", new List<Protocols>()));// new PatientBL().GetPatientProtocolDetail(VisitId)));
+                e.DataSources.Add(new ReportDataSource("Patient", new PatientBL().GetPatientByIdForRpt(PatientId)));
+                e.DataSources.Add(new ReportDataSource("PatientDiagnosis", Diagnosis));
+                e.DataSources.Add(new ReportDataSource("PatientAlerts", Alerts));
             }
+            else if (_mdtType == "BoneMarrow")
+            {
+                //int PatientId = 14326;//
 
-            List<PatientAlert> Alerts =  _PatientBL.GetPatientActiveAlerts(PatientId);
+                //int VisitId = 18442;//
 
-            e.DataSources.Add(new ReportDataSource("PatientDetail", Data));
-            e.DataSources.Add(new ReportDataSource("PreviousLabReports", new PatientBL().GetPreviousLabReport(VisitId)));
-            e.DataSources.Add(new ReportDataSource("CurrentLabs", new PatientBL().GetLabOrders(VisitId)));
-            e.DataSources.Add(new ReportDataSource("PreviousVisitsLabs", new PatientBL().GetLabOrdersAgainstPreviousVisits(VisitId).Where(a => a.VisitId == VisitId).ToList()));
-            e.DataSources.Add(new ReportDataSource("Protocols", new PatientBL().GetPatientProtocolDetail(VisitId)));
-            e.DataSources.Add(new ReportDataSource("Patient", new PatientBL().GetPatientByIdForRpt(PatientId)));
-            e.DataSources.Add(new ReportDataSource("PatientDiagnosis", Diagnosis ));
-            e.DataSources.Add(new ReportDataSource("PatientAlerts", Alerts));
+
+                int PatientId = Convert.ToInt32(e.Parameters["PatientId"].Values[0]);
+                int VisitId = Convert.ToInt32(e.Parameters["VisitId"].Values[0]);
+
+                //int globalPatId = patId;
+                //int globalVisitId = visitId;
+
+
+                string dataSourceName = e.DataSourceNames[0];
+
+                List<VitalHistoryBMT> DataBMT = new List<VitalHistoryBMT>();
+                DataBMT = new PatientBL().GetBMTPatientDetail(VisitId, PatientId);
+
+                List<PatientDiagnosisBMT> DiagnosisBMT = _PatientBL.GetPatientDiagnosisAgainstVisitBMT(VisitId);
+                if (DiagnosisBMT != null && DiagnosisBMT.Any())
+                {
+                    DiagnosisBMT = DiagnosisBMT.Where(a => a.IsActive == true).ToList();
+                }
+                //List<PatientAlert> Alerts = _PatientBL.GetPatientActiveAlerts(PatientId);
+                if (DataBMT!=null && DataBMT.Count > 0) 
+                {
+                    DataBMT.ForEach(a => a.OtherComorbitiesString = string.Join(",", a.OtherComorbitiesBMT));
+                        e.DataSources.Add(new ReportDataSource("dsPatientChild", DataBMT));
+
+                    DataBMT.ForEach(a => a.SiteOfLymphNodesVB = string.Join(",", a.SiteOfLymphnodes));
+                        e.DataSources.Add(new ReportDataSource("dsPatientChild", DataBMT));
+
+                    DataBMT.ForEach(a => a.PreviousTreatmentBMTSring = string.Join(",", a.PreviousTreatmentBMT)); 
+                    e.DataSources.Add(new ReportDataSource("dsPatientChild", DataBMT));
+
+                    //foreach (var item in DataBMT)
+                    //{
+                    //    if (item.PreviousTreatmentBMT!=null)
+                    //    {
+                    //        item.PreviousTreatmentBMTSring = string.Join(",", item.PreviousTreatmentBMT);
+
+                    //    }
+                    //    e.DataSources.Add(new ReportDataSource("dsPatientChild", DataBMT));
+                    //}
+                    DataBMT.ForEach(a => a.MDTOutComeString = string.Join(",", a.MDTOutCome));
+                    e.DataSources.Add(new ReportDataSource("dsPatientChild", DataBMT));
+                }
+                //e.DataSources.Add(new ReportDataSource("PreviousLabReports", new PatientBL().GetPreviousLabReport(VisitId)));
+                e.DataSources.Add(new ReportDataSource("dsLabResults", new PatientBL().GetLabOrdersBMT(VisitId)));
+                //e.DataSources.Add(new ReportDataSource("PreviousVisitsLabs", new PatientBL().GetLabOrdersAgainstPreviousVisits(VisitId).Where(a => a.VisitId == VisitId).ToList()));
+                //e.DataSources.Add(new ReportDataSource("Protocols", new PatientBL().GetPatientProtocolDetail(VisitId)));
+                //e.DataSources.Add(new ReportDataSource("Patient", new PatientBL().GetPatientByIdForRpt(PatientId)));
+                e.DataSources.Add(new ReportDataSource("dsPatientDiagnosis", DiagnosisBMT));
+                //e.DataSources.Add(new ReportDataSource("PatientAlerts", Alerts));
+            }
         }
 
 
@@ -1222,15 +1413,14 @@ namespace BDCS.Controllers
         {
 
             int PatientId = Convert.ToInt32(e.Parameters["PatientId"].Values[0]);
-            // our subreport has only 1 parameter
             int VisitId = Convert.ToInt32(e.Parameters["VisitId"].Values[0]);
-            // our subreport has only 1 dataset
             string dataSourceName = e.DataSourceNames[0];
-            List<VitalHistory> Data = new List<VitalHistory>();
-            Data = new PatientBL().GetPatientDetail(VisitId, PatientId);
-            
-            e.DataSources.Add(new ReportDataSource("PreviousLabReports", new PatientBL().GetPreviousLabReport(VisitId)));
-
+            List<VitalHistoryBMT> DataBMT=new List<VitalHistoryBMT>();
+            //DataBMT = new PatientBL().GetBMTPatientDetail(VisitId, PatientId);
+            //List<VitalHistory> Data = new List<VitalHistory>();
+            //Data = new PatientBL().GetPatientDetail(VisitId, PatientId);
+            //DataBMT = new PatientBL().GetBMTPatientDetail(VisitId, PatientId);
+            //e.DataSources.Add(new ReportDataSource("PreviousLabReports", new PatientBL().GetPreviousLabReport(VisitId)));
         }
 
         [CheckUserRights(MenuName = "Add Patient", Order = 1, UserRightType = RightType.View)]
@@ -1245,12 +1435,13 @@ namespace BDCS.Controllers
             return View(pat);
         }
         [CheckUserRights(MenuName = "Create Visit", Order = 1, UserRightType = RightType.AddEdit)]
-        public async Task<ActionResult> CopyVisit(int patientId, int oldVisitId )
+        public async Task<ActionResult> CopyVisit(int patientId, int oldVisitId,string mdtType)
         {
             Visit visit = new Visit();
             AjaxResponse response = new AjaxResponse();
             visit.PatientId = patientId;
             visit.Reason = "Followup";
+            visit.MDTType = mdtType;
             visit.VisitDate = DateTime.Now;
             int result = 0;
 
@@ -1285,11 +1476,49 @@ namespace BDCS.Controllers
 
             return Json(response);
         }
+        [HttpPost]
+        public async Task<ActionResult> CopyVisitBMT(int patientId, int oldVisitId,string mdtType)
+        {
+            Visit visit = new Visit();
+            AjaxResponse response = new AjaxResponse();
+            visit.PatientId = patientId;
+            visit.Reason = "Followup";
+            visit.VisitDate = DateTime.Now;
+            visit.MDTType = mdtType;
+            int result = 0;
 
+            result = await _PatientBL.CreateVisit(visit);
 
+            if (result > 0)
+            {
 
+                int a = await _PatientBL.CopyVisitDataBMT(oldVisitId, result);
+
+                response = new AjaxResponse
+                {
+                    Code = 200,
+                    IsSuccess = true,
+                    Message = "Saved",
+                    MessageTitle = MessageConstants.MessageClassSuccess,
+                    ResponseObject = result
+
+                };
+            }
+            else
+            {
+                response = new AjaxResponse
+                {
+                    Code = 404,
+                    IsSuccess = false,
+                    Message = "failed",
+                    MessageTitle = MessageConstants.InsertionFailed,
+                    MessageClass = MessageConstants.MessageClassWarning
+                };
+            }
+
+            return Json(response);
+        }
         #region SMS
-
         [CheckUserRights(MenuName = "SMS", Order = 1, UserRightType = RightType.AddEdit)]
         public ActionResult SendSMSForFollowUp(DateTime followupDate)
         {
@@ -1540,17 +1769,11 @@ namespace BDCS.Controllers
             return Json(response);
         }
         #endregion
-
         public ActionResult GetUserClinics(int userId)
         {
-
             List<KeyAndValuePair> list = new UserBL().GetUserClinics(userId);
-
-
-
             return Json(list, JsonRequestBehavior.DenyGet);
         }
-
         public ActionResult SaveClinicInSession(int clinicId)
         {
 
@@ -1569,7 +1792,6 @@ namespace BDCS.Controllers
             
             return Json(res, JsonRequestBehavior.DenyGet);
         }
-
         public async Task<ActionResult> DeleteProtocolDetail(int id)
         {
             int Deleted = await _PatientBL.DeleteProtocolDetail(id);
@@ -1587,7 +1809,6 @@ namespace BDCS.Controllers
 
             return Json(res, JsonRequestBehavior.DenyGet);
         }
-
         public ActionResult GetMedicineAndFavorite(string term)
         {
             int UserId = SessionHelper.GetUserId();
@@ -1595,7 +1816,6 @@ namespace BDCS.Controllers
 
             return Json(Data, JsonRequestBehavior.AllowGet);
         }
-
         public async Task<ActionResult> AddMedicineToFavorite(Protocols protocol)
         {
             int UserId = SessionHelper.GetUserId();
@@ -1615,7 +1835,6 @@ namespace BDCS.Controllers
             return Json(res, JsonRequestBehavior.DenyGet);
 
         }
-
         public async Task<ActionResult> DeleteFavoriteMedicine( string medicineName, string medicineType)
         {
             int UserId = SessionHelper.GetUserId();
@@ -1635,7 +1854,6 @@ namespace BDCS.Controllers
             return Json(res, JsonRequestBehavior.DenyGet);
 
         }
-
         [HttpPost]
         public async Task<ActionResult> MarkPatientDiagnosisAsInactive(int patientDiagnosisId)
         {
@@ -1655,7 +1873,6 @@ namespace BDCS.Controllers
             return Json(res, JsonRequestBehavior.DenyGet);
 
         }
-
         public async Task<ActionResult> AddPatientAlert(PatientAlert alert)
         {
             int UserId = SessionHelper.GetUserId();
@@ -1675,8 +1892,6 @@ namespace BDCS.Controllers
 
             return Json(res, JsonRequestBehavior.DenyGet);
         }
-
-        
         [HttpPost]
         public async Task<ActionResult> MarkPatientAlertAsInactive(int patientAlertId)
         {
@@ -1696,7 +1911,6 @@ namespace BDCS.Controllers
             return Json(res, JsonRequestBehavior.DenyGet);
 
         }
-
         [HttpPost]
         public async Task<ActionResult> DiscontinueMedicine(int protocolDetailId)
         {
@@ -1716,9 +1930,10 @@ namespace BDCS.Controllers
             return Json(res, JsonRequestBehavior.DenyGet);
 
         }
-
         public async Task<ActionResult> PatientVisitAdvanceSearch()
         {
+
+    
             List<KeyAndValuePair> Diagnosis = await _CommonBL.GetDefinationData("lookups", "System", "DiagnosisType");
             ViewBag.DiagnosisVB = Diagnosis.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
 
@@ -1731,14 +1946,11 @@ namespace BDCS.Controllers
             List<KeyAndValuePair> BCLC = await _CommonBL.GetDefinationData("Lookups", "System", "BCLCStatus");
             ViewBag.BCLCVB = BCLC.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-
             List<KeyAndValuePair> ECOGStatus = await _CommonBL.GetDefinationData("Lookups", "System", "ECOGStatus");
             ViewBag.ECOGStatusVB = ECOGStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-
             List<KeyAndValuePair> HepStatus = await _CommonBL.GetDefinationData("Lookups", "System", "HepStatus");
             ViewBag.HepStatusVB = HepStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-
 
             List<KeyAndValuePair> AscitiesStatus = await _CommonBL.GetDefinationData("Lookups", "System", "AscitiesStatus");
             ViewBag.AscitiesStatusVB = AscitiesStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
@@ -1767,7 +1979,6 @@ namespace BDCS.Controllers
 
             return View();
         }
-
         public async Task<ActionResult> PatientVisitAdvanceSearchResult(int? ChildStatus, int? MeldStatus, int? BCLCStatus, int? ECOG, int? TreatmentResponse,
         int? MdtOutcome, int? HepatitisStatus, int? AscitiesStatus, int? Svr, int? OtherComorbidities, int? AngioInvasion, double? AFP, bool LiverCirrhosis, bool PortalHypertension,bool Varices,bool MeetingMilan,bool UCSF,bool ASAN)
         {
@@ -1779,7 +1990,6 @@ namespace BDCS.Controllers
 
             return View(Data);
         }
-
         public async Task<ActionResult> PatientListForMDT(DateTime? fromDate, DateTime? toDate)
         {
             List<VitalHistory> Data = new List<VitalHistory>();
@@ -1794,7 +2004,6 @@ namespace BDCS.Controllers
 
             return View(Data);
         }
-
         public ActionResult ExportPatientListForMDT(DateTime? fromDate, DateTime? toDate)
         {
             List<VitalHistory> Data = new List<VitalHistory>();
@@ -1859,12 +2068,11 @@ namespace BDCS.Controllers
             dt.Columns.Remove("SVRStatusValue");
             dt.Columns.Remove("SiteOfAngioinvasion");
             dt.Columns.Remove("NumberOfLesionValue");
-
-dt.Columns.Remove("MDTOutComeOther");
-dt.Columns.Remove("TransplantDiscussion");
-dt.Columns.Remove("TransplantDiscussionDetail");
-  dt.Columns.Remove("ImagingDate"); 
-        //public string PatientName { get; set; }
+            dt.Columns.Remove("MDTOutComeOther");
+            dt.Columns.Remove("TransplantDiscussion");
+            dt.Columns.Remove("TransplantDiscussionDetail");
+            dt.Columns.Remove("ImagingDate"); 
+                    //public string PatientName { get; set; }
         //public string MDTOutComeString { get; set; }
         //public string HospitalNumber { get; set; }
 
@@ -1883,7 +2091,6 @@ dt.Columns.Remove("TransplantDiscussionDetail");
                 }
             }
         }
-
         private  DataTable ToDataTable<T>(List<T> items)
         {
             DataTable dataTable = new DataTable(typeof(T).Name);
@@ -1910,11 +2117,274 @@ dt.Columns.Remove("TransplantDiscussionDetail");
             //put a breakpoint here and check datatable
             return dataTable;
         }
-
         public ActionResult NoData(string message)
         {
             ViewBag.Message = message;
             return View();
         }
+        #region [VitalHisotry_BoneMarrow_MDT]
+        public async Task<ActionResult> VitalHistoryBMT(int visitId, string reason, int patId,string mdtype="")
+        {
+            ViewBag.VisitIdVB = visitId;
+            ViewBag.VisitTypeVB = reason;
+            //ViewBag.VisitDateTimeVB = VisitDateTime;
+            List<KeyAndValuePair> CVS = await _CommonBL.GetDefinationData("Lookups", "System", "CVS");
+            //select list item MVC internally manage it for dropdown id and text. we no need to make a manual list and convert it in list form
+            ViewBag.cvsVB = CVS.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> WeightUnit = await _CommonBL.GetDefinationData("Lookups", "System", "WeightUnit");
+            ViewBag.WeightUnitVB = WeightUnit.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> HeightUnit = await _CommonBL.GetDefinationData("Lookups", "System", "HeightUnit");
+            ViewBag.HeightUnitVB = HeightUnit.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> PresenttHx = await _CommonBL.GetDefinationData("Lookups", "System", "PresentHx");
+            ViewBag.PresenttHxVB = PresenttHx.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> PastHx = await _CommonBL.GetDefinationData("Lookups", "System", "PastHx");
+            ViewBag.PastHxVB = PastHx.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> SReponse = await _CommonBL.GetDefinationData("Lookups", "System", "SResponse");
+            ViewBag.sresponseVB = SReponse.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> SLiver = await _CommonBL.GetDefinationData("Lookups", "System", "SLiver");
+            ViewBag.sliverVB = SLiver.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> Sspleen = await _CommonBL.GetDefinationData("Lookups", "System", "SSpleen");
+            ViewBag.sspleenVB = Sspleen.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> PresentHistory = await _CommonBL.GetDefinationData("Lookups", "System", "PHx");
+            ViewBag.presentHistoryVB = PresentHistory.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> FamilyHistory = await _CommonBL.GetDefinationData("Lookups", "System", "FHx");
+            ViewBag.FamilyHistoryVB = FamilyHistory.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> DrugHistory = await _CommonBL.GetDefinationData("Lookups", "System", "DrugHx");
+            ViewBag.DrugHistoryVB = DrugHistory.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> SecHistory = await _CommonBL.GetDefinationData("Lookups", "System", "SECHx");
+            ViewBag.SecHistoryVB = SecHistory.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> Comorbidities = await _CommonBL.GetDefinationData("Lookups", "System", "ComorbiditiesBMT");
+            ViewBag.ComorbiditiesVB = Comorbidities.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> TransfusionHx = await _CommonBL.GetDefinationData("Lookups", "System", "TransfusionHx");
+            ViewBag.TransfusionHxVB = TransfusionHx.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> CIC = await _CommonBL.GetDefinationData("Lookups", "System", "CIC");
+            ViewBag.CICVBB = CIC.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> TestGroup = await _CommonBL.GetDefinationData("Lookups", "System", "TestGroup");
+            ViewBag.TestGroup = TestGroup.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> LabTestList = await _CommonBL.GetDefinationData("Lookups", "System", "LabTestList");
+            ViewBag.LabTestListVB = LabTestList.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> ResultLabel = await _CommonBL.GetDefinationData("Lookups", "System", "ResultLabel");
+            ViewBag.ResultLabelVB = ResultLabel.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> Diagnosis = await _CommonBL.GetDefinationData("lookups", "System", "DiagnosisTypeBMT");
+            ViewBag.DiagnosisVB = Diagnosis.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+            //Changes
+            List<KeyAndValuePair> DiseaseStatus = await _CommonBL.GetDefinationData("lookups", "System", "DiseaseStatusBMT");
+            ViewBag.DiseaseStatusVB = DiseaseStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> Lansky= await _CommonBL.GetDefinationData("Lookups", "System", "LanskyBMT");
+            ViewBag.LanskyVB = Lansky.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> HCTCI= await _CommonBL.GetDefinationData("Lookups", "System", "HCTCIBMT");
+            ViewBag.HCTCIVB = HCTCI.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> ECOGStatus = await _CommonBL.GetDefinationData("Lookups", "System", "ECOGStatus");
+            ViewBag.ECOGStatusVB = ECOGStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> HepB = await _CommonBL.GetDefinationData("Lookups", "System", "HEBBMT");
+            ViewBag.HepBVB= HepB.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> HepC = await _CommonBL.GetDefinationData("Lookups", "System", "HEPCBMT");
+            ViewBag.HepCVB= HepC.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> HIV= await _CommonBL.GetDefinationData("Lookups", "System", "HIVBMT");
+            ViewBag.HIVVB = HIV.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> Stage = await _CommonBL.GetDefinationData("Lookups", "System", "StageBMT");
+            ViewBag.StageVB = Stage.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+            //Changes
+            List<KeyAndValuePair> RiskScore = await _CommonBL.GetDefinationData("Lookups", "System", "RiskScoreBMT");
+            ViewBag.RiskScoreVB = RiskScore.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+            //Changes
+            List<KeyAndValuePair> Chelation= await _CommonBL.GetDefinationData("Lookups", "System", "ChelationBMT");
+            ViewBag.ChelationVB = Chelation.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> SiteOfLymphNodes= await _CommonBL.GetDefinationData("Lookups", "System", "SiteOfLymphNodesBMT");
+            ViewBag.SiteOfLymphNodesVB = SiteOfLymphNodes.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value}).ToList();
+            //Changes
+            List<KeyAndValuePair> PreviousTreatmentTypeBMT = await _CommonBL.GetDefinationData("Lookups", "System", "PreviousTreatmentTypeBMT");
+            ViewBag.PreviousTreatmentTypeBMTVB = PreviousTreatmentTypeBMT.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value}).ToList();
+            //Changes
+            List<KeyAndValuePair> TreatmentTypeBMT = await _CommonBL.GetDefinationData("Lookups", "System", "TreatmentTypeBMT");
+            ViewBag.TreatmentTypeBMTVB = TreatmentTypeBMT.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value}).ToList();
+
+            List<KeyAndValuePair> MDTOutCome = await _CommonBL.GetDefinationData("Lookups", "System", "MDTOutComesBMT");
+            ViewBag.MDTOutComeVB = MDTOutCome.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+
+            List<KeyAndValuePair> SiteOfAngioinvasion = await _CommonBL.GetDefinationData("Lookups", "System", "SiteOfAngioinvasion");
+            ViewBag.SiteOfAngioinvasionDropdown = SiteOfAngioinvasion.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+
+            List<KeyAndValuePair> TreatmentResponse = await _CommonBL.GetDefinationData("Lookups", "System", "TreatmentResponse");
+            ViewBag.TreatmentResponseVB = TreatmentResponse.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> RefusalReason = await _CommonBL.GetDefinationData("Lookups", "System", "RefusalReason");
+            ViewBag.RefusalReasonVB = RefusalReason.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> SitesOfExtraHepaticDisease = await _CommonBL.GetDefinationData("Lookups", "System", "SitesOfExtraHepaticDisease");
+            ViewBag.SitesOfExtraHepaticDiseaseVB = SitesOfExtraHepaticDisease.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+
+           // List<KeyAndValuePair> MDTOutComes = await _CommonBL.GetDefinationData("Lookups", "System", "MDTOutCome");
+           // ViewBag.MDTOutComeVB = MDTOutComes.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> SVRStatus = await _CommonBL.GetDefinationData("Lookups", "System", "SVRStatus");
+            ViewBag.SVRStatusVB = SVRStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<VitalHistoryBMT> Data = new List<VitalHistoryBMT>();
+
+            //if (Data != null && Data.Count > 0)
+            //{
+            await Task.Run(() =>
+            {
+                Data = _PatientBL.GetBMTPatientDetail(visitId, patId);
+                if (Data.Count > 0)
+                {
+                    //Data[0].labreports = _PatientBL.GetLabOrders(visitId);
+                    //Data[0].PreviousLab = _PatientBL.GetPreviousLabReport(visitId);
+                    Data[0].PatientDiagnosis = _PatientBL.GetPatientDiagnosisAgainstVisitBMT(visitId);
+
+                }
+            }
+            );
+            //}
+
+            ViewBag.VisitIdVB = visitId;
+            ViewBag.patientIdVB = patId;
+            ViewBag.reasonVB = TempData["reasonVB"];
+            ViewBag.VisitDateTimeVB = TempData["VisitDateTimeVB"];// Convert.ToDateTime(visitDateTime ?? DateTime.Now.ToString()).ToString("dd -MMM-yyyy");
+
+            return View(Data.FirstOrDefault() ?? new VitalHistoryBMT());
+        }
+        public async Task<ActionResult> GetLabOrdersBMT(int visitId = 0)
+        {
+            List<LabReportsBMT> labreports = new List<LabReportsBMT>();
+            List<KeyAndValuePair> LabTestList = await _CommonBL.GetDefinationData("Lookups", "System", "LabTestList");
+            ViewBag.LabTestListVB = LabTestList.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+
+            List<KeyAndValuePair> ResultLabel = await _CommonBL.GetDefinationData("Lookups", "System", "ResultLabel");
+            ViewBag.ResultLabelVB = ResultLabel.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> ResultUnit = await _CommonBL.GetDefinationData("Lookups", "System", "ResultUnit");
+            ViewBag.ResultUnitVB = ResultUnit.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> ProtocoName = await _CommonBL.GetDefinationData("Lookups", "System", "ResultUnit");
+            ViewBag.ProtocoNameVB = ProtocoName.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            if (visitId > 0)
+            {
+                await Task.Run(() =>
+                {
+                    labreports = _PatientBL.GetLabOrdersBMT(visitId);
+                });
+            }
+            return View(labreports);
+        }
+        //public ActionResult GetPreviousVisitLabTestsBMT(int patientId, int visitId)
+        //{
+        //    List<LabReportsBMT> reports = _PatientBL.GetPreviousVisitLabTestsBMT(patientId, visitId);
+
+        //    return View(reports);
+        //}
+        public async Task<ActionResult> savePatientDetail1BMT(VitalHistoryBMT vitalHistory)
+        {
+            AjaxResponse response = new AjaxResponse();
+            int result = 0;
+            try
+            {
+                if (vitalHistory == null)
+                {
+                    response = new AjaxResponse
+                    {
+                        Code = 200,
+                        IsSuccess = false,
+                        Message = "No Data",
+                        MessageTitle = MessageConstants.NoDataReceived,
+                        MessageClass = MessageConstants.MessageClassWarning,
+                        ResponseObject = result,
+                    };
+                }
+                else
+                {
+                    Users u = Session["User"] as Users;
+                    vitalHistory.EnteredBy = u.UserId;
+                    vitalHistory.EnteredOn = DateTime.Now;
+                    vitalHistory.ClinicId = Convert.ToInt32(Session["ClinicId"]);
+                    result = await _PatientBL.insertUpdatePatientDetailBMT(vitalHistory);
+                    if (result > 0)
+                    {
+                        response = new AjaxResponse
+                        {
+                            Code = 200,
+                            IsSuccess = true,
+                            Message = "Saved",
+                            MessageTitle = MessageConstants.SuccessfullInsertion,
+                            MessageClass = MessageConstants.MessageClassSuccess,
+                            DoFullRedirect = true,
+                            RedirectUrl = Url.Action("GetPatientList", "Patient"),
+                            ResponseObject = result,
+                        };
+                    }
+                    else
+                    {
+                        response = new AjaxResponse
+                        {
+                            Code = 404,
+                            IsSuccess = false,
+                            Message = "Insertion failed",
+                            MessageTitle = MessageConstants.InsertionFailed,
+                            MessageClass = MessageConstants.MessageClassWarning,
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response = new AjaxResponse
+                {
+                    Code = 505,
+                    IsSuccess = false,
+                    Message = "Internal error",
+                    MessageTitle = MessageConstants.InternalError,
+                    MessageClass = MessageConstants.MessageClassError,
+                    ResponseObject = ex.Message,
+                };
+
+            }
+            finally
+            {
+
+            }
+            return Json(response);
+        }
+
+        public async Task<ActionResult> PatientListOfBMTForMDT(DateTime? fromDate, DateTime? toDate)
+        {
+            List<VitalHistoryBMT> Data = new List<VitalHistoryBMT>();
+            fromDate = fromDate ?? DateTime.Now;
+            toDate = toDate ?? DateTime.Now;
+
+            Data = _PatientBL.GetPatientListOfBMTForMDTList(fromDate.Value, toDate.Value);
+
+            ViewBag.FromDate = fromDate.Value;
+            ViewBag.ToDate = toDate.Value;
+
+
+            return View(Data);
+        }
+        #endregion
     }
+
+
+
+
+
+
+
 }

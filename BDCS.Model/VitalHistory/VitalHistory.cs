@@ -82,5 +82,7 @@ namespace BDCS.Model.VitalHistory
         public bool TransplantDiscussion { get; set; }
         public string TransplantDiscussionDetail { get; set; }
         public DateTime? ImagingDate { get; set; }
+
+        public string mdtType { get; set; }
     }
 }

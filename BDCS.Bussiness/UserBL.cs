@@ -28,6 +28,9 @@ namespace BDCS.Bussiness
         public List<RoleRight> GetRoleRightsAgainstRole(int roleId)
             => _userDAL.GetRoleRightsAgainstRole("GetRightsAgainstRole", "System", roleId);
 
+        public List<RoleRight> GetRoleRightsAgainstRoles(List<int> roleIds)
+            => _userDAL.GetRoleRightsAgainstRoles("GetRightsAgainstRoles", "System", string.Join(",", roleIds));
+
         public List<Users> GetUserAgainstUserName(string searchByUserName)
             => _userDAL.GetUserAgainstUserName("UserSearchByName", "System", searchByUserName);
 
@@ -41,6 +44,15 @@ namespace BDCS.Bussiness
 
         public List<KeyAndValuePair> GetUserClinics(int userId)
             => _userDAL.GetUserClinics(userId);
+
+        public List<Role> GetUserRoles(int userId)
+            => _userDAL.GetUserRoles(userId);
+
+        public async Task<int> InsertUpdateUserRoles(int userId, List<int> roleIds)
+            => await _userDAL.InsertUpdateUserRoles(userId, string.Join(",", roleIds ?? new List<int>()));
+
+        public async Task<int> InsertUpdateUserClinics(int userId, List<int> clinicIds)
+            => await _userDAL.InsertUpdateUserClinics(userId, string.Join(",", clinicIds ?? new List<int>()));
     }
 }
 

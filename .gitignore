@@ -1,14 +1,68 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+# .gitignore for a Visual Studio / .NET Framework solution
 ################################################################################
 
-/BDCS.Bussiness/bin
-/BDCS.Bussiness/obj
-/BDCS.Constants/bin
-/BDCS.Constants/obj
-/BDCS.Data/bin
-/BDCS.Data/obj
-/BDCS.Model/bin
-/BDCS.Model/obj
-/MessageConstants/obj/Debug
-/packages
+## Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+msbuild.log
+msbuild.err
+msbuild.wrn
+
+## Visual Studio / IDE
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.VC.opendb
+
+## NuGet
+packages/
+*.nupkg
+*.nuget.props
+*.nuget.targets
+
+## Publish / packaging output
+**/[Pp]ackage/
+**/[Pp]ackageTmp/
+*.pubxml
+*.publishproxy
+PublishScripts/
+
+## Test results
+TestResults/
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+*.coveragexml
+
+## ReSharper / other tool caches
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+## OS files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+## Logs
+*.log
+
+## Local-only / secret configuration overrides
+*.LocalConfig
+appsettings.*.local.json
+.env
+.env.*

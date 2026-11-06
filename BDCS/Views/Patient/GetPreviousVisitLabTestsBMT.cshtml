@@ -1,0 +1,36 @@
+﻿@model List < BDCS.Model.VitalHistory.LabReportsBMT>
+@{
+    ViewBag.Title = "GetPreviousVisitLabTestsBMT";
+    Layout = null;
+    List<string> Tests = new List<string>();
+
+    if (Model != null && Model.Any())
+    {
+        Tests = Model.Select(a => a.TestName).Distinct().ToList();
+    }
+}
+
+@if (Model != null && Model.Any())
+{
+
+    foreach (string test in Tests)
+    {
+
+        <div class="panel panel-default">
+            <div class="panel-heading">@test</div>
+            <div class="panel-body">
+                @foreach (BDCS.Model.VitalHistory.LabReportsBMT lr in Model.Where(a => a.TestName == test))
+                {
+                    <b> || @(lr.TestDate.Value.ToString("dd-MMM-yy"))  -- @lr.TestResult </b>
+
+                }
+            </div>
+        </div>
+    }
+
+
+}
+else
+{
+    <h3>No data found...</h3>
+}  

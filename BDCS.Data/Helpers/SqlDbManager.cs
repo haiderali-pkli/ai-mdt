@@ -227,6 +227,7 @@ namespace BDCS.Data.Helpers
                     SqlCommand com = _con.CreateCommand();
                     com.CommandText = queryString;
                     com.CommandType = type;
+                    com.CommandTimeout = 120;
                     if (pars?.Count>0)
                     {
                         foreach (DbParameters pr in pars)

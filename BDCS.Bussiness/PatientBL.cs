@@ -10,6 +10,8 @@ using BDCS.Model.VitalHistory;
 using System.Transactions;
 using BDCS.Model.RoleRights;
 using BDCS.Model.PatientServices;
+using System.Web;
+using BDCS.Model.Misc;
 
 namespace BDCS.Bussiness
 {
@@ -21,6 +23,7 @@ namespace BDCS.Bussiness
         {
             _patientBL = new PatientDAL();
         }
+
 
         public List<Patient> GetPatientList(string searchText,int clinicId) => _patientBL.PatientSearchByText("PatientSearchByText", "Clinical", searchText,clinicId);
         public List<Patient> GetFollowupPatientsForDate(DateTime date) => _patientBL.GetFollowupPatientsForDate(date);
@@ -217,12 +220,12 @@ namespace BDCS.Bussiness
         }
 
 
-        public List<Visit> GetVisitHistory(int patId) => _patientBL.GetVisitHistory("GetVisitHistory", "Clinical", patId);
+        public List<Visit> GetVisitHistory(int patId,string mdtType) => _patientBL.GetVisitHistory("GetVisitHistory", "Clinical", patId,mdtType);
         public List<VitalHistory> GetPatientDetail(int visitId, int patId) => _patientBL.GetPatientDetail("GetPatientDetail", "Clinical", visitId, patId);
         public Users ValidateLogin(string loginId,string password) => _patientBL.ValidateLogin("ValidateLogin", "System", loginId,password);
 
         public async Task<int> CopyVisitData(int oldVisitId, int newVisitId) => await _patientBL.CopyVisitData(oldVisitId, newVisitId);
-
+        public async Task<int> CopyVisitDataBMT(int oldVisitId, int newVisitId) => await _patientBL.CopyVisitDataBMT(oldVisitId, newVisitId);
         public List<LabReports> GetLabTestForGroupName(string groupName) => _patientBL.GetLabTestForGroupName(groupName);
 
         public List<LabReports> GetPreviousVisitLabTests(int patientId, int visitId) => _patientBL.GetPreviousVisitLabTests(patientId, visitId);
@@ -268,6 +271,113 @@ namespace BDCS.Bussiness
 
         public List<VitalHistory> GetPatientListForMDTList(DateTime fromDate, DateTime toDate)
             => _patientBL.GetPatientListForMDTList(fromDate, toDate);
+
+
+        #region [BMT]
+
+        #region [BMT Reporting Methods]
+        
+        #endregion
+        public List<VitalHistoryBMT> GetBMTPatientDetail(int visitId, int patId) => _patientBL.GetBMTPatientDetail("GetPatientDetailBMT", "Clinical", visitId, patId);
+
+        public List<LabReportsBMT> GetLabOrdersBMT(int visitId) => _patientBL.GetLabOrdersBMT("GetLabOrdersBMT", "Clinical", visitId);
+        public List<PatientDiagnosisBMT> GetPatientDiagnosisAgainstVisitBMT(int visitId)
+            => _patientBL.GetPatientDiagnosisAgainstVisitBMT(visitId);
+        public async Task<int> insertUpdatePatientDetailBMT(VitalHistoryBMT vitalHistory)
+        {
+            int patientDetailId = 0;
+
+            using (TransactionScope scope = new TransactionScope(TransactionScopeOption.Required, TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    //MasterTable
+                    //patientDetailId = await _patientBL.insertUpdatePatientDetail(vitalHistory, "InsertUpdatePatientDetail", "Clinical");
+                    patientDetailId = await _patientBL.insertUpdatePatientDetailBMT(vitalHistory, "InsertUpdatePatientDetailBMT", "Clinical");
+
+                    if (vitalHistory.labreports != null && vitalHistory.labreports.Any())
+                    {
+                        foreach (LabReportsBMT item in vitalHistory.labreports)
+                        {
+                            item.PatientId = vitalHistory.PatientId;
+                            int c = await _patientBL.insertUpdateLabReportsBMT(item, "InsertUpdateCurrentReportsBMT", "Clinical");
+                        }
+                    }
+
+                    if (vitalHistory.OtherComorbitiesBMT != null && vitalHistory.OtherComorbitiesBMT.Any())
+                    {
+                        //string csv = vitalHistory.OtherComorbities[0];
+                        string csv = string.Join(",", vitalHistory.OtherComorbitiesBMT);
+                        int deleted = await _patientBL.DeleteOtherComorbiditiesBMT(vitalHistory.VisitId);
+                        foreach (string cm in csv.Split(','))
+                        {
+                            int b = await _patientBL.InsertOtherComorbiditiesBMT(vitalHistory.VisitId, vitalHistory.PatientId, cm);
+                        }
+                    }
+                    if (vitalHistory.SiteOfLymphnodes != null && vitalHistory.SiteOfLymphnodes.Any())
+                    {
+                        //string csv = vitalHistory.SiteOfLymphnodes[0];
+                        string csv = string.Join(",", vitalHistory.SiteOfLymphnodes);
+                        int deleted = await _patientBL.DeleteSiteOfLymphnodesBMT(vitalHistory.VisitId);
+                        foreach (string cm in csv.Split(','))
+                        {
+                            int b = await _patientBL.InsertSiteOfLymphnodesBMT(vitalHistory.VisitId, vitalHistory.PatientId, cm);
+                        }
+                    }
+                    if (vitalHistory.MDTOutCome != null && vitalHistory.MDTOutCome.Any())
+                    {
+                        //string csv = vitalHistory.MDTOutCome[0];
+                        string csv = string.Join(",", vitalHistory.MDTOutCome);
+
+                        int deleted = await _patientBL.DeleteMDTOutcomeBMT(vitalHistory.VisitId);
+
+                        foreach (string mo in csv.Split(','))
+                        {
+                            int b = await _patientBL.InsertMDTOutComeBMT(vitalHistory.VisitId, vitalHistory.PatientId, mo);
+                        }
+                    }
+
+                    if (vitalHistory.PreviousTreatmentBMT != null && vitalHistory.PreviousTreatmentBMT.Any())
+                    {
+                        
+                        string csv = string.Join(",", vitalHistory.PreviousTreatmentBMT);
+
+                        int deleted = await _patientBL.DeletePreviousTreatmentBMT(vitalHistory.VisitId);
+
+                        foreach (string mo in csv.Split(','))
+                        {
+                            int b = await _patientBL.InsertPreviousTreatmentBMT(vitalHistory.VisitId, vitalHistory.PatientId, mo);
+                        }
+                    }
+
+                    if (vitalHistory.PatientDiagnosis != null && vitalHistory.PatientDiagnosis.Any())
+                    {
+                        foreach (PatientDiagnosisBMT item in vitalHistory.PatientDiagnosis)
+                        {
+                            item.VisitId = vitalHistory.VisitId;
+                            item.EnteredBy = vitalHistory.EnteredBy;
+                            //item.ProtocolDetailId = 
+                            int d = await _patientBL.InsertUpdatePatientDiagnosisBMT(item);
+                        }
+                    }
+                    scope.Complete();
+                    //scope.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    scope.Dispose();
+                    throw;
+                }
+            }
+            return patientDetailId;
+        }
+
+        public List<LabReportsBMT> GetPreviousVisitLabTestsBMT(int patientId, int visitId)
+            => _patientBL.GetPreviousVisitLabTestsBMT(patientId, visitId);
+
+        public List<VitalHistoryBMT> GetPatientListOfBMTForMDTList(DateTime fromDate, DateTime toDate)
+            => _patientBL.GetPatientListOfBMTForMDTList(fromDate, toDate);
+        #endregion
     }
 
 }

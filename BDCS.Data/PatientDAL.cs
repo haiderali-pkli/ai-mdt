@@ -10,6 +10,7 @@ using BDCS.Model.Visit;
 using BDCS.Model.VitalHistory;
 using BDCS.Model.RoleRights;
 using BDCS.Model.PatientServices;
+using BDCS.Model.Misc;
 
 namespace BDCS.Data
 {
@@ -141,11 +142,11 @@ namespace BDCS.Data
             string Query = QueryHelper.GetQueryString(procedureName, schema);
             List<DbParameters> pars = new List<DbParameters>()
             {
-
                 new DbParameters() {Name="PatientId", Type=DbType.Int32,Value=visit.PatientId },
                 new DbParameters() {Name="VisitDateTime", Type=DbType.DateTime,Value=visit.VisitDate },
                 new DbParameters() {Name="Reason", Type=DbType.String,Value=visit.Reason },
- new DbParameters() {Name="ClinicId", Type=DbType.String,Value=visit.ClinicId },
+                new DbParameters() {Name="ClinicId", Type=DbType.String,Value=visit.ClinicId },
+                new DbParameters() {Name="MDTType", Type=DbType.String,Value=visit.MDTType},
             };
             try
             {
@@ -263,8 +264,9 @@ namespace BDCS.Data
 
                     Data = ds.Tables[0].AsEnumerable().Select(a => new LabReports()
                     {
+                        //LabReportId = Convert.ToInt32(a["LabReportId"]),
                         LabReportId = Convert.ToInt32(a["CurrentReportId"]),
-                        VisitId=ds.Tables[0].Columns.Contains("VisitId") ? Convert.ToInt32(a["VisitId"]) : 0,
+                        VisitId =ds.Tables[0].Columns.Contains("VisitId") ? Convert.ToInt32(a["VisitId"]) : 0,
                         //PreviousReportId=Convert.ToInt32(a["PreviousReportId"]),
                         TestId = Convert.ToInt32(a["TestId"]==DBNull.Value ? 0 : a["TestId"]),
                         TestName = a["TestName"].ToString(),
@@ -483,8 +485,9 @@ namespace BDCS.Data
                         TreatmentType = a["TreatmentType"].ToString().Split(',').ToList(),
                         
                         TreatmentResponse = a["TreatmentResponse"].ToString(),
-
                         TreatmentResponseValue = a["TreatmentResponseValue"].ToString(),
+
+                        //TreatmentResponseValue = a["TreatmentResponseValue"].ToString(),
                         DiagnosisName = a["Diagnosis"].ToString(),
                         DiagnosisDetails = a["DiagnosisDetails"].ToString(),
                         MeetingMilan = Convert.ToBoolean(a["MeetingMilan"]),
@@ -706,7 +709,7 @@ namespace BDCS.Data
             }
             return result;
         }
-
+        //InsertOtherCormodities issues
         public async Task<int> InsertOtherComorbidities(int visitId, int patientId, string otherComorbidities)
         {
             int result = 0;
@@ -903,7 +906,6 @@ namespace BDCS.Data
             }
             catch (Exception ex)
             {
-
                 throw;
             }
             return result;
@@ -963,13 +965,14 @@ namespace BDCS.Data
             }
             return result;
         }
-        public List<Visit> GetVisitHistory(string procedureName,string schema,int parameters)
+        public List<Visit> GetVisitHistory(string procedureName,string schema,int parameters,string mdtType)
         {
             List<Visit> Data = new List<Visit>();
             String Query = QueryHelper.GetQueryString(procedureName, schema);
             List<DbParameters> pars = new List<DbParameters>()
             {
-                new DbParameters() {Name="PatientId",Type=DbType.Int32,Value=parameters }
+                new DbParameters() {Name="PatientId",Type=DbType.Int32,Value=parameters },
+                new DbParameters() {Name="MDTType",Type=DbType.String,Value=mdtType }
             };
             try
             {
@@ -983,6 +986,7 @@ namespace BDCS.Data
                         PatientName = a["PatientName"].ToString(),
                         VisitDate=Convert.ToDateTime(a["VisitDateTime"]),
                         Reason=a["Reason"].ToString(),
+                        MDTType= a["MDTType"].ToString(),
                     }).ToList();
                 }
             }
@@ -1084,7 +1088,26 @@ namespace BDCS.Data
             }
             return result;
         }
+        public async Task<int> CopyVisitDataBMT(int oldVisitId, int newVisitId)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString("CopyVisitDataBMT", "dbo");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="OldVisitId", Type=DbType.Int32,Value=oldVisitId },
+                new DbParameters() {Name="NewVisitId",Type=DbType.Int32,Value=newVisitId },
 
+            };
+            try
+            {
+                result = Convert.ToInt32(await _db.ExecuteScalarAsync(Query, CommandType.StoredProcedure, pars));
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return result;
+        }
         public List<Patient> GetFollowupPatientsForDate(DateTime date)
         {
             List<Patient> Data = new List<Patient>();
@@ -1543,19 +1566,19 @@ namespace BDCS.Data
             string Query = QueryHelper.GetQueryString("GetVisitListAgainstSearch", "Clinical");
             List<DbParameters> pars = new List<DbParameters>()
             {
-                new DbParameters() { Name = "ChildStatus", Type = DbType.Int32, Value =ChildStatus},
-                new DbParameters() { Name = "MeldStatus", Type = DbType.Int32, Value =MeldStatus},
-                new DbParameters() { Name = "BCLCStatus", Type = DbType.Int32, Value =BCLCStatus},
-                new DbParameters() { Name = "ECOG", Type = DbType.Int32, Value =ECOG},
-                new DbParameters() { Name = "TreatmentResponse", Type = DbType.Int32, Value =TreatmentResponse},
-                new DbParameters() { Name = "MdtOutcome", Type = DbType.Int32, Value =MdtOutcome},
-                new DbParameters() { Name = "HepatitisStatus", Type = DbType.Int32, Value =HepatitisStatus},
-                new DbParameters() { Name = "AscitiesStatus", Type = DbType.Int32, Value =AscitiesStatus},
-                new DbParameters() { Name = "Svr", Type = DbType.Int32, Value =Svr},
-                new DbParameters() { Name = "OtherComorbidities", Type = DbType.Int32, Value =OtherComorbidities},
-                new DbParameters() { Name = "AngioInvasion", Type = DbType.Int32, Value =AngioInvasion},
-                new DbParameters() {Name = "LiverCirrhosis", Type = DbType.Boolean, Value = LiverCirrhosis },
-                new DbParameters() { Name = "AFP", Type = DbType.Double, Value =AFP},
+                new DbParameters() {Name = "ChildStatus", Type = DbType.Int32, Value =ChildStatus},
+                new DbParameters() {Name = "MeldStatus", Type = DbType.Int32, Value =MeldStatus},
+                new DbParameters() {Name = "BCLCStatus", Type = DbType.Int32, Value =BCLCStatus},
+                new DbParameters() {Name = "ECOG", Type = DbType.Int32, Value =ECOG},
+                new DbParameters() {Name = "TreatmentResponse", Type = DbType.Int32, Value =TreatmentResponse},
+                new DbParameters() {Name = "MdtOutcome", Type = DbType.Int32, Value =MdtOutcome},
+                new DbParameters() {Name = "HepatitisStatus", Type = DbType.Int32, Value =HepatitisStatus},
+                new DbParameters() {Name = "AscitiesStatus", Type = DbType.Int32, Value =AscitiesStatus},
+                new DbParameters() {Name = "Svr", Type = DbType.Int32, Value =Svr},
+                new DbParameters() {Name = "OtherComorbidities", Type = DbType.Int32, Value =OtherComorbidities},
+                new DbParameters() {Name = "AngioInvasion", Type = DbType.Int32, Value =AngioInvasion},
+                new DbParameters() {Name = "LiverCirrhosis", Type = DbType.Boolean, Value = LiverCirrhosis},
+                new DbParameters() {Name = "AFP", Type = DbType.Double, Value =AFP},
                 new DbParameters() {Name = "PortalHypertension", Type = DbType.Boolean, Value = PortalHypertension },
                 new DbParameters() {Name = "Varices", Type = DbType.Boolean, Value = Varices },
                 new DbParameters() {Name = "MeetingMilan", Type = DbType.Boolean, Value = MeetingMilan },
@@ -1572,9 +1595,9 @@ namespace BDCS.Data
                     {
                         PatientId = Convert.ToInt32(a["PatientId"]),
                         VisitId = Convert.ToInt32(a["VisitId"]),
-                        PatientName = a["PatientName"].ToString(),
-                        VisitDateTime = Convert.ToDateTime(a["VisitDate"])
-
+                        PatientName = a["PatientName"]?.ToString(),
+                        VisitDateTime = Convert.ToDateTime(a["VisitDate"]==DBNull.Value? DateTime.MinValue : a["VisitDate"]),
+                        mdtType = a["MDTType"]?.ToString()
                     }).ToList();
 
                 }
@@ -1616,6 +1639,7 @@ namespace BDCS.Data
                         MDTDiscussion = a["MDTDiscussion"].ToString(),
                         MDTOutComeString = a["MDTOutCome"].ToString(),
                         VisitId=Convert.ToInt32(a["VisitId"]),
+
                         
                     }).ToList();
                 }
@@ -1626,6 +1650,480 @@ namespace BDCS.Data
             }
             return Data;
         }
+
+
+
+        #region [BMT]
+        #region [BMT Reporting DALS]
+        public List<Patient> GetPatientByIdForRptBMT(int patId, string procedureName, string schema)
+        {
+            List<Patient> Data = new List<Patient>();
+            Data.Add(GetPatientById(patId, procedureName, schema));
+            return Data;
+
+        }
+        #endregion
+
+        public List<VitalHistoryBMT> GetBMTPatientDetail(string procedureName, string schema, int parameter1, int paramter2)
+        {
+            List<VitalHistoryBMT> Data = new List<VitalHistoryBMT>();
+            string Query = QueryHelper.GetQueryString(procedureName, schema);
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="visitId",Type=DbType.Int32,Value=parameter1 },
+                new DbParameters() {Name="patId",Type=DbType.Int32,Value=paramter2 },
+            };
+            try
+            {
+                DataSet ds = _db.LoadDataSet(Query, CommandType.StoredProcedure, pars);
+                if (ds?.Tables.Count > 0)
+                {
+                    Data = ds.Tables[0].AsEnumerable().Select(a => new VitalHistoryBMT()
+                    {
+                        PatientDetailId = Convert.ToInt32(a["PatientDetailId"]),
+                        VisitId = Convert.ToInt32(a["VisitId"]),
+                        VisitDateTime = Convert.ToDateTime(a["VisitDateTime"]),
+                        VisitType = a["VisitType"].ToString(),
+                        CIC = a["CIC"].ToString(),
+                        DiseaseStatusValReport= a["DiseaseStatusValue"].ToString(),
+                        DiseaseStatus= a["DiseaseStatus"].ToString(),
+                        LanskyValReport = a["LanskyValue"].ToString(),
+                        Lansky = a["Lansky"].ToString(),
+                        HCTCI = a["HCTCI"].ToString(),
+                        HCTCIValReport = a["HCTCIValue"].ToString(),
+                        ECOGStatusValReport= a["ECOGStatusValue"].ToString(),
+                        ECOGStatus = a["ECOGStatus"].ToString(),
+                        HepBStatusValReport = a["HepBStatusValue"].ToString(),
+                        HepBStatus = a["HepBStatus"].ToString(),
+
+                        HepCStatusValReport = a["HepCStatusValue"].ToString(),
+                        HepCStatus = a["HepCStatus"].ToString(),
+                        HIVStatusValReport = a["HIVStatusValue"].ToString(),
+                        HIVStatus = a["HIVStatus"].ToString(),
+                        Summary = a["Summary"].ToString(),
+                        Stage = a["Stage"].ToString(),
+                        //Stage = a["StageValue"].ToString(),
+
+                        //RiskScore= a["RiskScoreValue"].ToString(),
+                        RiskScore= a["RiskScore"].ToString(),
+                        LiverBiopsy= a["LiverBiopsy"].ToString(),
+                        PETCT= a["PETCT"].ToString(),
+                        Chelation = a["Chelation"].ToString(),
+                        Biopsy = a["Biopsy"].ToString(),
+                        Liver= a["Liver"].ToString(),
+                        Spleen= a["Spleen"].ToString(),
+                        Lymphonodes = Convert.ToBoolean(a["Lymphonodes"]),
+                        OtherComorbitiesBMT = a["OtherComorbidityIdBMTVB"].ToString().Split(',').ToList(),
+                        SiteOfLymphnodes = a["SiteOfLymphNodesVB"].ToString().Split(',').ToList(), 
+                        PreviousTreatment = Convert.ToBoolean(a["PreviousTreatment"]),
+                        PreviousTreatmentBMT = a["PreviousTreatmentTypeBMTVB"].ToString().Split(',').ToList(),
+                        TreatmentResponseValue = a["TreatmentResponse"].ToString(),
+                        DiagnosisName = a["Diagnosis"].ToString(),
+                        BMTTreatmentType = a["BMTTreatmentType"].ToString(),
+                        PtWillingForTransplant = Convert.ToBoolean(a["PtWillingForTransplant"]),
+                        ReasonOfRefusal = a["ReasonOfRefusal"].ToString(),
+                        MDTDiscussion = a["MDTDiscussion"].ToString(),
+                        MDTOutCome = a["MDTOutComeBMTVB"].ToString().Split(',').ToList(),
+                        MDTOutComeOther = a["MDTOutComeOther"].ToString(),
+                        TransplantDiscussion = Convert.ToBoolean(a["TransplantDiscussion"]),
+                        TransplantDiscussionDetail = a["TransplantDiscussionDetail"].ToString(),
+                        MDTDate= Convert.ToDateTime(a["MDTDate"]),
+                        TreatmentType = a["TreatmentType"].ToString(),
+
+                        //ImagingDate = Convert.ToDateTime(a["ImagingDate"] == DBNull.Value ? null : a["ImagingDate"]),
+
+
+
+                    }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return Data;
+        }
+        public List<LabReportsBMT> GetLabOrdersBMT(string procedureName, string schema, int parameters)
+        {
+            List<LabReportsBMT> Data = new List<LabReportsBMT>();
+            string Query = QueryHelper.GetQueryString(procedureName, schema);
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() { Name="VisitId", Type=DbType.Int32, Value=parameters }
+            };
+            try
+            {
+                DataSet ds = _db.LoadDataSet(Query, CommandType.StoredProcedure, pars);
+                if (ds?.Tables.Count > 0)
+                {
+
+                    Data = ds.Tables[0].AsEnumerable().Select(a => new LabReportsBMT()
+                    {
+                        LabReportIdBMT = Convert.ToInt32(a["LabReportIdBMT"]),
+                        VisitId = ds.Tables[0].Columns.Contains("VisitId") ? Convert.ToInt32(a["VisitId"]) : 0,
+                        //PreviousReportId=Convert.ToInt32(a["PreviousReportId"]),
+                        TestId = Convert.ToInt32(a["TestId"] == DBNull.Value ? 0 : a["TestId"]),
+                        TestName = a["TestName"].ToString(),
+                        TestDate = Convert.ToDateTime(a["TestDate"]),
+                        TestResult = a["TestResult"].ToString(),
+                        TestUnit = a["TestUnit"].ToString(),
+                        TestResultLabel = a["TestResultLabel"].ToString(),
+                    }).ToList();
+                }
+            }
+            catch (Exception e)
+            {
+
+                throw;
+            }
+            return Data;
+        }
+        public List<PatientDiagnosisBMT> GetPatientDiagnosisAgainstVisitBMT(int visitId)
+        {
+            List<PatientDiagnosisBMT> Data = new List<PatientDiagnosisBMT>();
+            string Query = QueryHelper.GetQueryString("GetPatientDiagnosisAgaintVisitBMT", "Clinical");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters { Name="VisitId", Type=DbType.Int32, Value=visitId},
+            };
+            try
+            {
+                DataSet ds = _db.LoadDataSet(Query, CommandType.StoredProcedure, pars);
+                if (ds?.Tables.Count > 0)
+                {
+                    Data = ds.Tables[0].AsEnumerable().Select(a => new PatientDiagnosisBMT()
+                    {
+                        PatientDiagnosisIdBMT= Convert.ToInt32(a["PatientDiagnosisIdBMT"]),
+                        VisitId = Convert.ToInt32(a["VisitId"]),
+                        Diagnosis = a["Diagnosis"].ToString(),
+                        IsActive = Convert.ToBoolean(a["IsActive"]==DBNull.Value ? false: Convert.ToBoolean(a["IsActive"]))
+
+                    }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return Data;
+        }
+
+        public async Task<int> insertUpdatePatientDetailBMT(VitalHistoryBMT vitalHistory, string procedureName, string schema)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString(procedureName, schema);
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="PatientDetailId",Type=DbType.Int32,Value=vitalHistory.PatientDetailId },
+                new DbParameters() {Name="PatientId", Type=DbType.Int32, Value=vitalHistory.PatientId },
+                new DbParameters() {Name="VisitId",Type=DbType.Int32,Value=vitalHistory.VisitId },
+                new DbParameters() {Name="VisitDateTime",Type=DbType.DateTime,Value=vitalHistory.VisitDateTime },
+                new DbParameters() {Name="VisitType",Type=DbType.String,Value=vitalHistory.VisitType },
+                //new DbParameters() {Name="Diagnosis",Type=DbType.String,Value=vitalHistory.DiagnosisName },
+                //new DbParameters() {Name="DiagnosisDetails",Type=DbType.String,Value=vitalHistory.DiagnosisDetails },
+                new DbParameters() {Name="CIC",Type=DbType.String,Value=vitalHistory.CIC },
+                new DbParameters() {Name="DiseaseStatus",Type=DbType.String,Value=vitalHistory.DiseaseStatus },
+                new DbParameters() {Name="Lansky",Type=DbType.String,Value=vitalHistory.Lansky },
+                new DbParameters() {Name="HCTCI",Type=DbType.String,Value=vitalHistory.HCTCI },
+                new DbParameters() {Name="HepBStatus",Type=DbType.String,Value=vitalHistory.HepBStatus },
+                new DbParameters() {Name="HepCStatus",Type=DbType.String,Value=vitalHistory.HepCStatus },
+                new DbParameters() {Name="HIVStatus",Type=DbType.String,Value=vitalHistory.HIVStatus },
+                new DbParameters() {Name="ECOGStatus",Type=DbType.String,Value=vitalHistory.ECOGStatus },
+                //new DbParameters() {Name="OtherComorbities",Type=DbType.String,Value=vitalHistory.OtherComorbities },
+                new DbParameters() {Name="Summary",Type=DbType.String,Value=vitalHistory.Summary },
+                new DbParameters() {Name="Stage",Type=DbType.String,Value=vitalHistory.Stage },
+                new DbParameters() {Name="RiskScore",Type=DbType.String,Value=vitalHistory.RiskScore },
+                new DbParameters() {Name="Biopsy",Type=DbType.String,Value=vitalHistory.Biopsy },
+                new DbParameters() {Name="PETCT",Type=DbType.String,Value=vitalHistory.PETCT },
+                new DbParameters() {Name="Chelation",Type=DbType.String,Value=vitalHistory.Chelation },
+                new DbParameters() {Name="Liver",Type=DbType.String,Value=vitalHistory.Liver },
+                new DbParameters() {Name="Spleen",Type=DbType.String,Value=vitalHistory.Spleen },
+                new DbParameters() {Name="Lymphonodes",Type=DbType.Boolean,Value=vitalHistory.Lymphonodes },
+                //new DbParameters() {Name="SiteOfLymphnodes",Type=DbType.String,Value=vitalHistory.SiteOfLymphnodes },
+                //new DbParameters() {Name="LiverBiopsy",Type=DbType.String,Value=vitalHistory.LiverBiopsy },
+                new DbParameters() {Name="PreviousTreatment",Type=DbType.Boolean,Value=vitalHistory.PreviousTreatment },
+                //new DbParameters() {Name="TreatmentType",Type=DbType.String,Value=vitalHistory.TreatmentType},
+                new DbParameters() {Name="TreatmentResponse",Type=DbType.String,Value=vitalHistory.TreatmentResponse},
+                new DbParameters() {Name="BMTTreatmentType",Type=DbType.String,Value=vitalHistory.BMTTreatmentType},
+                new DbParameters() {Name="PtWillingForTransplant",Type=DbType.Boolean,Value=vitalHistory.PtWillingForTransplant },
+                new DbParameters() {Name="ReasonOfRefusal",Type=DbType.String,Value=vitalHistory.ReasonOfRefusal },          
+                new DbParameters() {Name="MDTDiscussion",Type=DbType.String,Value=vitalHistory.MDTDiscussion },
+                //new DbParameters() {Name="MDTOutCome",Type=DbType.String,Value=vitalHistory.MDTOutCome},
+                new DbParameters() {Name="MDTOutComeOther",Type=DbType.String,Value=vitalHistory.MDTOutComeOther },
+                new DbParameters() {Name="TransplantDiscussion",Type=DbType.Boolean,Value=vitalHistory.TransplantDiscussion },
+                new DbParameters() {Name="TransplantDiscussionDetail",Type=DbType.String,Value=vitalHistory.TransplantDiscussionDetail },
+                new DbParameters() {Name="EnteredBy",Type=DbType.Int32,Value=vitalHistory.EnteredBy },
+                new DbParameters() {Name="EnteredOn",Type=DbType.DateTime,Value=vitalHistory.EnteredOn },
+                new DbParameters() {Name="ClinicId",Type=DbType.Int32,Value=vitalHistory.ClinicId },
+                //new DbParameters() {Name="MDTDate",Type=DbType.Date,Value=vitalHistory.MDTDate == DateTime.MinValue ? null : vitalHistory.MDTDate.ToString() },
+                new DbParameters() {Name="MDTDate",Type=DbType.Date,Value=vitalHistory.MDTDate },
+                //public List<PatientDiagnosis> PatientDiagnosis { get; set; } = new List<PatientDiagnosis>();
+            };
+            try
+            {
+                result = Convert.ToInt32(await _db.ExecuteScalarAsync(Query, CommandType.StoredProcedure, pars));
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            return result;
+        }
+        public async Task<int> insertUpdateLabReportsBMT(LabReportsBMT labReports, string procedureName, string schema)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString(procedureName, schema);
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="LabReportIdBMT", Type= DbType.Int32, Value= labReports.LabReportIdBMT },
+                new DbParameters() {Name="VisitId",Type=DbType.Int32,Value=labReports.VisitId },
+                new DbParameters() {Name="PatientId", Type=DbType.Int32, Value=labReports.PatientId },
+                new DbParameters() {Name="TestId", Type=DbType.Int32, Value=labReports.TestId == 0 ? null : labReports.TestId.ToString() },
+                new DbParameters() {Name="TestName", Type=DbType.String, Value=labReports.TestName },
+                new DbParameters() {Name="TestDate", Type=DbType.Date, Value=labReports.TestDate },
+                new DbParameters() {Name="TestResult", Type=DbType.String, Value=labReports.TestResult },
+                new DbParameters() {Name="TestUnit", Type=DbType.String, Value=labReports.TestUnit },
+                new DbParameters() {Name="TestResultLabel", Type=DbType.String, Value=labReports.TestResultLabel },
+            };
+            try
+            {
+                result = Convert.ToInt32(await _db.ExecuteScalarAsync(Query, CommandType.StoredProcedure, pars));
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            return result;
+        }
+        public async Task<int> DeleteOtherComorbiditiesBMT(int visitId)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString("DeleteOtherComorbiditiesBMT", "Clinical");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="VisitId", Type=DbType.Int32,Value=visitId }
+            };
+            try
+            {
+                result = Convert.ToInt32(await _db.ExecuteNonQueryAsync(Query, CommandType.StoredProcedure, pars));
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return result;
+        }
+
+        public async Task<int> InsertOtherComorbiditiesBMT(int visitId, int patientId, string otherComorbidities)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString("InsertOtherCormoditiesBMT", "Clinical");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="VisitId", Type= DbType.Int32, Value= visitId },
+                new DbParameters() {Name="PatientId",Type=DbType.Int32,Value=patientId },
+                new DbParameters() {Name="OtherComorbidity", Type=DbType.String, Value=otherComorbidities},
+            };
+            try
+            {
+                result = Convert.ToInt32(await _db.ExecuteScalarAsync(Query, CommandType.StoredProcedure, pars));
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            return result;
+        }
+        public async Task<int> DeleteSiteOfLymphnodesBMT(int visitId)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString("DeleteSiteOfLymphnodesBMT", "Clinical");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="VisitId", Type=DbType.Int32,Value=visitId }
+            };
+            try
+            {
+                result = Convert.ToInt32(await _db.ExecuteNonQueryAsync(Query, CommandType.StoredProcedure, pars));
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return result;
+        }
+
+        public async Task<int> InsertSiteOfLymphnodesBMT(int visitId, int patientId, string SiteOfLymphnodes)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString("InsertSiteOfLymphnodesBMT", "Clinical");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="VisitId", Type= DbType.Int32, Value= visitId },
+                new DbParameters() {Name="PatientId",Type=DbType.Int32,Value=patientId },
+                new DbParameters() {Name="SiteOfLymphnodes", Type=DbType.String, Value=SiteOfLymphnodes},
+            };
+            try
+            {
+                result = Convert.ToInt32(await _db.ExecuteScalarAsync(Query, CommandType.StoredProcedure, pars));
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            return result;
+        }
+
+        public async Task<int> DeleteMDTOutcomeBMT(int visitId)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString("DeleteMDTOutcomeBMT", "Clinical");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="VisitId", Type=DbType.Int32,Value=visitId }
+            };
+            try
+            {
+                result = Convert.ToInt32(await _db.ExecuteNonQueryAsync(Query, CommandType.StoredProcedure, pars));
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return result;
+        }
+
+        //InsertMDTOutComeBMT
+        public async Task<int> InsertMDTOutComeBMT(int visitId, int patientId, string OutComeText)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString("InsertMDTOutComeBMT", "Clinical");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="VisitId", Type= DbType.Int32, Value= visitId },
+                new DbParameters() {Name="PatientId",Type=DbType.Int32,Value=patientId },
+                new DbParameters() {Name="OutComeText", Type=DbType.String, Value=OutComeText},
+            };
+            try
+            {
+                result = Convert.ToInt32(await _db.ExecuteScalarAsync(Query, CommandType.StoredProcedure, pars));
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            return result;
+        }
+
+
+        public async Task<int> InsertUpdatePatientDiagnosisBMT(PatientDiagnosisBMT diagnosis)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString("InsertUpdatePatientDiagnosisBMT", "Clinical");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="PatientDiagnosisIdBMT", Type=DbType.Int32,Value=diagnosis.PatientDiagnosisIdBMT },
+                new DbParameters() {Name="VisitId", Type=DbType.Int32,Value=diagnosis.VisitId },
+                new DbParameters() {Name="Diagnosis", Type=DbType.String,Value=diagnosis.Diagnosis },
+                new DbParameters() {Name="EnteredBy", Type=DbType.Int32,Value=diagnosis.EnteredBy },
+            };
+
+            try
+            {
+                result = Convert.ToInt32(await _db.ExecuteScalarAsync(Query, CommandType.StoredProcedure, pars));
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return result;
+        }
+
+        public async Task<int> DeletePreviousTreatmentBMT(int visitId)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString("DeletePreviousTreatmentBMT", "Clinical");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="VisitId", Type=DbType.Int32,Value=visitId }
+            };
+            try
+            {
+                result = Convert.ToInt32(await _db.ExecuteNonQueryAsync(Query, CommandType.StoredProcedure, pars));
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return result;
+        }
+
+        public async Task<int> InsertPreviousTreatmentBMT(int visitId, int patientId, string PreviousTreatment)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString("InsertPreviousTreatmentBMT", "Clinical");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="VisitId", Type= DbType.Int32, Value= visitId },
+                new DbParameters() {Name="PatientId",Type=DbType.Int32,Value=patientId },
+                new DbParameters() {Name="PreviousTreatment", Type=DbType.String, Value=PreviousTreatment},
+            };
+            try
+            {
+                result = Convert.ToInt32(await _db.ExecuteScalarAsync(Query, CommandType.StoredProcedure, pars));
+            }
+            catch (Exception ex)
+            {
+
+                throw;
+            }
+            return result;
+        }
+
+
+        public List<LabReportsBMT> GetPreviousVisitLabTestsBMT(int patientId, int visitId)
+        {
+            List<LabReportsBMT> Data = new List<LabReportsBMT>();
+            string Query = QueryHelper.GetQueryString("GetPreviousVisitLabTestsBMT", "Clinical");
+
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() { Name="PatientId", Type=DbType.Int32, Value=patientId},
+                new DbParameters() { Name="VisitId", Type=DbType.Int32, Value=visitId },
+            };
+
+            try
+            {
+                DataSet ds = _db.LoadDataSet(Query, CommandType.StoredProcedure, pars);
+                if (ds?.Tables.Count > 0)
+                {
+
+                    Data = ds.Tables[0].AsEnumerable().Select(a => new LabReportsBMT()
+                    {
+                        TestName = a["TestName"].ToString(),
+                        TestDate = Convert.ToDateTime(a["TestDate"] == DBNull.Value ? null : a["TestDate"]),
+                        TestResult = a["TestResult"].ToString(),
+                        VisitDateTime = Convert.ToDateTime(a["VisitDateTime"] == DBNull.Value ? null : a["VisitDateTime"]),
+
+
+                    }).ToList();
+                }
+            }
+            catch (Exception e)
+            {
+
+                throw;
+            }
+            return Data;
+        }
+
+        #endregion
+
 
         #region Delete multi select patient details
 
@@ -1724,7 +2222,44 @@ namespace BDCS.Data
             return result;
         }
 
+
+        public List<VitalHistoryBMT> GetPatientListOfBMTForMDTList(DateTime fromDate, DateTime toDate)
+        {
+            List<VitalHistoryBMT> Data = new List<VitalHistoryBMT>();
+            string Query = QueryHelper.GetQueryString("GetPatientListOfBMTForMDT", "Clinical");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="FromDate",Type=DbType.Date,Value=fromDate},
+                new DbParameters() {Name="ToDate",Type=DbType.Date,Value=toDate },
+            };
+            try
+            {
+                DataSet ds = _db.LoadDataSet(Query, CommandType.StoredProcedure, pars);
+                if (ds?.Tables.Count > 0)
+                {
+                    Data = ds.Tables[0].AsEnumerable().Select(a => new VitalHistoryBMT()
+                    {
+                        PatientId = Convert.ToInt32(a["PatientId"]),
+                        PatientName = a["PatientName"].ToString(),
+                        VisitDateTime = Convert.ToDateTime(a["VisitDateTime"]),
+                        HospitalNumber = a["HospitalNumber"].ToString(),
+                        MDTDiscussion = a["MDTDiscussion"].ToString(),
+                        MDTOutComeString = a["MDTOutCome"].ToString(),
+                        VisitId = Convert.ToInt32(a["VisitId"]),
+
+                    }).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+            return Data;
+        }
+
         #endregion
+
+
     }
 
 

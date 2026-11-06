@@ -19,9 +19,12 @@
 
         <thead>
             <tr style="background-color: #57b7fd;color:white;">
+                <th>Visit Id</th>
                 <th>Visit Date</th>
-                <th>Reason</th>
+                @*<th>Reason</th>*@
+                <th>MDT Type</th>
                 <th>Print</th>
+                
                 @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
                 {
                     <th>Edit</th>
@@ -34,29 +37,29 @@
             @foreach (BDCS.Model.Visit.Visit item in Model)
             {
                 <tr>
+                    <td>@item.VisitId</td>
                     <td>@item.VisitDate</td>
-                    <td>@item.Reason</td>
+                    @*<td>@item.Reason</td>*@
+                    <td>@item.MDTType</td>
                     <td>
-                        <a href="@Url.Action("PatientVisitReportRdlc","Patient",new { patId = item.PatientId, visitId = item.VisitId, item.Reason })" target="_blank">
+                        <a href="@Url.Action("PatientVisitReportRdlc","Patient",new { patId = item.PatientId, visitId = item.VisitId, item.Reason,mdtType=item.MDTType })" target="_blank">
                             <span class="glyphicon glyphicon-print"></span>
                         </a>
                     </td>
                     @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
                     {
                         <td>
-                            <a href="#" onclick="AddEditPatientFunction(@item.PatientId,@item.VisitId,'@item.VisitDate','@item.Reason')" ;>
+                            <a href="#" onclick="AddEditPatientFunction(@item.PatientId,@item.VisitId,'@item.VisitDate','@item.Reason','@item.MDTType')" ;>
                                 <span class="glyphicon glyphicon-edit"></span>
                             </a>
                         </td>
                         @*----------*@
                         <td>
-                            <a href="#" onclick="CopyVisit(@item.PatientId,@item.VisitId)" ;>
+                            <a href="#" onclick="CopyVisit(@item.PatientId,@item.VisitId,'@item.MDTType')" ;>
                                 <span class="glyphicon glyphicon-download"></span>
                             </a>
                         </td>
                     }
-
-
 
                     @*<td>
                         <a href="#" onclick="AddServices(@item.PatientId,@item.VisitId)" ;>
@@ -77,17 +80,19 @@ else
 
 <script type="text/javascript">
 
-    function AddEditPatientFunction(patId,visitId,visitdt,reason) {
-        debugger;
+    function AddEditPatientFunction(patId, visitId, visitdt, reason, mdttype) {
+
         var par = {
             patId: patId,
             visitId: visitId,
             visitDateTime: visitdt,
-            reason: reason
-           
+            reason: reason,
+            mdtType:mdttype
+
+
 
         };
-        debugger;
+
         var url = '@Url.Action("AddEditPatientDetail", "Patient")' + '/?' + $.param(par);
         loadPage(url, "Patient");
 
@@ -96,17 +101,32 @@ else
     }
 
 
-    function CopyVisit(patId, visitId) {
-      
+    function CopyVisit(patId, visitId,mdtTypes) {
+        var URL = "";
+        if (mdtTypes == "BoneMarrow") {
+            URL = '@Url.Action("CopyVisitBMT", "Patient")';
+        }
+        else if (mdtTypes == "Liver") {
+            URL = '@Url.Action("CopyVisit", "Patient")';
+        }
+
         $.ajax({
-            url: '@Url.Action("CopyVisit", "Patient")',
+            url: URL,@*'@Url.Action("CopyVisitBMT", "Patient")',*@
             type: 'Post',
             dataType: 'Json',
-            data: { patientId: patId, oldVisitId: visitId },
+            data: { patientId: patId, oldVisitId: visitId, mdtType: mdtTypes },
 
             success: (function (msg) {
                 if (parseInt(msg.Code) == 200) {
-                    loadPage('@Url.Action("AddEditPatientDetail", "Patient")' + '/?patId=' + patId + ' &visitId=' + msg.ResponseObject + ' &reason=' + 'Followup', "Prescription");
+                    @*loadPage('@Url.Action("AddEditPatientDetail", "Patient")' + '/?patId=' + patId + '&visitId=' + msg.ResponseObject + ' &reason=' + 'Followup', "Prescription" + "&MDTType=" + mdtTypes);*@
+
+                     loadPage('@Url.Action("AddEditPatientDetail", "Patient")' +
+                         '/?patId=' + patId +
+                         '&visitId=' + msg.ResponseObject +
+                         '&reason=' + encodeURIComponent('Followup') +
+                         '&MDTType=' + encodeURIComponent(mdtTypes));
+
+
                 }
                 else {
                     ShowAlertMessage('Unable to Create Visit', 'warning');
@@ -126,7 +146,7 @@ else
 
 
         };
-        debugger;
+
         var url = '@Url.Action("AddPatientServices", "Patient")' + '/?' + $.param(par);
         loadPage(url, "Patient");
 

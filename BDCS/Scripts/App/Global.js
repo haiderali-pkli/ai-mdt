@@ -1,8 +1,7 @@
 ﻿var HeartbeatTimer;
-function loadPage(url, name, targetElement)
-{
+function loadPage(url, name, targetElement) {
     showProgressBar();
-    debugger
+
     targetElement = targetElement || 'MainContent';
     ResetPreviousFunction();
 
@@ -11,9 +10,8 @@ function loadPage(url, name, targetElement)
         type: 'get',
         success: function (res, status, jqXHR) {
             hideProgressBar();
-            if (jqXHR.getResponseHeader('content-type').indexOf('text/html')>=0)
-            {
-                debugger;
+            if (jqXHR.getResponseHeader('content-type').indexOf('text/html') >= 0) {
+
                 $("#" + targetElement).empty();
                 $("#" + targetElement).html(res);
 
@@ -22,26 +20,26 @@ function loadPage(url, name, targetElement)
                     InitializeHeartbeat();
                 }
 
-                if (typeof PostPageLoad=='function') {
-                    try{ 
+                if (typeof PostPageLoad == 'function') {
+                    try {
                         PostPageLoad();
                     }
-                    catch(e){
+                    catch (e) {
                         console.error('Post Page Load Error' + e)
                     }
-                
+
                 }
                 else {
                     res = JSON.parse(res);
-                    if (res!==null && res.message!==undefined) {
+                    if (res !== null && res.message !== undefined) {
                         ShowAlertMessage(res.message, res.type, res.title);
-                        debugger;
+
                         if (res.PopupUrl != null && res.PopupUrl.length > 0) {
                             window.open(res.PopupUrl, "_blank");
                         }
 
-                        if (res.RedirectUrl !== null && res.RedirectUrl.length>0) {
-                            if (res.DoFullRedirect==true) {
+                        if (res.RedirectUrl !== null && res.RedirectUrl.length > 0) {
+                            if (res.DoFullRedirect == true) {
                                 window.Location = res.RedirectUrl;
                             }
                             else {
@@ -50,7 +48,7 @@ function loadPage(url, name, targetElement)
                             }
                         }
                         else {
-                            ShowAlertMessage("no proper response received","error")
+                            ShowAlertMessage("no proper response received", "error")
                         }
                     }
                 }
@@ -65,10 +63,10 @@ function loadPage(url, name, targetElement)
 }
 
 
-function ShowAlertMessage(message,type,title) {
-    if (type!='info' && type!='warning' && type!='success' && type!='error'){
+function ShowAlertMessage(message, type, title) {
+    if (type != 'info' && type != 'warning' && type != 'success' && type != 'error') {
         type == 'info';
-        
+
     }
 
     $.toast({
@@ -87,7 +85,7 @@ function submitFormData(form) {
     showProgressBar();
     var Data = new FormData($(form)[0]);
     var url = $(form).prop('action');
-    debugger;
+
     var Result = 0;
     $.ajax({
         url: url,
@@ -100,10 +98,10 @@ function submitFormData(form) {
         processData: false,
         success: function (msg) {
             hideProgressBar();
-            debugger;
+
             ShowAlertMessage(msg.message, msg.MessageClass, msg.MessageTitle);
             Result = msg.ResponseObject;
-            debugger;
+
             if (msg.PopupUrl != null && msg.PopupUrl.length > 0) {
                 window.open(msg.PopupUrl, "_blank");
             }
@@ -127,8 +125,7 @@ function submitFormData(form) {
 }
 
 function ResetPreviousFunction() {
-    if(typeof PostPageLoad=='function')
-    {
+    if (typeof PostPageLoad == 'function') {
         PostPageLoad == null;
     }
 
@@ -148,7 +145,7 @@ function InitializeDateTimePicker(selector) {
 function showProgressBar() {
     $("#preloader").show();
     $("#preloader .preloader").show();
-    
+
 }
 
 function hideProgressBar() {
@@ -183,8 +180,7 @@ function getURLParameters(paramName) {
     }
 }
 
-function ClosePopup()
-{
+function ClosePopup() {
     $("#GenericModal").modal('hide');
     $(".modal-backdrop").remove();
 }

@@ -29,6 +29,7 @@
         <input type="hidden" id="visitId" value="@TempData["visitIdVB"]" />
         <input type="hidden" id="patientId" value="@TempData["patientIdVB"]" />
         <input type="hidden" id="reason" value="@TempData["reasonVB"]" />
+        <input type="hidden" id="mdtTypeId" value="@TempData["MDTType"]"/>
 
         <div class="row" style="background-color: #57b7fd;color:white;box-sizing: border-box; padding-right: 40px;" id="PatientHeaderContainer">
 
@@ -36,15 +37,38 @@
 
         </div>
 
-        <div class="row">
-
-            <div class="col-sm-1 col-sm-offset-8 col-xs-1">
-                </br>
-                <label>&nbsp;</label>
-
-                <button class="btn btn-block btn-success" style="margin-top: -38px;" type="button" onclick="savePatientDetail();"><span class="glyphicon glyphicon-save"></span> Save</button>
+        <div class="row" style="background-color: #efecec">
+            <div class="col-sm-3 col-xs-2">
+                @if (TempData["MDTType"].ToString() == "BoneMarrow")
+                {
+                    <h4 style="color: red; font-size:22px;">MDT for Bone Marrow Transplant</h4>
+                }
+                else if(TempData["MDTType"].ToString() == "Liver")
+                {
+                    <h4 style="color: #0037ff; font-size: 22px;">MDT for Liver Transplant (LTx)</h4>
+                }
 
             </div>
+            <div class="col-sm-1 col-sm-offset-5 col-xs-1" id="saveButtonContainer">
+                </br>
+
+                <label>&nbsp;</label>
+                @if (@TempData["MDTType"].ToString() == "Liver")
+                {
+                    <button class="btn btn-block btn-success" style="margin-top: -38px;" type="button" onclick="savePatientDetail();"><span class="glyphicon glyphicon-save"></span> Save</button>
+                }
+                else if (@TempData["MDTType"].ToString() == "BoneMarrow")
+                {
+                    <button class="btn btn-block btn-success" style="margin-top: -38px;" type="button" onclick="savePatientDetailBMT();"><span class="glyphicon glyphicon-save"></span> BMT Save</button>
+                }
+
+            </div>
+
+
+            @*<div class="col-sm-1 col-sm-offset-8 col-xs-1">
+            </br>
+            <label>&nbsp;</label>
+        </div>*@
 
             <div class="col-sm-1 col-xs-1">
                 </br>
@@ -74,7 +98,7 @@
         </div>
 
 
-        @*<div class="panel-group top" style="margin-top:5px;">
+            @*<div class="panel-group top" style="margin-top:5px;">
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
@@ -115,42 +139,42 @@
             </div>
         </div>*@
 
-        
 
-        @*//Tab coloring*@
-        <div class="row" style="padding-bottom: 50px;">
-            <div class="col-md-12" >
 
-                @*<ul class="nav nav-tabs"  style="border-bottom: 1px solid #57b7fd;margin-top: 2px;">
+            @*//Tab coloring*@
+            <div class="row" style="padding-bottom: 50px;">
+                <div class="col-md-12">
+
+                    @*<ul class="nav nav-tabs"  style="border-bottom: 1px solid #57b7fd;margin-top: 2px;">
                     <li class="active"><a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#VitalHx" role="tab" aria-controls="nav-home" aria-selected="true" style="background-color: #57b7fd; color: white;">Vital History</a></li>
                     <li><a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false" style="background-color: #57b7fd; color: white;">Protocol History</a></li>
                     <li><a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#lab-profile" role="tab" aria-controls="nav-profile" aria-selected="false" style="background-color: #57b7fd; color: white;">Lab History</a></li>
                 </ul>*@
-      
-                <div class="tab-content" id="nav-tabContent " style="/*height: 550px; width: 100%; overflow: scroll;*/">
-                    <div class="tab-pane fade active in" id="VitalHx" role="tabpanel" aria-labelledby="nav-home-tab">
 
+                    <div class="tab-content" id="nav-tabContent " style="/*height: 550px; width: 100%; overflow: scroll;*/">
+                        <div class="tab-pane fade active in" id="VitalHx" role="tabpanel" aria-labelledby="nav-home-tab">
 
-                    </div>
-
-                    @*<div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-
-                        <div id="ProtocolHx">
 
                         </div>
-                    </div>
 
-                    <div class="tab-pane fade" id="lab-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+                        <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
 
-                        <div id="LabHx">
+                            <div id="ProtocolHx">
 
+                            </div>
                         </div>
-                    </div>*@
+
+                        <div class="tab-pane fade" id="lab-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+
+                            <div id="LabHxBMT">
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-    </form>
+</form>
 
 </div>
 
@@ -158,24 +182,44 @@
 
     $(document).ready(function () {
         $("#nav-home-tab").click();
-
         var visitId = $("#visitId").val();
         var patientId = $("#patientId").val();
         var reason = $("#reason").val();
+        var mdttypeValue = $("#mdtTypeId").val();
 
-        var url = '@Url.Action("VitalHistory", "Patient")' + '/?visitId=' + visitId + "&reason=" + reason + "&patId=" + patientId;
-        loadPage(url, "VitalHistory", "VitalHx");
-        debugger;
+        //if (mdttypeValue == "Liver") {
+        //    $('#saveButtonContainer').html('<button class="btn btn-block btn-success" style="margin-top: -38px;" type="button" onclick="savePatientDetail();"><span class="glyphicon glyphicon-save"></span> Save Liver</button>');
+        //} else if (mdttypeValue == "BoneMarrow") {
+        //    $('#saveButtonContainer').html('<button class="btn btn-block btn-success" style="margin-top: -8px;" type="button" onclick="savePatientDetailBMT();"><span class="glyphicon glyphicon-save"></span> Save BMT Data</button>');
+        //}
 
+
+        /*alert($("#mdtTypeId").val());*/
+        switch ($("#mdtTypeId").val()) {
+            case "BoneMarrow":
+                var url = '@Url.Action("VitalHistoryBMT", "Patient")' + '/?visitId=' + visitId + "&reason=" + reason + "&patId=" + patientId + "&mdtype=" + mdttypeValue;
+                @*var URL = '@Url.Action("GetProtocols", "Patient")' + '/?visitId=' + visitId + "&patId=" + patientId;*@
+                @*var LabUrl = '@Url.Action("GetPreviousVisitLabTestsBMT", "Patient")' + '/?patientId=' + patientId + '&visitId=' + visitId;*@
+                /*loadPage(URL, "ProtocolsHistory", "ProtocolHx");*/
+                loadPage(url, "VitalHistoryBMT", "VitalHx");
+                /*loadPage(LabUrl, "Lab History", "LabHxBMT");*/
+                break;
+            case "Liver":
+                var url = '@Url.Action("VitalHistory", "Patient")' + '/?visitId=' + visitId + "&reason=" + reason + "&patId=" + patientId + "&mdtype=" + mdttypeValue;
+                var URL = '@Url.Action("GetProtocols", "Patient")' + '/?visitId=' + visitId + "&patId=" + patientId;
+                @*var LabUrl = '@Url.Action("GetPreviousVisitLabTests", "Patient")' + '/?patientId=' + patientId + '&visitId=' + visitId;*@
+                /*loadPage(URL, "ProtocolsHistory", "ProtocolHx");*/
+                loadPage(url, "VitalHistory", "VitalHx");
+                /*loadPage(LabUrl, "Lab History", "LabHx");*/
+                break;
+            case "Kidney":
+                alert("Kidney MDT is under development");
+                break;
+            default:
+                alert("Invalid MDT Type");
+        }
         @*var uRl = '@Url.Action("GetPreviousLabReport", "Patient")' + '/?visitId=' + visitId + "&patId=" + patientId;
         loadPage(uRl,"PreviousLabReports")*@
-
-        var URL = '@Url.Action("GetProtocols", "Patient")' + '/?visitId=' + visitId + "&patId=" + patientId;
-        loadPage(URL, "ProtocolsHistory", "ProtocolHx");
-
-        var LabUrl = '@Url.Action("GetPreviousVisitLabTests", "Patient")' + '/?patientId=' + patientId + '&visitId=' + visitId;
-        loadPage(LabUrl, "Lab History", "LabHx");
-
     });
 
 
@@ -192,13 +236,13 @@
         var Gender = $("#Gender").val();
 
         if ($.trim(Gender) === 'Male') {
-            debugger;
+
             $(".MaleOnly").show();
             $(".FemaleOnly").hide();
 
         }
         else {
-            debugger;
+
             $(".MaleOnly").hide();
             $(".FemaleOnly").show();
         }

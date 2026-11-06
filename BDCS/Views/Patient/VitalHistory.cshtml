@@ -476,7 +476,7 @@
 <script src="~/Content/Plugin/chosen/chosen.jquery.min.js"></script>
 <link href="~/Content/Plugin/chosen/chosen.css" rel="stylesheet" />
     <!--Script Portion-->
-    <script type="text/javascript">
+<script type="text/javascript">
         //This will call before pageload so the values will be filled in the array
 
         var SystemicResSuggestions = new Array();
@@ -489,15 +489,15 @@
                 var $this = $(this);
 
                 if ($this.children('i').hasClass('glyphicon-resize-full')) {
-                    debugger;
+
                     $this.children('i').removeClass('glyphicon-resize-full');
                     $this.children('i').addClass('glyphicon-resize-small');
                     $("#MDTDiscussion").css('height', "500px").css("font-size", "30px");
                 }
                 else if ($this.children('i').hasClass('glyphicon-resize-small')) {
-                    debugger;
+
                     $("#MDTDiscussion").css('height', "150px").css("font-size", "14px");
-                   
+
                     $this.children('i').removeClass('glyphicon-resize-small');
                     $this.children('i').addClass('glyphicon-resize-full');
                 }
@@ -542,7 +542,7 @@
         {
 
             <text>
-        debugger;
+
                 SystemicCVSSuggestions.push('@item.Text')
         </text>
         }
@@ -612,7 +612,7 @@
         </text>
         }
         var CICSuggestion = new Array();
-        debugger;
+
         @foreach (SelectListItem item in ViewBag.CICVBB)
         {
             <text>
@@ -657,7 +657,7 @@
 
             $('#tblDiagnosis').bind('rowAddOrRemove', function (event) {
                 var rows = $("#tblDiagnosis tr.DataRowDagnosis").length;
-                
+
                 if (rows > 0) {
                     $('#tblDiagnosis').show();
                 }
@@ -720,7 +720,7 @@
         }
 
         function savePatientDetail() {
-            debugger;
+
             var previousResult = new Array();
             var currentReports = new Array();
             var protocolDetail = new Array();
@@ -729,7 +729,7 @@
             var Valid = true;
 
             $("#tblPreviousResult .DataRowPreviousResult").each(function () {
-                debugger;
+
                 var Data = {
                     LabReportId: $(this).data("recordidprv"),
                     VisitId: $("#VisitId").val(),
@@ -742,9 +742,9 @@
             });
 
             var OptionalTests = ["CEA", "CA19-9", "CA125", "Pivica"];
-            
+
             $("#tblLabReports .DataRowLabReports").each(function () {
-                
+
                 if (!Valid) {
                     return;
                 }
@@ -789,7 +789,7 @@
 
 
             $("#tblDiagnosis .DataRowDagnosis").each(function () {
-                debugger;
+
                 var Data = {
 
                     PatientDiagnosisId: $(this).data("recordidprv"),
@@ -799,7 +799,7 @@
                 patientDiagnosis.push(Data);
             });
 
-            debugger;
+
             var vitalHistory = {
                 PatientDetailId:$("#PatientDetailId").val(),
                 PatientId: $("#patientId").val(),
@@ -810,7 +810,7 @@
                 DiagnosisDetails: $("#DiagnosisDetails").val(),
                 CTReportConclusion: $("#CTReportConclusion").val(),
                 CIC:$("#CIC").val(),
-                         
+
                 ChildStatus: $("#ChildStatus").val(),
                 MeldStatus: $("#MeldStatus").val(),
                 BCLC: $("#BCLC").val(),
@@ -844,13 +844,13 @@
                 MDTDiscussion: $("#MDTDiscussion").val(),
                 MDTOutCome: $("#MDTOutCome").val() != null ? $("#MDTOutCome").val().toString() : "",
 
-        
+
 
                 MDTOutComeOther: $("#MDTOutComeOther").val()!= null ? $("#MDTOutComeOther").val().toString() :"",
                 TransplantDiscussion: $("#TransplantDiscussion").is(":checked") ? 1 : 0,
                 TransplantDiscussionDetail: $("#TransplantDiscussionDetail").val() != null ? $("#TransplantDiscussionDetail").val().toString() : "",
                 ImagingDate: $("#ImagingDate").val(),
-                
+
                 //PreviousLab: previousResult,
                 //protocols: protocolDetail,
                 labreports: currentReports,
@@ -858,7 +858,7 @@
             };
 
             if (ValidateMandatoryFields(vitalHistory) && Valid) {
-                debugger;
+
                 $.ajax({
 
                     url: '@Url.Action("savePatientDetail1", "Patient")',
@@ -867,12 +867,14 @@
                     data: JSON.stringify(vitalHistory),
                     contentType: 'application/Json',
                     success: function (msg) {
-                        debugger;
+
                         ShowAlertMessage(msg.Message, msg.MessageClass, msg.MessageTitle);
 
                     @*   window.open("@Url.Action("PatientVisitReportRdlc","Patient")/?patId="+$("#patientId").val() + "&visitId="+$("#VisitId").val(),"_blank"); *@
 
-                        var Url = '@Url.Action("AddEditPatientDetail", "Patient")/?patId=' + $("#patientId").val() + "&visitId=" + $("#VisitId").val() + "&visitDateTime=" + $("#VisitDateTime").val() + "&reason=" + $("#VisitType").val();
+                        @*var Url = '@Url.Action("AddEditPatientDetail", "Patient")/?patId=' + $("#patientId").val() + "&visitId=" + $("#VisitId").val() + "&visitDateTime=" + $("#VisitDateTime").val() + "&reason=" + $("#VisitType").val();*@
+                        var Url = '@Url.Action("AddEditPatientDetail", "Patient")/?patId=' + $("#patientId").val() + "&visitId=" + $("#VisitId").val() + "&visitDateTime=" + $("#VisitDateTime").val() + "&reason=" + $("#VisitType").val() +
+                            "&MDTType=Liver";
 
                         loadPage(Url, "Patient visit");
 
@@ -940,7 +942,10 @@
         }
 
         function PrintReport() {
-            window.open("@Url.Action("PatientVisitReportRdlc","Patient")/?patId="+$("#patientId").val() + "&visitId="+$("#VisitId").val(),"_blank");
+            @*window.open("@Url.Action("PatientVisitReportRdlc","Patient")/?patId=" + $("#patientId").val() + "&visitId=" + $("#VisitId").val(), "_blank");*@
+            var mdtTypeValue = document.getElementById('mdtTypeId').value;
+            /*alert(mdtTypeValue);*/
+            window.open('@Url.Action("PatientVisitReportRdlc", "Patient")?patId=' + $("#patientId").val() + '&visitId=' + $("#VisitId").val() + '&mdttype=' + mdtTypeValue, "_blank");
         }
 
         function AddDiagnosisRow()
@@ -962,7 +967,7 @@
                 success: function (msg) {
 
                     ShowAlertMessage(msg.Message, msg.MessageClass);
-                    debugger;
+
                     var PastHxText = $("#PastHxNAT").val();
                     var Diagnosis = $(tag).closest("tr").find(".DiagnosisName").val();
 
@@ -978,7 +983,7 @@
         function ShowHideSiteAngioInvasion(){
             if($("#Angioinvasion").is(":checked"))
             {
-                $("#SiteOfAngioinvasionContainer").show();   
+                $("#SiteOfAngioinvasionContainer").show();
             }
             else {
                 $("#SiteOfAngioinvasionContainer").hide();
@@ -987,7 +992,7 @@
         function ShowHidePtWillingForTransplant() {
             if($("#PtWillingForTransplant").is(":checked"))
             {
-                $("#ReasonOfRefusal").removeProp("disabled");   
+                $("#ReasonOfRefusal").removeProp("disabled");
             }
             else {
                 $("#ReasonOfRefusal").prop("disabled",'true');
@@ -1054,8 +1059,8 @@
             //}
 
             return Valid;
-             
+
 
 
         }
-    </script>
+</script>

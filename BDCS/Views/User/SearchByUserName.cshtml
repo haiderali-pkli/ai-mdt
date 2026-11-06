@@ -1,94 +1,129 @@
-﻿@model BDCS.Model.RoleRights.Users
+@using BDCS.Model.RoleRights
+@using BDCS.Model.Misc
 @{
     if (Request.IsAjaxRequest())
     {
         Layout = null;
     }
+    List<Users> UserList = ViewBag.GetUserList ?? new List<Users>();
+    Dictionary<int, List<Role>> RolesByUser = ViewBag.RolesByUser ?? new Dictionary<int, List<Role>>();
+    Dictionary<int, List<KeyAndValuePair>> ClinicsByUser = ViewBag.ClinicsByUser ?? new Dictionary<int, List<KeyAndValuePair>>();
+
+    Func<string, string> initials = name =>
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        string[] parts = name.Trim().Split(' ');
+        string result = parts[0].Substring(0, 1);
+        if (parts.Length > 1) result += parts[parts.Length - 1].Substring(0, 1);
+        return result.ToUpper();
+    };
 }
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-12">
+
+<div class="admin-module">
+    <div class="container-fluid">
+
+        <div class="am-page-head">
             <div>
-                <h3 class="heading" style="margin-top:47px; ">User List</h3>
+                <h3><i class="fa fa-users"></i> Users</h3>
+                <span class="am-subtitle">Staff accounts, roles and the location(s) each one can access</span>
+            </div>
+            <button type="button" class="btn btn-am-primary" onclick="AddEditUser(0);">
+                <i class="fa fa-plus"></i> Add User
+            </button>
+        </div>
+
+        <div class="am-card">
+            <div class="am-toolbar" style="margin-bottom:16px;">
+                <div class="am-search">
+                    <i class="fa fa-search"></i>
+                    <input type="text" id="SearchTextByUserName" class="form-control" placeholder="Search by user name..." value="@ViewBag.SearchTextByUser" onkeyup="if(event.key==='Enter'){SearchByUserName();}" />
+                </div>
+                <button type="button" class="btn btn-am-light" onclick="SearchByUserName();"><i class="fa fa-search"></i> Search</button>
             </div>
 
-
-            <div class="row">
-                <div class="col-sm-3">
-                    <div class="form-group">
-                        <input type="text" id="SearchTextByUserName" class="form-control padding-input full-width" style="max-width:100%" placeholder="Search by User Name" value="@ViewBag.SearchTextByUser" />
-                    </div>
-                </div>
-                <div class="col-sm-1">
-                    <div class="form-group">
-                        <button type="button" class="btn btn-block btn-danger" onclick="SearchByUserName();"><span class="glyphicon glyphicon glyphicon-search"></span></button>
-                    </div>
-                </div>
-                <div class="col-sm-1">
-                    <div class="form-group">
-                        <button type="button" class="btn btn-block btn-danger" onclick="AddEditUser();"><span class="glyphicon glyphicon glyphicon-plus-sign"></span></button>
-                    </div>
-                </div>
-            </div>
-
-
-            @*<div class="row">*@
-                <table class="table table-condensed table-bordered" style="margin-top:10px;">
-                    <thead>
-                        <tr>
-                            <th>Full Name</th>
-                            <th>UserLoginId</th>
-                            <th>Active</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (BDCS.Model.RoleRights.Users item in ViewBag.GetUserList ?? "")
-                        {
+            @if (UserList != null && UserList.Any())
+            {
+                <div class="table-responsive">
+                    <table class="am-table">
+                        <thead>
                             <tr>
-                                <td>@item.UserFullName</td>
-                                <td>@item.LoginId</td>
-                                <td>
-                                    <input type="checkbox" class="Active" @(item.Active ? "checked=\"checked\"" : "") />
-                                </td>
-                                <td>
-                                    <a href="#" onclick="AddEditUser(@item.UserId)">
-                                        <span class="glyphicon glyphicon-edit"></span>
-                                    </a>
-                                </td>
+                                <th>User</th>
+                                <th>Roles</th>
+                                <th>Locations</th>
+                                <th>Status</th>
+                                <th style="width:60px;"></th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
-            @*</div>*@
-
-
-
+                        </thead>
+                        <tbody>
+                            @foreach (Users item in UserList)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="am-user-cell">
+                                            <span class="am-avatar">@initials(item.UserFullName)</span>
+                                            <span>
+                                                <span class="am-user-name">@item.UserFullName</span>
+                                                <span class="am-user-login">@@@item.LoginId</span>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (RolesByUser.ContainsKey(item.UserId) && RolesByUser[item.UserId].Any())
+                                        {
+                                            foreach (Role r in RolesByUser[item.UserId])
+                                            {
+                                                <span class="am-badge">@r.RoleName</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="am-badge am-badge-muted">No role</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (ClinicsByUser.ContainsKey(item.UserId) && ClinicsByUser[item.UserId].Any())
+                                        {
+                                            foreach (KeyAndValuePair c in ClinicsByUser[item.UserId])
+                                            {
+                                                <span class="am-badge am-badge-location"><i class="fa fa-map-marker"></i> @c.Value</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="am-badge am-badge-muted">No location</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.Active)
+                                        {
+                                            <span class="am-pill am-pill-active"><i class="fa fa-circle"></i> Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="am-pill am-pill-inactive"><i class="fa fa-circle"></i> Inactive</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a href="#" title="Edit" onclick="AddEditUser(@item.UserId); return false;">
+                                            <i class="fa fa-pencil"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="am-empty">
+                    <i class="fa fa-users"></i>
+                    @(ViewBag.SearchTextByUser != null ? "No users match your search." : "Search by name above, or add a new user.")
+                </div>
+            }
         </div>
     </div>
 </div>
-
-
-
-
-
-<div class="modal fade" tabindex="-1" role="dialog" id="AddUserModal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            @*<div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title">&nbsp;</h4>
-            </div>*@
-            <div class="modal-body" id="AddEditUserModal">
-                
-            </div>
-            <div class="modal-footer">
-                <button type="submit" onclick="saveUser();" class="btn btn-default" data-dismiss="modal">Save</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
 
 <script type="text/javascript">
 
@@ -101,15 +136,7 @@
     }
 
     function AddEditUser(userId) {
-        debugger;
-        var url = '@Url.Action("AddEditUser", "User")' + '/?UserId=' + userId;
-        loadPage(url, "AddEditUser", "AddEditUserModal");
-        $('#AddUserModal').modal('show');
-    }
-    function callingMethodforUser()
-    {
-        debugger;
-        saveUser();
+        window.location.href = '@Url.Action("AddEditUser", "User")' + '/?UserId=' + userId;
     }
 
 </script>

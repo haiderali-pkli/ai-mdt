@@ -12,35 +12,45 @@
 @if (Model != null && Model.Any())
 {
     <div class="col-sm-12">
+        @{
+            int counter = 0;
+        }
+        @*<label>Total @{counter} record(s) found.</label>*@
         <table class="table table-responsive table-bordered table-striped">
             <thead>
                 <tr style="background: #57b7fd; color:white">
                     <th>Patient Name</th>
                     <th>Date</th>
+                    <th>Type</th>
                     <th>Open</th>
                     <th>Print</th>
                 </tr>
             </thead>
 
             <tbody>
+
                 @foreach (BDCS.Model.VitalHistory.VitalHistory vh in Model)
                 {
+
                     <tr>
                         <td>@vh.PatientName</td>
                         <td>@vh.VisitDateTime.Value.ToString("dd-MMM-yy")</td>
                         <td>
-                            <a href="#" onclick="AddEditPatientFunction(@vh.PatientId, @vh.VisitId, '@vh.VisitDateTime.Value.ToString("dd-MMM-yy")', '')">Open</a>
+                            <a href="#" onclick="AddEditPatientFunction(@vh.PatientId, @vh.VisitId, '@vh.VisitDateTime.Value.ToString("dd-MMM-yy")', '','@vh.mdtType')">Open</a>
                         </td>
+                        <td>@vh.mdtType</td>
                         <td>
-                            <a href="@Url.Action("PatientVisitReportRdlc", "Patient", new { patId = vh.PatientId, visitId = vh.VisitId })" target="_blank">
+                            <a href="@Url.Action("PatientVisitReportRdlc", "Patient", new { patId = vh.PatientId, visitId = vh.VisitId,mdtType=vh.mdtType })" target="_blank">
                                 <span class="glyphicon glyphicon-print"></span>
                             </a>
                         </td>
+                        @{
+                            counter++;
+                        }
                     </tr>
                 }
 
             </tbody>
-
         </table>
     </div>
 }
@@ -48,17 +58,16 @@
 
 
 <script type="text/javascript">
-    function AddEditPatientFunction(patId,visitId,visitdt,reason) {
-        debugger;
+    function AddEditPatientFunction(patId,visitId,visitdt,reason,mdtType) {
+    
         var par = {
             patId: patId,
             visitId: visitId,
             visitDateTime: visitdt,
-            reason: reason
-           
-
+            reason: reason,
+            MDTType: mdtType
         };
-        debugger;
+    
         var url = '@Url.Action("AddEditPatientDetail", "Patient")' + '/?' + $.param(par);
      //   loadPage(url, "Patient");
         window.open(url, "_blank");

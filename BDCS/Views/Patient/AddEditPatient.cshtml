@@ -32,7 +32,7 @@
                    
                    <h3 class="heading">
                        Patient Demographics   
-                       <button type="button" style="margin-top:1px;margin-right: 2px" class="btn btn-primary pull-right" onclick="SavePatientAndCreateVisit();"><span class="glyphicon glyphicon-save"></span> Save &amp; Create Visit</button>
+                       @*<button type="button" style="margin-top:1px;margin-right: 2px" class="btn btn-primary pull-right" onclick="SavePatientAndCreateVisit();"><span class="glyphicon glyphicon-save"></span> Save &amp; Create Visit</button>*@
                     </h3>
 
 
@@ -354,7 +354,7 @@
     }
 
     function LoadProvince() {
-        debugger;
+   
         var VcountryId = $("#CountryId").val();
         if (VcountryId<0) {
 
@@ -404,7 +404,7 @@
         }
     }
     function SaveData() {
-        debugger;
+
 
         var Result = submitFormData("#PatientForm");
         if (Result > 0) {

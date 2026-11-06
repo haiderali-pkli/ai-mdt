@@ -15,6 +15,7 @@ namespace BDCS.Model.Visit
         public int ClinicId { get; set; }
         //View Model
         public string PatientName { get; set; }
+        public string MDTType { get; set; }
 
     }
 }

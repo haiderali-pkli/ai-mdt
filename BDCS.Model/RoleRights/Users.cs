@@ -16,5 +16,8 @@ namespace BDCS.Model.RoleRights
         public string UserFullName { get; set; }
         public DateTime? LastLoginTime { get; set; }
         public bool Active { get; set; }
+        public string mdtType { get; set; }
+        public List<int> RoleIds { get; set; } = new List<int>();
+        public List<int> ClinicIds { get; set; } = new List<int>();
     }
 }

@@ -1,0 +1,87 @@
+@model BDCS.Model.RoleRights.Clinic
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+
+<div class="admin-module">
+    <form id="frmClinic" onsubmit="return SaveClinic();">
+        @Html.HiddenFor(a => a.ClinicId)
+
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label>Location Name</label>
+                        @Html.TextBoxFor(a => a.ClinicName, new { @class = "form-control", placeholder = "e.g. PKLI Rawalpindi", required = "required" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label>Contact Person</label>
+                        @Html.TextBoxFor(a => a.ContactPerson, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label>Contact Number</label>
+                        @Html.TextBoxFor(a => a.ContactNumber, new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <label class="am-switch">
+                        <input type="checkbox" id="IsActive" @(Model.IsActive || Model.ClinicId == 0 ? "checked=\"checked\"" : "") />
+                        <span class="am-switch-track"></span>
+                        Active
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-am-light" onclick="ClosePopup();">Cancel</button>
+            <button type="submit" class="btn btn-am-primary"><i class="fa fa-save"></i> Save Location</button>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+
+    function SaveClinic() {
+        var data = {
+            ClinicId: $("#ClinicId").val(),
+            ClinicName: $("#ClinicName").val(),
+            ContactPerson: $("#ContactPerson").val(),
+            ContactNumber: $("#ContactNumber").val(),
+            IsActive: $("#IsActive").is(":checked")
+        };
+
+        $.ajax({
+            url: '@Url.Action("InsertUpdateClinic", "Clinic")',
+            type: "post",
+            dataType: "json",
+            data: JSON.stringify(data),
+            contentType: "application/json;",
+            success: function (res) {
+                ShowAlertMessage(res.Message, res.MessageClass, res.MessageTitle);
+                if (res.IsSuccess) {
+                    ClosePopup();
+                    if (typeof ReloadClinicList == "function") {
+                        ReloadClinicList();
+                    }
+                }
+            },
+            error: function () {
+                ShowAlertMessage("An error occured", "error", "Error!");
+            }
+        });
+
+        return false;
+    }
+
+</script>

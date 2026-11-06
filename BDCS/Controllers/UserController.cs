@@ -1,6 +1,7 @@
 ﻿using BDCS.Bussiness;
 using BDCS.Constants;
 using BDCS.Model.Helper;
+using BDCS.Model.Misc;
 using BDCS.Model.RoleRights;
 using System;
 using System.Collections.Generic;
@@ -33,9 +34,14 @@ namespace BDCS.Controllers
             if (UserId>0)
             {
                 Data = _ubl.GetUserById(UserId);
+                Data.RoleIds = _ubl.GetUserRoles(UserId).Select(a => a.RoleId).ToList();
+                Data.ClinicIds = _ubl.GetUserClinics(UserId).Select(a => Convert.ToInt32(a.Id)).ToList();
             }
             List<Role> RoleList = _ubl.GetRoleList();
-            ViewBag.RoleListVB = RoleList.Select(a => new SelectListItem() { Text = a.RoleName, Value = a.RoleId.ToString() }).ToList();
+            ViewBag.RoleList = RoleList;
+
+            List<Clinic> ClinicList = new ClinicBL().GetClinicList();
+            ViewBag.ClinicList = ClinicList;
 
             return View(Data);
         }
@@ -46,14 +52,24 @@ namespace BDCS.Controllers
             if (searchByUserName != null)
             {
                 Data = _ubl.GetUserAgainstUserName(searchByUserName);
-
             }
+
+            Dictionary<int, List<Role>> RolesByUser = new Dictionary<int, List<Role>>();
+            Dictionary<int, List<KeyAndValuePair>> ClinicsByUser = new Dictionary<int, List<KeyAndValuePair>>();
+            foreach (Users u in Data)
+            {
+                RolesByUser[u.UserId] = _ubl.GetUserRoles(u.UserId);
+                ClinicsByUser[u.UserId] = _ubl.GetUserClinics(u.UserId);
+            }
+
             ViewBag.SearchTextByUser = searchByUserName;
             ViewBag.GetUserList = Data;
+            ViewBag.RolesByUser = RolesByUser;
+            ViewBag.ClinicsByUser = ClinicsByUser;
             return View();
         }
 
-        public async Task<ActionResult> InsertUpdateUser(Users user)
+        public async Task<ActionResult> InsertUpdateUser(Users user, List<int> RoleIds, List<int> ClinicIds)
         {
             AjaxResponse response = new AjaxResponse();
             int result = 0;
@@ -71,11 +87,32 @@ namespace BDCS.Controllers
                         ResponseObject = result,
                     };
                 }
+                else if (RoleIds == null || !RoleIds.Any())
+                {
+                    response = new AjaxResponse
+                    {
+                        Code = 200,
+                        IsSuccess = false,
+                        Message = "Select at least one role",
+                        MessageTitle = MessageConstants.NoDataReceived,
+                        MessageClass = MessageConstants.MessageClassWarning,
+                    };
+                }
                 else
                 {
+                    if (user.UserId > 0 && string.IsNullOrEmpty(user.Password))
+                    {
+                        Users existing = _ubl.GetUserById(user.UserId);
+                        user.Password = existing?.Password;
+                    }
+
+                    user.RoleId = RoleIds.Min();
                     result = await _ubl.InsertUpdateUser(user);
                     if (result > 0)
                     {
+                        await _ubl.InsertUpdateUserRoles(result, RoleIds);
+                        await _ubl.InsertUpdateUserClinics(result, ClinicIds);
+
                         response = new AjaxResponse
                         {
                             Code = 200,

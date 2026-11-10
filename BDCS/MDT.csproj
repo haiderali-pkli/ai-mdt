@@ -240,6 +240,7 @@
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\ClinicController.cs" />
+    <Compile Include="Controllers\LocationController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\PatientController.cs" />
@@ -391,6 +392,9 @@
     <Content Include="Content\Plugin\jquery-ui-1.12.1\LICENSE.txt" />
     <Content Include="Content\Plugin\Jquery.toast\jquery.toast.min.css" />
     <Content Include="Content\Plugin\Jquery.toast\jquery.toast.min.js" />
+    <Content Include="Content\Plugin\sweetalert2\sweetalert2.all.min.js" />
+    <Content Include="Content\theme\images\pkli-logo.png" />
+    <Content Include="Content\theme\images\pkli-favicon.png" />
     <Content Include="Content\Plugin\jquerybarcode\changelog.txt" />
     <Content Include="Content\Plugin\jquerybarcode\demo\demo.css" />
     <Content Include="Content\Plugin\jquerybarcode\demo\demo.html" />
@@ -706,6 +710,7 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Shared\_AdminNav.cshtml" />
     <Content Include="Views\Home\About.cshtml" />
     <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
@@ -739,6 +744,9 @@
     <Content Include="Views\Home\Login.cshtml" />
     <Content Include="Views\Clinic\AddEditClinic.cshtml" />
     <Content Include="Views\Clinic\GetClinicList.cshtml" />
+    <Content Include="Views\Location\AddEditLocation.cshtml" />
+    <Content Include="Views\Location\GetLocationList.cshtml" />
+    <Content Include="Views\Patient\_LookupRows.cshtml" />
     <Content Include="Views\Role\AddEditRole.cshtml" />
     <Content Include="Views\Role\GetRoleList.cshtml" />
     <Content Include="Views\User\AddEditUser.cshtml" />

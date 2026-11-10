@@ -1,0 +1,70 @@
+@model List<BDCS.Model.Misc.LookupItem>
+@{
+    bool ShowCategoryColumn = ViewBag.Category == null;
+}
+
+@if (Model != null && Model.Any())
+{
+    <table class="am-table">
+        <thead>
+            <tr>
+                <th>Display Value</th>
+                <th>Return Value</th>
+                @if (ShowCategoryColumn)
+                {
+                    <th>Category</th>
+                }
+                <th>Status</th>
+                <th style="width:140px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (BDCS.Model.Misc.LookupItem item in Model)
+            {
+                <tr data-lookupid="@item.LookupId" class="LookupRow">
+                    <td class="LV-Display">@item.DisplayValue</td>
+                    <td class="LV-Return">@(string.IsNullOrEmpty(item.ReturnValue) ? "N/A" : item.ReturnValue)</td>
+                    @if (ShowCategoryColumn)
+                    {
+                        <td class="LV-Category">@item.LookupType</td>
+                    }
+                    <td>
+                        @if (item.IsActive)
+                        {
+                            <span class="am-pill am-pill-active"><i class="fa fa-circle"></i> Active</span>
+                        }
+                        else
+                        {
+                            <span class="am-pill am-pill-inactive"><i class="fa fa-circle"></i> Inactive</span>
+                        }
+                    </td>
+                    <td>
+                        <a href="#" title="Edit" onclick="EditLookup(this); return false;">
+                            <i class="fa fa-pencil"></i> Edit
+                        </a>
+                        &nbsp;
+                        <a href="#" title="@(item.IsActive ? "Deactivate" : "Activate")" onclick="ToggleLookup(this, @(item.IsActive ? "true" : "false")); return false;">
+                            <i class="fa @(item.IsActive ? "fa-trash-o" : "fa-undo")"></i>
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    if (ViewBag.HasMore == true)
+    {
+        <div style="text-align:center; padding:12px;">
+            <button type="button" class="btn btn-am-light" onclick="LoadMoreCategoryRows('@ViewBag.Category', @(ViewBag.Page + 1), this);">
+                <i class="fa fa-angle-down"></i> Load more
+            </button>
+        </div>
+    }
+    else if (ViewBag.TotalMatchesCapped == true)
+    {
+        <div class="am-subtitle" style="padding:12px; text-align:center;">Showing the first 300 matches &mdash; narrow your search for more precise results.</div>
+    }
+}
+else
+{
+    <div class="am-empty"><i class="fa fa-list"></i> No values found.</div>
+}

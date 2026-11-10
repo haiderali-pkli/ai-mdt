@@ -1,89 +1,289 @@
-﻿@model List<BDCS.Model.Misc.KeyAndValuePair>
+@model List<BDCS.Model.Misc.LookupCategorySummary>
 @{
     ViewBag.Title = "AddEditLookupData";
     if (Request.IsAjaxRequest())
     {
         Layout = null;
     }
+    List<BDCS.Model.Misc.LookupCategorySummary> Categories = Model ?? new List<BDCS.Model.Misc.LookupCategorySummary>();
+    int TotalValues = Categories.Sum(a => a.Total);
 }
 
+<div class="admin-module">
+    <div class="container-fluid">
 
-<div class="container-fluid">
+        @Html.Partial("_AdminNav")
 
-    <div class="row" style="margin-top:50px">
-        <div class="row" style="text-align:center">
-            <h3>Add Edit Lookup values</h3>
+        <div class="am-page-head">
+            <div>
+                <h3><i class="fa fa-list"></i> Lookups</h3>
+                <span class="am-subtitle">@TotalValues values across @Categories.Count categories</span>
+            </div>
+            <button type="button" class="btn btn-am-primary" onclick="ToggleAddForm();">
+                <i class="fa fa-plus"></i> Add Lookup Value
+            </button>
         </div>
-        <div class="col-xs-12">
-            <form id="LookupForm" action="@Url.Action("InsertLookupData","Patient")" method="post" onsubmit="return SaveLookupValue();">
 
-                <div class="form-group">
-                    <label>Lookup Value</label>
-                    <input type="text" name="LookupValue" class="form-control" placeholder="Lookup Value" />
+        <div class="am-card" id="AddLookupCard" hidden>
+            <form id="LookupForm" onsubmit="return SaveLookupValue();">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>Lookup Value</label>
+                            <input type="text" name="LookupValue" id="NewLookupValue" class="form-control" placeholder="Display value" required="required" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>Return Value</label>
+                            <input type="text" name="ReturnValue" id="NewReturnValue" class="form-control" placeholder="Return value" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <input type="text" name="Category" id="NewCategory" class="form-control" placeholder="Category" list="LookupTypeList" required="required" />
+                        </div>
+                    </div>
                 </div>
-
-                <div class="form-group">
-                    <label>Return Value</label>
-                    <input type="text" name="ReturnValue" class="form-control" placeholder="Return Value" />
-                </div>
-
-                <div class="form-group" style="margin-bottom:10px">
-                    <label>Category</label>
-                    <input type="text" name="Category" class="form-control" placeholder="Category" list="LookupType" />
-                </div>
-
-                
-                @*<button class="btn btn-danger pull-right" onclick="window.close();"><span class="glyphicon glyphicon-eye-close"></span> Close</button>*@
-                <button class="btn btn-success pull-right"><span class="glyphicon glyphicon-save"></span> Save</button>
+                <button type="button" class="btn btn-am-light" onclick="ToggleAddForm();">Cancel</button>
+                <button type="submit" class="btn btn-am-primary"><i class="fa fa-save"></i> Save</button>
             </form>
         </div>
-    </div>
 
-    <div class="row" style="margin-top:10px">
-        <div class="col-xs-12">
-            <table class="table table-striped table-responsive">
-                <thead>
-                    <tr style="background-color: #57b7fd;color:white;">
-                        <th>Value</th>
-                        <th>Category</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    @foreach (BDCS.Model.Misc.KeyAndValuePair kv in Model)
+        <div class="am-card">
+            <div class="am-toolbar" style="margin-bottom:16px;">
+                <div class="am-search">
+                    <i class="fa fa-search"></i>
+                    <input type="text" id="LookupSearchText" class="form-control" placeholder="Search by value or category... (min 2 characters)" onkeyup="if(event.key==='Enter'){RunLookupSearch();}" />
+                </div>
+                <button type="button" class="btn btn-am-light" onclick="RunLookupSearch();"><i class="fa fa-search"></i> Search</button>
+                <select id="CategoryJump" class="form-control" style="max-width:260px;" onchange="JumpToCategory(this.value);">
+                    <option value="">Jump to category...</option>
+                    @foreach (BDCS.Model.Misc.LookupCategorySummary cat in Categories)
                     {
-                        <tr>
-                            <td>@kv.Value</td>
-                            <td>@kv.Description</td>
-                            <td>
-
-                            </td>
-                        </tr>
+                        <option value="@cat.Category">@cat.Category (@cat.Total)</option>
                     }
-                </tbody>
+                </select>
+            </div>
 
-            </table>
+            <div id="SearchResults" hidden>
+                <div class="am-toolbar" style="margin-bottom:10px;">
+                    <strong id="SearchResultsTitle"></strong>
+                    <button type="button" class="btn btn-am-light" onclick="ClearLookupSearch();"><i class="fa fa-times"></i> Clear search</button>
+                </div>
+                <div id="SearchResultsBody"></div>
+            </div>
+
+            <div id="LookupGroups">
+                @foreach (BDCS.Model.Misc.LookupCategorySummary cat in Categories)
+                {
+                    <div class="am-group collapsed" data-category="@cat.Category" data-loaded="false">
+                        <div class="am-group-head" onclick="ToggleGroup(this);">
+                            <i class="fa fa-chevron-down"></i>
+                            <span class="am-group-title">@cat.Category</span>
+                            <span class="am-group-count @(cat.Active == 0 ? "am-group-count-empty" : "")">@cat.Active active of @cat.Total</span>
+                        </div>
+                        <div class="am-group-body">
+                            <div class="am-empty"><i class="fa fa-spinner"></i> Loading...</div>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 </div>
 
-<datalist id="LookupType">
-    @foreach (string item in Model.Select(a=> a.Description).Distinct())
+<datalist id="LookupTypeList">
+    @foreach (BDCS.Model.Misc.LookupCategorySummary cat in Categories)
     {
-        <option value="@item" />
+        <option value="@cat.Category" />
     }
 </datalist>
 
-
 <script type="text/javascript">
 
-    function  SaveLookupValue()
-    {
-        submitFormData($("#LookupForm"));
+    function ToggleAddForm() {
+        $("#AddLookupCard").prop("hidden", function (i, val) { return !val; });
+    }
+
+    function ToggleGroup(head) {
+        var group = $(head).closest(".am-group");
+        group.toggleClass("collapsed");
+        if (!group.hasClass("collapsed") && group.data("loaded") !== true) {
+            LoadCategoryRows(group.data("category"), 1, group.find(".am-group-body"));
+            group.data("loaded", true);
+        }
+    }
+
+    function JumpToCategory(cat) {
+        if (!cat) return;
+        var group = $('.am-group[data-category="' + cat + '"]');
+        if (group.hasClass("collapsed")) {
+            ToggleGroup(group.find(".am-group-head"));
+        }
+        if (group.length) {
+            $('html, body').animate({ scrollTop: group.offset().top - 80 }, 300);
+        }
+    }
+
+    function LoadCategoryRows(category, page, targetEl) {
+        targetEl.html('<div class="am-empty"><i class="fa fa-spinner"></i> Loading...</div>');
+        $.ajax({
+            url: '@Url.Action("GetLookupCategoryRows", "Patient")',
+            type: "get",
+            data: { category: category, page: page },
+            success: function (html) {
+                targetEl.html(html);
+            },
+            error: function () {
+                targetEl.html('<div class="am-empty">Failed to load this category.</div>');
+            }
+        });
+    }
+
+    function LoadMoreCategoryRows(category, page, btn) {
+        var group = $(btn).closest(".am-group");
+        var body = group.find(".am-group-body");
+        $(btn).closest("div").remove();
+        $.ajax({
+            url: '@Url.Action("GetLookupCategoryRows", "Patient")',
+            type: "get",
+            data: { category: category, page: page },
+            success: function (html) {
+                body.append(html);
+            }
+        });
+    }
+
+    function RunLookupSearch() {
+        var term = $.trim($("#LookupSearchText").val());
+        if (term.length < 2) {
+            ShowAlertMessage("Type at least 2 characters to search", "warning", "Search");
+            return;
+        }
+        $("#LookupGroups").hide();
+        $("#SearchResults").prop("hidden", false);
+        $("#SearchResultsTitle").text('Results for "' + term + '"');
+        $("#SearchResultsBody").html('<div class="am-empty"><i class="fa fa-spinner"></i> Searching...</div>');
+
+        $.ajax({
+            url: '@Url.Action("SearchLookups", "Patient")',
+            type: "get",
+            data: { term: term },
+            success: function (html) {
+                $("#SearchResultsBody").html(html);
+            }
+        });
+    }
+
+    function ClearLookupSearch() {
+        $("#LookupSearchText").val("");
+        $("#SearchResults").prop("hidden", true);
+        $("#LookupGroups").show();
+    }
+
+    function SaveLookupValue() {
+        var data = {
+            LookupValue: $("#NewLookupValue").val(),
+            ReturnValue: $("#NewReturnValue").val(),
+            Category: $("#NewCategory").val()
+        };
+
+        $.ajax({
+            url: '@Url.Action("InsertLookupData", "Patient")',
+            type: "post",
+            data: data,
+            success: function (res) {
+                ShowAlertMessage(res.Message, res.MessageClass, res.MessageTitle);
+                if (res.IsSuccess) {
+                    loadPage('@Url.Action("AddEditLookupData", "Patient")', "Module");
+                }
+            },
+            error: function () {
+                ShowAlertMessage("An error occured", "error", "Error!");
+            }
+        });
 
         return false;
     }
 
+    function EditLookup(link) {
+        var row = $(link).closest("tr");
+        if (row.hasClass("editing")) return;
+        row.addClass("editing");
+
+        var display = row.find(".LV-Display").text().trim();
+        var ret = row.find(".LV-Return").text().trim();
+        if (ret === "N/A") { ret = ""; }
+        var category = row.find(".LV-Category").length
+            ? row.find(".LV-Category").text().trim()
+            : row.closest(".am-group").data("category");
+
+        row.find(".LV-Display").html('<input type="text" class="form-control EditDisplay" value="' + display + '" />');
+        row.find(".LV-Return").html('<input type="text" class="form-control EditReturn" value="' + ret + '" />');
+
+        var actionCell = row.children().last();
+        actionCell.html(
+            '<a href="#" title="Save" onclick="SaveLookupEdit(this); return false;"><i class="fa fa-check"></i> Save</a>&nbsp;' +
+            '<a href="#" title="Cancel" onclick="CancelLookupEdit(this); return false;"><i class="fa fa-times"></i></a>'
+        );
+        row.data("category", category);
+    }
+
+    function CancelLookupEdit(link) {
+        loadPage('@Url.Action("AddEditLookupData", "Patient")', "Module");
+    }
+
+    function SaveLookupEdit(link) {
+        var row = $(link).closest("tr");
+        var data = {
+            LookupId: row.data("lookupid"),
+            DisplayValue: row.find(".EditDisplay").val(),
+            ReturnValue: row.find(".EditReturn").val(),
+            Category: row.data("category")
+        };
+
+        $.ajax({
+            url: '@Url.Action("UpdateLookupData", "Patient")',
+            type: "post",
+            data: data,
+            success: function (res) {
+                ShowAlertMessage(res.Message, res.MessageClass, res.MessageTitle);
+                if (res.IsSuccess) {
+                    loadPage('@Url.Action("AddEditLookupData", "Patient")', "Module");
+                }
+            },
+            error: function () {
+                ShowAlertMessage("An error occured", "error", "Error!");
+            }
+        });
+    }
+
+    function ToggleLookup(link, isCurrentlyActive) {
+        var row = $(link).closest("tr");
+        var verb = isCurrentlyActive ? "deactivate" : "reactivate";
+        ConfirmAction({
+            title: (isCurrentlyActive ? "Deactivate" : "Reactivate") + " this lookup value?",
+            confirmButtonText: "Yes, " + verb
+        }, function () { SubmitLookupToggle(row); });
+    }
+
+    function SubmitLookupToggle(row) {
+        $.ajax({
+            url: '@Url.Action("ToggleLookupActive", "Patient")',
+            type: "post",
+            data: { LookupId: row.data("lookupid") },
+            success: function (res) {
+                ShowAlertMessage(res.Message, res.MessageClass, res.MessageTitle);
+                if (res.IsSuccess) {
+                    loadPage('@Url.Action("AddEditLookupData", "Patient")', "Module");
+                }
+            },
+            error: function () {
+                ShowAlertMessage("An error occured", "error", "Error!");
+            }
+        });
+    }
 
 </script>

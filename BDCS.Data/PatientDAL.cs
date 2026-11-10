@@ -23,7 +23,7 @@ namespace BDCS.Data
             _db = new SqlDbManager();
         }
 
-        public List<Patient> PatientSearchByText(string procedureName,string schema,string parameter,int clinicId)
+        public List<Patient> PatientSearchByText(string procedureName,string schema,string parameter,int clinicId,string locationIds)
             {
             List<Patient> Data = new List<Patient>();
             string Query = QueryHelper.GetQueryString(procedureName, schema);
@@ -31,7 +31,8 @@ namespace BDCS.Data
             {
                 new DbParameters() { Name = "SearchText", Type = DbType.String, Value = parameter.ToString() },
                 new DbParameters() {Name="ClinicId",Type=DbType.Int32,Value=clinicId },
- 
+                new DbParameters() {Name="LocationIds",Type=DbType.String,Value=locationIds ?? "" },
+
             };
  
             try
@@ -102,6 +103,7 @@ namespace BDCS.Data
                 new DbParameters() {Name="UpdatedOn", Type=DbType.String,Value=patient.UpdatedOn },
                 new DbParameters() {Name="ClinicId", Type=DbType.String,Value=patient.ClinicId },
                 new DbParameters() {Name="HospitalNumber", Type=DbType.String,Value=patient.HospitalNumber },
+                new DbParameters() {Name="LocationId", Type=DbType.Int32,Value=patient.LocationId },
             };
             try
             {
@@ -160,13 +162,14 @@ namespace BDCS.Data
             return result;
         }
 
-        public Patient GetPatientById(int patId,string procedureName,string schema)
+        public Patient GetPatientById(int patId,string procedureName,string schema,string locationIds)
         {
             Patient Data = new Patient();
             string Query = QueryHelper.GetQueryString(procedureName, schema);
             List<DbParameters> pars = new List<DbParameters>()
             {
-                new DbParameters() {  Name="PatientId", Type=DbType.Int32, Value=patId}
+                new DbParameters() {  Name="PatientId", Type=DbType.Int32, Value=patId},
+                new DbParameters() {  Name="LocationIds", Type=DbType.String, Value=locationIds ?? ""}
             };
             try
             {
@@ -204,7 +207,7 @@ namespace BDCS.Data
                         DiagnosisName=a["Diagnosis"].ToString(),
                         Rel=a["Rel"].ToString(),
                         HospitalNumber = a["HospitalNumber"].ToString(),
-                        
+                        LocationId = a["LocationId"] == DBNull.Value ? (int?)null : Convert.ToInt32(a["LocationId"]),
 
                     }).FirstOrDefault();
                 }
@@ -244,7 +247,7 @@ namespace BDCS.Data
         public List<Patient> GetPatientByIdForRpt(int patId, string procedureName, string schema)
         {
             List<Patient> Data = new List<Patient>();
-            Data.Add(GetPatientById(patId,procedureName,schema));
+            Data.Add(GetPatientById(patId,procedureName,schema,""));
             return Data;
 
         }
@@ -1658,7 +1661,7 @@ namespace BDCS.Data
         public List<Patient> GetPatientByIdForRptBMT(int patId, string procedureName, string schema)
         {
             List<Patient> Data = new List<Patient>();
-            Data.Add(GetPatientById(patId, procedureName, schema));
+            Data.Add(GetPatientById(patId, procedureName, schema, ""));
             return Data;
 
         }

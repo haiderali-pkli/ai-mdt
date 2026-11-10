@@ -31,5 +31,14 @@ namespace BDCS.Bussiness
             => _common.GetMDTTypesNameByUserId(userId);
         public List<KeyAndValuePair> GetDiagnosisList()
             =>_common.GetDiagnosisList();
+
+        public List<LookupItem> GetAllLookupsForAdmin()
+            => _common.GetAllLookupsForAdmin();
+
+        public async Task<int> UpdateLookupValue(int lookupId, string displayValue, string returnValue, string lookupType)
+            => await _common.UpdateLookupValue(lookupId, displayValue, returnValue, lookupType);
+
+        public async Task<int> ToggleLookupActive(int lookupId)
+            => await _common.ToggleLookupActive(lookupId);
     }
 }

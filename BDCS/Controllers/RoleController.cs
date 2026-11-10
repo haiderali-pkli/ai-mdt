@@ -105,14 +105,10 @@ namespace BDCS.Controllers
         public async Task<ActionResult> GetRoleList(string searchText)
         {
             List<Role> Data = new List<Role>();
-            if (searchText != null)
+            await Task.Run(() =>
             {
-
-                await Task.Run(() =>
-               {
-                   Data = _roleBL.GetRoleListByName(searchText);
-               });
-            }
+                Data = _roleBL.GetRoleListByName(searchText ?? "");
+            });
             ViewBag.SearchTextbyRole = searchText;
             return View(Data);
         }

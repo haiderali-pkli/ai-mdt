@@ -13,8 +13,8 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <!-- Site Icons -->
-    <link rel="shortcut icon" href="~/Content/theme/images/fevicon.ico.png" type="image/x-icon" />
-    <link rel="apple-touch-icon" href="~/Content/theme/images/apple-touch-icon.png">
+    <link rel="shortcut icon" href="~/Content/theme/images/pkli-favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="~/Content/theme/images/pkli-favicon.png">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="~/Content/theme/css/bootstrap.min.css">
     <!-- Site CSS -->
@@ -37,6 +37,8 @@
 
     <link href="~/Content/Plugin/Bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" />
 
+    <script src="~/Content/Plugin/sweetalert2/sweetalert2.all.min.js"></script>
+
     <!-- Modernizer for Portfolio -->
     <script src="js/modernizer.js"></script>
     <!-- [if lt IE 9] -->
@@ -54,71 +56,62 @@
     </div>
     <!-- END LOADER -->
 
-    <header>
-        
-        <div class="header-bottom wow fadeIn hidden-print">
-            <div class="container">
-                <nav class="main-menu">
-                    <div class="navbar-header">
-                        
-                        
-                        <div class="col-sm-6">
-                            <div class="col-sm-3">
-                                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar"><i class="fa fa-bars" aria-hidden="true"></i></button>
-                            </div>
-                            <div class="col-sm-3" style="margin-top:-10px;">
-                                <a  style="color:white;font-size:25px;" hrf="#" onclick="closeForm();">
-                                    <i class="fa fa-times"></i> Logout
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="navbar" class="navbar-collapse collapse">
-                        <ul class="nav navbar-nav">
-                            @if (Session["User"] != null)
-                            {
-                                <li><a href="@Url.Action("GetPatientList","Patient")">Home</a></li>
-                            }
+    @{
+        BDCS.Model.RoleRights.Users CurrentUser = Session["User"] as BDCS.Model.RoleRights.Users;
+        string CurrentUserInitials = "?";
+        if (CurrentUser != null && !string.IsNullOrWhiteSpace(CurrentUser.UserFullName))
+        {
+            string[] NameParts = CurrentUser.UserFullName.Trim().Split(' ');
+            CurrentUserInitials = NameParts[0].Substring(0, 1);
+            if (NameParts.Length > 1 && NameParts[NameParts.Length - 1].Length > 0)
+            {
+                CurrentUserInitials += NameParts[NameParts.Length - 1].Substring(0, 1);
+            }
+            CurrentUserInitials = CurrentUserInitials.ToUpper();
+        }
+    }
+    <header class="hidden-print">
+        <div class="mh-topbar">
+            <div class="container-fluid">
+                <div class="mh-topbar-inner">
+                    <a class="mh-brand" href="@(CurrentUser != null ? Url.Action("GetPatientList", "Patient") : Url.Action("Login", "Home"))">
+                        <img src="~/Content/theme/images/pkli-favicon.png" alt="PKLI" />
+                        <span>MDT Portal</span>
+                    </a>
 
-                            <li><a href="@Url.Action("AddEditLookupData","Patient")">Add Lookup</a></li>
+                    <button type="button" class="mh-toggle" onclick="$('#mhNav').toggleClass('open'); return false;">
+                        <i class="fa fa-bars"></i>
+                    </button>
 
-                            @*<li><a class="active" href="@Url.Action("GetPatientList","Patient")">Patient</a></li>
-                            
-                            <li><a href="@Url.Action("Dashboard","Home")">Dashboard</a></li>
-                            
-                            <li><a href="#" onclick="$('#MenuContainer').toggle();">Menu</a> </li>*@
-                        </ul>
-                        @*@if (Session["User"] != null)
+                    <nav id="mhNav" class="mh-nav">
+                        @if (CurrentUser != null)
                         {
-
-                            <a>@((Session["User"] as BDCS.Model.RoleRights.Users).UserFullName)</a>
-
-                        }*@
-                    </div>
-                </nav>
-                <div class="serch-bar">
-                    <div id="custom-search-input">
-                        <div class="input-group col-md-12">
-                            @*<input type="text" class="form-control input-lg" placeholder="Search" />
-                            <span class="input-group-btn">
-                                <button class="btn btn-info btn-lg" type="button">
-                                    <i class="fa fa-search" aria-hidden="true">
-
-                                    </i>
-                                </button>
-                            </span>*@
-                            <div class="form-group">
-                                @if (Session["User"] != null)
-                                {
-                                    <a class="form-control">@((Session["User"] as BDCS.Model.RoleRights.Users).UserFullName)</a>
-                                }
+                            <div class="mh-dropdown">
+                                <a href="#" onclick="return false;">Admin <span class="caret"></span></a>
+                                <ul class="mh-dropdown-menu">
+                                    <li><a href="@Url.Action("SearchByUserName","User")"><i class="fa fa-users"></i> Users</a></li>
+                                    <li><a href="@Url.Action("GetRoleList","Role")"><i class="fa fa-shield"></i> Roles</a></li>
+                                    <li><a href="@Url.Action("GetClinicList","Clinic")"><i class="fa fa-stethoscope"></i> MDT Types</a></li>
+                                    <li><a href="@Url.Action("GetLocationList","Location")"><i class="fa fa-map-marker"></i> Locations</a></li>
+                                    <li><a href="@Url.Action("AddEditLookupData","Patient")"><i class="fa fa-list"></i> Lookups</a></li>
+                                </ul>
                             </div>
-                           
-                          
+                        }
+                    </nav>
+
+                    @if (CurrentUser != null)
+                    {
+                        <div class="mh-dropdown mh-user">
+                            <a href="#" onclick="return false;">
+                                <span class="mh-user-avatar">@CurrentUserInitials</span>
+                                <span class="mh-user-name">@CurrentUser.UserFullName</span>
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="mh-dropdown-menu mh-dropdown-menu-right">
+                                <li><a href="#" onclick="closeForm(); return false;"><i class="fa fa-sign-out"></i> Logout</a></li>
+                            </ul>
                         </div>
-                       
-                    </div>
-                   
+                    }
                 </div>
             </div>
         </div>
@@ -134,35 +127,7 @@
     </div>
 
 
-    <div class="copyright-area wow fadeIn hidden-print">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="footer-text">
-                        <div class="col-sm-12" style="text-align:center;">
-                            <p style="text-align:center;">Copyright 2018 - @System.DateTime.Now.Year | All Rights Reserved | Developed by ICT Department - PKLI Hospital</p>
-                        </div>
-                        
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="social">
-                        <ul class="social-links">
-                            <li><a href=""><i class="fa fa-rss"></i></a></li>
-                            <li><a href=""><i class="fa fa-facebook"></i></a></li>
-                            <li><a href=""><i class="fa fa-twitter"></i></a></li>
-                            <li><a href=""><i class="fa fa-google-plus"></i></a></li>
-                            <li><a href=""><i class="fa fa-youtube"></i></a></li>
-                            <li><a href=""><i class="fa fa-pinterest"></i></a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- end copyrights -->
-    <a href="#home" data-scroll class="dmtop global-radius"><i class="fa fa-angle-up"></i></a>
-    
+    <a href="#home" data-scroll class="dmtop global-radius hidden-print"><i class="fa fa-angle-up"></i></a>
 
 
     @RenderSection("scripts", required: false)
@@ -209,13 +174,47 @@
                 window.location = '@Url.Action("Login", "Home")';
             },
             error: function(xhr, status, error) {
-                alert('An error occurred while logging out.');
+                Swal.fire({ icon: 'error', title: 'Logout failed', text: 'An error occurred while logging out.', confirmButtonColor: '#2f6fed' });
+            }
+        });
+    }
+
+    // Shared SweetAlert2 confirm dialog - replaces the browser's native confirm().
+    // opts: { title, text, icon, confirmButtonText } ; onConfirm runs only when the user confirms.
+    function ConfirmAction(opts, onConfirm) {
+        Swal.fire({
+            title: opts.title || "Are you sure?",
+            text: opts.text || "",
+            icon: opts.icon || "warning",
+            showCancelButton: true,
+            confirmButtonText: opts.confirmButtonText || "Yes, continue",
+            cancelButtonText: "Cancel",
+            confirmButtonColor: "#2f6fed",
+            cancelButtonColor: "#b8324a",
+            reverseButtons: true
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                onConfirm();
             }
         });
     }
 
     $(document).ready(function () {
         InitializeHeartbeat();
+
+        $(document).on("click", ".mh-dropdown > a", function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var isOpen = $(this).parent().hasClass("open");
+            $(".mh-dropdown").removeClass("open");
+            if (!isOpen) {
+                $(this).parent().addClass("open");
+            }
+        });
+
+        $(document).on("click", function () {
+            $(".mh-dropdown").removeClass("open");
+        });
 
     });
 

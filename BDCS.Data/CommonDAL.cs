@@ -214,6 +214,77 @@ namespace BDCS.Data
             return list;
         }
 
+        public List<LookupItem> GetAllLookupsForAdmin()
+        {
+            List<LookupItem> list = new List<LookupItem>();
+            string Query = QueryHelper.GetQueryString("GetAllLookupsForAdmin", "System");
+            List<DbParameters> pars = new List<DbParameters>();
+            try
+            {
+                DataSet ds = _db.LoadDataSet(Query, CommandType.StoredProcedure, pars);
+                if (ds?.Tables.Count > 0)
+                {
+                    list = ds.Tables[0].AsEnumerable().Select(a => new LookupItem()
+                    {
+                        LookupId = Convert.ToInt32(a["LookupId"]),
+                        DisplayValue = a["DisplayValue"].ToString(),
+                        ReturnValue = a["ReturnValue"] == DBNull.Value ? null : a["ReturnValue"].ToString(),
+                        LookupType = a["LookupType"].ToString(),
+                        IsActive = a["IsActive"] != DBNull.Value && Convert.ToBoolean(a["IsActive"]),
+                    }).ToList();
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return list;
+        }
+
+        public async Task<int> UpdateLookupValue(int lookupId, string displayValue, string returnValue, string lookupType)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString("UpdateLookupValue", "System");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="LookupId", Type=DbType.Int32, Value=lookupId },
+                new DbParameters() {Name="DisplayValue", Type=DbType.String, Value=displayValue },
+                new DbParameters() {Name="ReturnValue", Type=DbType.String, Value=returnValue },
+                new DbParameters() {Name="LookupType", Type=DbType.String, Value=lookupType },
+            };
+            try
+            {
+                result = Convert.ToInt32(await _db.ExecuteScalarAsync(Query, CommandType.StoredProcedure, pars));
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return result;
+        }
+
+        public async Task<int> ToggleLookupActive(int lookupId)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString("ToggleLookupActive", "System");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="LookupId", Type=DbType.Int32, Value=lookupId },
+            };
+            try
+            {
+                result = Convert.ToInt32(await _db.ExecuteScalarAsync(Query, CommandType.StoredProcedure, pars));
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return result;
+        }
+
         public List<KeyAndValuePair> GetDiagnosisList()
         {
             List<KeyAndValuePair> list = new List<KeyAndValuePair>();

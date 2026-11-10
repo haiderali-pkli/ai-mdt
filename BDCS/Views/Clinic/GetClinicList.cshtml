@@ -4,37 +4,53 @@
     {
         Layout = null;
     }
+    List<BDCS.Model.RoleRights.Clinic> FilteredModel = Model ?? new List<BDCS.Model.RoleRights.Clinic>();
+    string SearchText = ViewBag.SearchText;
+    if (!string.IsNullOrWhiteSpace(SearchText))
+    {
+        FilteredModel = FilteredModel.Where(a => a.ClinicName != null && a.ClinicName.IndexOf(SearchText, StringComparison.OrdinalIgnoreCase) >= 0).ToList();
+    }
 }
 
 <div class="admin-module">
     <div class="container-fluid">
 
+        @Html.Partial("_AdminNav")
+
         <div class="am-page-head">
             <div>
-                <h3><i class="fa fa-map-marker"></i> Locations</h3>
-                <span class="am-subtitle">Hospital sites this system serves &mdash; e.g. PKLI Lahore, PKLI Rawalpindi</span>
+                <h3><i class="fa fa-stethoscope"></i> MDT Types</h3>
+                <span class="am-subtitle">Multi-disciplinary team groups &mdash; e.g. MDT Liver, MDT BMT</span>
             </div>
             <button type="button" class="btn btn-am-primary" onclick="AddEditClinic(0);">
-                <i class="fa fa-plus"></i> Add Location
+                <i class="fa fa-plus"></i> Add MDT Type
             </button>
         </div>
 
         <div class="am-card">
-            @if (Model != null && Model.Any())
+            <div class="am-toolbar" style="margin-bottom:16px;">
+                <div class="am-search">
+                    <i class="fa fa-search"></i>
+                    <input type="text" id="SearchTextByClinic" class="form-control" placeholder="Search MDT types..." value="@SearchText" onkeyup="if(event.key==='Enter'){SearchClinics();}" />
+                </div>
+                <button type="button" class="btn btn-am-light" onclick="SearchClinics();"><i class="fa fa-search"></i> Search</button>
+            </div>
+
+            @if (FilteredModel.Any())
             {
                 <div class="table-responsive">
                     <table class="am-table">
                         <thead>
                             <tr>
-                                <th>Location</th>
+                                <th>MDT Type</th>
                                 <th>Contact Person</th>
                                 <th>Contact Number</th>
                                 <th>Status</th>
-                                <th style="width:60px;"></th>
+                                <th style="width:90px;"></th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (BDCS.Model.RoleRights.Clinic item in Model)
+                            @foreach (BDCS.Model.RoleRights.Clinic item in FilteredModel)
                             {
                                 <tr>
                                     <td><strong>@item.ClinicName</strong></td>
@@ -52,7 +68,7 @@
                                     </td>
                                     <td>
                                         <a href="#" title="Edit" onclick="AddEditClinic(@item.ClinicId); return false;">
-                                            <i class="fa fa-pencil"></i>
+                                            <i class="fa fa-pencil"></i> Edit
                                         </a>
                                     </td>
                                 </tr>
@@ -64,8 +80,8 @@
             else
             {
                 <div class="am-empty">
-                    <i class="fa fa-map-marker"></i>
-                    No locations configured yet.
+                    <i class="fa fa-stethoscope"></i>
+                    @(SearchText != null ? "No MDT types match your search." : "No MDT types configured yet.")
                 </div>
             }
         </div>
@@ -74,9 +90,17 @@
 
 <script type="text/javascript">
 
+    function SearchClinics() {
+        var par = {
+            searchText: $("#SearchTextByClinic").val(),
+        }
+        var url = '@Url.Action("GetClinicList", "Clinic")' + '/?' + $.param(par);
+        loadPage(url, "GetClinicList");
+    }
+
     function AddEditClinic(clinicId) {
         var url = '@Url.Action("AddEditClinic", "Clinic")' + '/?ClinicId=' + clinicId;
-        OpenPopup(url, clinicId > 0 ? "Edit Location" : "Add Location");
+        OpenPopup(url, clinicId > 0 ? "Edit MDT Type" : "Add MDT Type");
     }
 
     function ReloadClinicList() {

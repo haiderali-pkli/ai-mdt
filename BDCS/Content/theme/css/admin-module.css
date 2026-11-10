@@ -3,16 +3,251 @@
    Scoped under .admin-module so it never affects other screens.
    ====================================================================== */
 
+/* ======================================================================
+   Site header (site chrome, applies everywhere - outside .admin-module)
+   ====================================================================== */
+
+/* the legacy theme's bare "header" selector (custom.css) hard-codes a fixed,
+   white, boxed-shadow bar from an older design; neutralise it so .mh-topbar
+   is the only thing controlling the header's look */
+header {
+    position: static !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    height: auto !important;
+}
+
+body.clinic_version {
+    padding-bottom: 20px;
+}
+
+/* clears the fixed 64px .mh-topbar on every page (not just .admin-module ones) */
+/* 64px clears the fixed .mh-topbar itself; the extra 20px is breathing room
+   so page headings never sit flush against the header's bottom edge */
+#MainContent {
+    padding-top: 84px;
+}
+
+:root {
+    --mh-header-bg: #153a63;
+    --mh-header-bg-dark: #102c4c;
+}
+
+.mh-topbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    z-index: 1000;
+    background: var(--mh-header-bg);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
+}
+
+.mh-topbar-inner {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.mh-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: none;
+}
+
+.mh-brand:hover,
+.mh-brand:focus {
+    text-decoration: none;
+}
+
+.mh-brand img {
+    height: 36px;
+    width: 36px;
+}
+
+.mh-brand span {
+    color: #fff;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: .01em;
+}
+
+.mh-toggle {
+    display: none;
+    margin-left: auto;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    padding: 8px;
+}
+
+.mh-nav {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+}
+
+/* ---- "Admin" / user-chip dropdowns (site chrome) ---- */
+
+.mh-dropdown {
+    position: relative;
+}
+
+.mh-dropdown > a {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-radius: 7px;
+}
+
+.mh-dropdown > a:hover,
+.mh-dropdown > a:focus,
+.mh-dropdown.open > a {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.14);
+    text-decoration: none;
+}
+
+.mh-dropdown .mh-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 190px;
+    background: #fff;
+    border: 1px solid #e3e8f0;
+    border-radius: 8px;
+    box-shadow: 0 10px 26px rgba(16, 44, 76, 0.22);
+    padding: 6px 0;
+    margin: 6px 0 0;
+    list-style: none;
+    z-index: 1000;
+}
+
+.mh-dropdown .mh-dropdown-menu.mh-dropdown-menu-right {
+    left: auto;
+    right: 0;
+}
+
+.mh-dropdown.open .mh-dropdown-menu {
+    display: block;
+}
+
+.mh-dropdown .mh-dropdown-menu li a {
+    display: block;
+    padding: 10px 18px;
+    color: #223047;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.mh-dropdown .mh-dropdown-menu li a:hover {
+    background: #f5f7fb;
+    text-decoration: none;
+}
+
+.mh-dropdown .mh-dropdown-menu li a i {
+    width: 18px;
+    color: #2f6fed;
+    margin-right: 7px;
+}
+
+.mh-user {
+    flex: none;
+    margin-left: auto;
+}
+
+.mh-user-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+    margin-right: 9px;
+}
+
+.mh-user-name {
+    font-size: 15px;
+}
+
+@media (max-width: 900px) {
+    .mh-toggle {
+        display: inline-block;
+    }
+
+    .mh-nav {
+        display: none;
+        position: fixed;
+        top: 64px;
+        left: 0;
+        right: 0;
+        background: var(--mh-header-bg-dark);
+        flex-direction: column;
+        align-items: stretch;
+        padding: 6px 14px 14px;
+    }
+
+    .mh-nav.open {
+        display: flex;
+    }
+
+    .mh-nav .mh-dropdown {
+        width: 100%;
+    }
+
+    .mh-nav .mh-dropdown .mh-dropdown-menu {
+        position: static;
+        display: block;
+        box-shadow: none;
+        border: none;
+        background: transparent;
+        padding-left: 10px;
+    }
+
+    .mh-nav .mh-dropdown .mh-dropdown-menu li a {
+        color: #dce6f5;
+    }
+
+    .mh-nav .mh-dropdown .mh-dropdown-menu li a:hover {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .mh-user-name {
+        display: none;
+    }
+}
+
 .admin-module {
     --am-primary: #2f6fed;
     --am-primary-dark: #1f4fb0;
     --am-ink: #223047;
-    --am-muted: #6b7a90;
+    --am-muted: #5a6678;
     --am-border: #e3e8f0;
     --am-bg: #f5f7fb;
-    --am-success: #1aa971;
-    --am-danger: #e0455f;
+    --am-success: #0f7a51;
+    --am-danger: #b8324a;
     color: var(--am-ink);
+}
+
+/* the native [hidden] attribute (UA stylesheet, low specificity) loses ties against
+   author-stylesheet display rules (Font Awesome's .fa, or our own [class] rules) -
+   force it to win inside this module */
+.admin-module [hidden] {
+    display: none !important;
 }
 
 .admin-module .am-page-head {
@@ -21,9 +256,8 @@
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 12px;
-    /* site header is position:fixed and its "Logout" label droops below the bar;
-       clear both with extra headroom beyond the usual 47px other pages use */
-    margin: 64px 0 18px;
+    /* header clearance is handled by #MainContent's own padding-top now */
+    margin: 0 0 18px;
 }
 
 .admin-module .am-page-head h3 {
@@ -110,9 +344,7 @@
 .admin-module .am-table thead th {
     background: var(--am-bg);
     color: var(--am-muted);
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: .04em;
+    font-size: 13px;
     font-weight: 600;
     border-bottom: 1px solid var(--am-border);
     padding: 10px 14px;
@@ -236,6 +468,7 @@
 }
 
 .admin-module .form-control {
+    padding: 6px 14px;
     border-radius: 7px;
     border-color: var(--am-border);
     box-shadow: none;
@@ -244,6 +477,10 @@
 .admin-module .form-control:focus {
     border-color: var(--am-primary);
     box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.12);
+}
+
+.admin-module .form-control::placeholder {
+    color: var(--am-muted);
 }
 
 .admin-module .am-check-grid {
@@ -288,11 +525,11 @@
 
 .admin-module .am-check-pill label i {
     font-size: 11px;
-    display: none;
+    color: var(--am-muted);
 }
 
 .admin-module .am-check-pill input[type="checkbox"]:checked + label i {
-    display: inline-block;
+    color: #fff;
 }
 
 .admin-module .am-switch {
@@ -336,6 +573,51 @@
     left: 20px;
 }
 
+/* #GenericModal (the shared popup shell in _Layout.cshtml) lives outside
+   .admin-module in the DOM - only its injected body content is wrapped in
+   .admin-module - so its chrome (header/title/close) is styled globally here. */
+
+#GenericModal .modal-content {
+    border-radius: 10px;
+    overflow: hidden;
+    border: none;
+}
+
+#GenericModal .modal-header {
+    background: var(--am-bg);
+    border-bottom: 1px solid var(--am-border);
+    padding: 16px 22px;
+    display: flex;
+    align-items: center;
+}
+
+#GenericModal .modal-title {
+    text-align: left;
+    font-size: 19px;
+    font-weight: 700;
+    color: #223047;
+    flex: 1;
+}
+
+#GenericModal .modal-header .close {
+    order: 2;
+    margin: 0;
+    opacity: .5;
+    font-size: 26px;
+    font-weight: 400;
+    line-height: 1;
+}
+
+#GenericModal .modal-header .close:hover {
+    opacity: .85;
+}
+
+#GenericModal .modal-body {
+    padding: 22px;
+}
+
+/* a modal defined inline inside an .admin-module view (e.g. the patient-search
+   screen's "Choose MDT Type" popup), as opposed to the single shared #GenericModal */
 .admin-module .modal-content {
     border-radius: 10px;
     overflow: hidden;
@@ -345,4 +627,464 @@
 .admin-module .modal-header {
     background: var(--am-bg);
     border-bottom: 1px solid var(--am-border);
+    padding: 14px 20px;
+}
+
+.admin-module .modal-title {
+    text-align: left;
+    font-size: 17px;
+    font-weight: 700;
+    color: #223047;
+}
+
+.admin-module .modal-body {
+    padding: 20px;
+}
+
+/* breathing room above a standalone Active toggle in a short popup form,
+   so it never sits flush under the field(s) above it */
+.admin-module .am-field-divider-row {
+    margin-top: 10px;
+    padding-top: 18px;
+    border-top: 1px solid var(--am-border);
+}
+
+/* ---- Cross-module nav strip (Users / Roles / MDT Types / Locations / Lookups) ---- */
+
+.admin-module .am-tabs {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+    /* header clearance is handled by #MainContent's own padding-top now */
+    margin: 0 0 18px;
+    border-bottom: 1px solid var(--am-border);
+}
+
+.admin-module .am-tabs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 18px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--am-muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    text-decoration: none;
+}
+
+.admin-module .am-tabs a:hover {
+    color: var(--am-ink);
+    text-decoration: none;
+}
+
+.admin-module .am-tabs a.active {
+    color: var(--am-primary-dark);
+    border-bottom-color: var(--am-primary);
+}
+
+/* a page using .am-tabs already has the headroom above; its .am-page-head needs none */
+.admin-module .am-tabs + .am-page-head {
+    margin-top: 0;
+}
+
+/* ---- Role card: sectioned panels used on AddEditUser (Account / Roles / MDT Types / Locations) ---- */
+
+.admin-module .am-rolecard {
+    background: #fff;
+    border: 1px solid var(--am-border);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+
+.admin-module .am-rolecard-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 13px 18px;
+    background: var(--am-bg);
+    border-bottom: 1px solid var(--am-border);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--am-ink);
+}
+
+.admin-module .am-rolecard-head i {
+    color: var(--am-primary);
+}
+
+.admin-module .am-rolecard-body {
+    padding: 18px;
+}
+
+/* ---- Permission group (Roles screen): collapsible section + bulk column toggles ---- */
+
+.admin-module .am-group {
+    border: 1px solid var(--am-border);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.admin-module .am-group-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: var(--am-bg);
+    cursor: pointer;
+    user-select: none;
+}
+
+.admin-module .am-group-head .am-group-title {
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--am-ink);
+    flex: 1;
+}
+
+.admin-module .am-group-head .am-group-count {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 9px;
+    border-radius: 100px;
+    background: #eaf1ff;
+    color: var(--am-primary-dark);
+}
+
+.admin-module .am-group-head .am-group-count.am-group-count-empty {
+    background: var(--am-bg);
+    color: var(--am-muted);
+    border: 1px solid var(--am-border);
+}
+
+.admin-module .am-group-head .fa-chevron-down {
+    transition: transform .15s;
+    color: var(--am-muted);
+}
+
+.admin-module .am-group.collapsed .am-group-head .fa-chevron-down {
+    transform: rotate(-90deg);
+}
+
+.admin-module .am-group.collapsed .am-group-body {
+    display: none;
+}
+
+.admin-module .am-group-body {
+    padding: 0;
+}
+
+.admin-module .am-group-body .am-table {
+    margin-bottom: 0;
+}
+
+.admin-module .am-group-body .am-table thead th.am-col-toggle {
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.admin-module .am-group-body .am-table tbody td.am-col-toggle {
+    text-align: center;
+}
+
+.admin-module .am-menu-dupe-tag {
+    color: var(--am-muted);
+    font-size: 11px;
+    font-weight: 400;
+    margin-left: 4px;
+}
+
+/* ---- Sticky Save/Cancel footer for long forms (Roles rights matrix) ---- */
+
+.admin-module .am-sticky-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 14px 20px;
+    margin: 0 -20px -20px;
+    background: #fff;
+    border-top: 1px solid var(--am-border);
+    box-shadow: 0 -4px 10px rgba(34, 48, 71, 0.05);
+}
+
+/* ---- Add/Edit User: two-column form with a live preview sidebar ---- */
+
+.admin-module .am-form-grid {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.admin-module .am-form-main {
+    flex: 2 1 560px;
+    min-width: 0;
+}
+
+.admin-module .am-form-side {
+    flex: 1 1 280px;
+    min-width: 260px;
+    position: sticky;
+    top: 76px;
+}
+
+@media (max-width: 900px) {
+    .admin-module .am-form-grid {
+        flex-wrap: wrap;
+    }
+
+    .admin-module .am-form-side {
+        position: static;
+        width: 100%;
+    }
+}
+
+.admin-module .am-rolecard-head-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.admin-module .am-rolecard-head-row .am-rolecard-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--am-ink);
+}
+
+.admin-module .am-required {
+    color: var(--am-danger);
+    margin-left: 2px;
+}
+
+.admin-module .am-field-action {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--am-primary);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.admin-module .am-field-action:hover {
+    text-decoration: underline;
+}
+
+.admin-module .am-badge-count {
+    display: inline-block;
+    padding: 3px 11px;
+    border-radius: 100px;
+    background: var(--am-bg);
+    color: var(--am-muted);
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.admin-module .am-badge-count.am-badge-count-active {
+    background: #eaf1ff;
+    color: var(--am-primary-dark);
+}
+
+.admin-module .am-strength-bar {
+    display: flex;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.admin-module .am-strength-bar .am-strength-seg {
+    height: 4px;
+    flex: 1 1 0;
+    border-radius: 3px;
+    background: var(--am-border);
+}
+
+.admin-module .am-strength-bar.s1 .am-strength-seg:nth-child(1),
+.admin-module .am-strength-bar.s2 .am-strength-seg:nth-child(-n+2),
+.admin-module .am-strength-bar.s3 .am-strength-seg:nth-child(-n+3),
+.admin-module .am-strength-bar.s4 .am-strength-seg:nth-child(-n+4) {
+    background: var(--am-danger);
+}
+
+.admin-module .am-strength-bar.s3 .am-strength-seg,
+.admin-module .am-strength-bar.s4 .am-strength-seg {
+    background: #e2a33d;
+}
+
+.admin-module .am-strength-bar.s4 .am-strength-seg {
+    background: var(--am-success);
+}
+
+.admin-module .am-strength-label {
+    font-size: 12px;
+    color: var(--am-muted);
+    margin-top: 4px;
+    display: inline-block;
+}
+
+.admin-module .am-role-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 12px;
+}
+
+.admin-module .am-role-option {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--am-border);
+    border-radius: 9px;
+    cursor: pointer;
+    transition: border-color .12s, background .12s;
+}
+
+.admin-module .am-role-option:hover {
+    border-color: #c7d6f5;
+}
+
+.admin-module .am-role-option.checked {
+    border-color: var(--am-primary);
+    background: #f5f8ff;
+}
+
+.admin-module .am-role-option input[type="checkbox"] {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 16px;
+    height: 16px;
+    margin: 0;
+}
+
+.admin-module .am-role-option-icon {
+    flex: none;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--am-bg);
+    color: var(--am-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+}
+
+.admin-module .am-role-option.checked .am-role-option-icon {
+    background: var(--am-primary);
+    color: #fff;
+}
+
+.admin-module .am-role-option-title {
+    font-weight: 600;
+    color: var(--am-ink);
+    padding-right: 20px;
+    display: block;
+}
+
+.admin-module .am-role-option-desc {
+    font-size: 12px;
+    color: var(--am-muted);
+    display: block;
+    margin-top: 2px;
+}
+
+.admin-module .am-preview-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--am-bg);
+    color: var(--am-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.admin-module .am-preview-avatar.am-has-name {
+    background: var(--am-primary);
+    color: #fff;
+}
+
+.admin-module .am-preview-name {
+    font-weight: 700;
+    color: var(--am-ink);
+    display: block;
+}
+
+.admin-module .am-preview-sub {
+    font-size: 12px;
+    color: var(--am-muted);
+    display: block;
+}
+
+.admin-module .am-preview-section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--am-muted);
+    font-weight: 700;
+    padding-top: 10px;
+    border-top: 1px solid var(--am-border);
+    margin: 16px 0 7px;
+}
+
+.admin-module .am-preview-value {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--am-ink);
+    line-height: 1.5;
+}
+
+.admin-module .am-preview-value.am-preview-empty {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 500;
+    font-style: normal;
+    color: var(--am-muted);
+    background: var(--am-bg);
+    border: 1px dashed var(--am-border);
+    border-radius: 6px;
+    padding: 3px 10px;
+}
+
+.admin-module .am-checklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.admin-module .am-checklist li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--am-muted);
+    padding: 4px 0;
+}
+
+.admin-module .am-checklist li i {
+    color: var(--am-border);
+    font-size: 15px;
+}
+
+.admin-module .am-checklist li.am-met {
+    color: var(--am-ink);
+}
+
+.admin-module .am-checklist li.am-met i {
+    color: var(--am-success);
+}
+
+.admin-module .btn-am-primary[disabled] {
+    background: var(--am-border);
+    border-color: var(--am-border);
+    color: var(--am-muted);
+    cursor: not-allowed;
 }

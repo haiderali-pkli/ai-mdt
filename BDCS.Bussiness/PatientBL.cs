@@ -25,7 +25,7 @@ namespace BDCS.Bussiness
         }
 
 
-        public List<Patient> GetPatientList(string searchText,int clinicId) => _patientBL.PatientSearchByText("PatientSearchByText", "Clinical", searchText,clinicId);
+        public List<Patient> GetPatientList(string searchText,int clinicId,string locationIds="") => _patientBL.PatientSearchByText("PatientSearchByText", "Clinical", searchText,clinicId,locationIds);
         public List<Patient> GetFollowupPatientsForDate(DateTime date) => _patientBL.GetFollowupPatientsForDate(date);
         public async Task<int> InsertUpdatePatient(Patient patient) =>await _patientBL.InsertUpdatePatient(patient, "InsertUpdatePatient", "Clinical");
 
@@ -35,7 +35,7 @@ namespace BDCS.Bussiness
         public async Task<int> ToggleDiscussionStatus(int patientId) => await _patientBL.ToggleDiscussionStatus(patientId);
         public async Task<int> CreateVisit(Visit vist) => await _patientBL.CreateVisit(vist, "InsertUpdateVisit", "Clinical");
 
-        public Patient GetPatientById(int patId) => _patientBL.GetPatientById(patId, "GetPatientById", "Clinical");
+        public Patient GetPatientById(int patId, string locationIds="") => _patientBL.GetPatientById(patId, "GetPatientById", "Clinical", locationIds) ?? new Patient();
         public List<Patient> GetPatientByIdForRpt(int patId) => _patientBL.GetPatientByIdForRpt(patId, "GetPatientById", "Clinical");
         public List<LabReports> GetLabOrders(int visitId) => _patientBL.GetLabOrders("GetLabOrders", "Clinical", visitId);
 

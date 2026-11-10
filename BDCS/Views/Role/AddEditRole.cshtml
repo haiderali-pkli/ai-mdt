@@ -1,163 +1,116 @@
-﻿@model BDCS.Model.RoleRights.Role
+@model BDCS.Model.RoleRights.Role
 @{
     ViewBag.Title = "AddEditRole";
     if (Request.IsAjaxRequest())
     {
         Layout = null;
     }
-    List<string> Groups = new List<string>();
-
-    if (ViewBag.Rights != null)
-    {
-        Groups = (ViewBag.Rights as List<BDCS.Model.RoleRights.RoleRight>).Select(a => a.MenuGroupName).Distinct().ToList();
-    }
-
+    List<BDCS.Model.RoleRights.RoleRight> AllRights = (ViewBag.Rights as List<BDCS.Model.RoleRights.RoleRight>) ?? new List<BDCS.Model.RoleRights.RoleRight>();
+    List<string> Groups = AllRights.Select(a => a.MenuGroupName).Distinct().ToList();
 }
 
-<div class="container-fluid">
-    
-    <div class="row">
-        <div class="col-sm-12">
-
-            <form id="RoleForm" onsubmit="return SaveRole();">
-                @Html.HiddenFor(a => a.RoleId)
-
-               @* <div class="container-fluid">*@
-
-                    <div class="row" style="margin-top:50px;">
-                        <h3 class="heading">Manage Role Rights</h3>
-                    </div>
-
-                    <div class="row" style="margin-bottom: 15px;">
-                        <div class="col-sm-3">
-              
-                            <label>Name</label>
-                                @Html.TextBoxFor(a => a.RoleName, new { @class = "form-control", @required = "required"})
-                            
-                        </div>
-
-                        <div class="col-sm-1">
-                        
-                                <label>&nbsp;</label>
-                                @Html.CheckBoxFor(a => a.Active, new { @class = "form-control" })
-                        
-                        </div>
-
-                        <div class="col-sm-1">
-                            <label>&nbsp;</label>
-                            </br>
-                                <button class="btn btn-info"><span class="glyphicon glyphicon-save-file"></span> Save</button>
-                        </div>
-                    </div>
-                @*</div>*@
-
-                <div class="row">
-                    <div class="col-sm-12">
-                        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-
-                            @foreach (string group in Groups)
-                            {
-                                <div class="panel panel-primary">
-                                    <div class="panel-heading" role="tab" id="headingOne" style="background-color: #57b7fd;color:white;">
-                                        <h4 class="panel-title">
-                                            <a role="button" data-toggle="collapse" data-parent="#accordion" href="#panel_@group" aria-expanded="true" aria-controls="collapseOne">
-                                                @group
-                                            </a>
-                                        </h4>
-                                    </div>
-                                    <div id="panel_@group" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-                                        <div class="panel-body">
-                                            <table class="table table-responsive table-striped" id="RoleRightsTable_@group">
-                                                <thead>
-                                                    <tr style="background-color: #57b7fd;color:white;">
-                                                        <th>Menu</th>
-                                                        <th>Add/Edit</th>
-                                                        <th>View</th>
-                                                        <th>Delete</th>
-                                                    </tr>
-                                                </thead>
-
-                                                <tbody>
-                                                    @foreach (BDCS.Model.RoleRights.RoleRight rr in (ViewBag.Rights as List<BDCS.Model.RoleRights.RoleRight>).Where(a => a.MenuGroupName == group))
-                                                    {
-                                                        <tr data-menuid="@rr.MenuId" class="DataRow">
-                                                            <td>@rr.MenuName</td>
-                                                            <td>
-                                                                @*this is html command to check the checed*@
-                                                                <input type="checkbox" class="CanAddEdit" @(rr.CanAddEdit ? "checked=\"checked\"" : "") />
-                                                            </td>
-                                                            <td>
-                                                                <input type="checkbox" class="CanView" @(rr.CanView ? "checked=\"checked\"" : "") />
-                                                            </td>
-                                                            <td>
-                                                                <input type="checkbox" class="CanDelete" @(rr.CanDelete ? "checked=\"checked\"" : "") />
-                                                            </td>
-                                                        </tr>
-                                                    }
-                                                </tbody>
-
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                                }
-                            </div>
-                        </div>
-                        
-                    </div>
-
-
-                    @*<div class="row">
-                    <h3 style="padding-left:15px;">Rights</h3>
-
-                    <div class="col-sm-12">
-                        <table class="table table-responsive table-striped" id="RoleRightsTable">
-                            <thead>
-                                <tr>
-                                    <th>Menu</th>
-                                    <th>Can Add/Edit</th>
-                                    <th>Can View</th>
-                                    <th>Can Delete</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                @foreach (BDCS.Model.RoleRights.RoleRight rr in ViewBag.Rights)
-                                {
-                                    <tr data-menuid="@rr.MenuId" class="DataRow">
-                                        <td>@rr.MenuName (@rr.MenuGroupName) </td>
-                                        <td>
-
-                                            <input type="checkbox" class="CanAddEdit" @(rr.CanAddEdit ? "checked=\"checked\"":"") />
-
-                                        </td>
-                                        <td>
-                                            <input type="checkbox" class="CanView" @(rr.CanView ? "checked=\"checked\"" : "") />
-                                        </td>
-                                        <td>
-                                            <input type="checkbox" class="CanDelete" @(rr.CanDelete ? "checked=\"checked\"" : "") />
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-
-                        </table>
-                    </div>
-
-                </div>*@
-             
-
-            </form>
+<div class="admin-module">
+    <div class="am-page-head">
+        <div>
+            <h3><i class="fa fa-shield"></i> @(Model.RoleId > 0 ? "Edit Role" : "Add Role")</h3>
+            <span class="am-subtitle">Pick which screens this role can view, add/edit, and delete</span>
         </div>
     </div>
 
- 
+    <form id="RoleForm" onsubmit="return SaveRole();">
+        @Html.HiddenFor(a => a.RoleId)
+
+        <div class="am-card">
+            <div class="row">
+                <div class="col-sm-5">
+                    <div class="form-group">
+                        <label>Role Name</label>
+                        @Html.TextBoxFor(a => a.RoleName, new { @class = "form-control", placeholder = "e.g. Oncologist", @required = "required" })
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <label>&nbsp;</label>
+                    <div>
+                        <label class="am-switch">
+                            <input type="checkbox" id="Active" data-original-active="@(Model.Active ? "true" : "false")" @(Model.Active || Model.RoleId == 0 ? "checked=\"checked\"" : "") />
+                            <span class="am-switch-track"></span>
+                            Active
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="accordion">
+            @foreach (string group in Groups)
+            {
+                List<BDCS.Model.RoleRights.RoleRight> GroupRights = AllRights.Where(a => a.MenuGroupName == group).ToList();
+                int GrantedCount = GroupRights.Count(a => a.CanView || a.CanAddEdit || a.CanDelete);
+                Dictionary<string, int> NameCounts = GroupRights.GroupBy(a => a.MenuName).ToDictionary(g => g.Key, g => g.Count());
+                <div class="am-group collapsed" data-group="@group">
+                    <div class="am-group-head" onclick="ToggleGroup(this);">
+                        <i class="fa fa-chevron-down"></i>
+                        <span class="am-group-title">@group</span>
+                        <span class="am-group-count @(GrantedCount == 0 ? "am-group-count-empty" : "")">@GrantedCount of @GroupRights.Count granted</span>
+                    </div>
+                    <div class="am-group-body">
+                        <table class="am-table" id="RoleRightsTable_@group">
+                            <thead>
+                                <tr>
+                                    <th>Menu</th>
+                                    <th class="am-col-toggle" onclick="ToggleColumn(this,'CanAddEdit');"><i class="fa fa-check-square-o"></i> Add/Edit</th>
+                                    <th class="am-col-toggle" onclick="ToggleColumn(this,'CanView');"><i class="fa fa-check-square-o"></i> View</th>
+                                    <th class="am-col-toggle" onclick="ToggleColumn(this,'CanDelete');"><i class="fa fa-check-square-o"></i> Delete</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (BDCS.Model.RoleRights.RoleRight rr in GroupRights)
+                                {
+                                    int Occurrences = NameCounts[rr.MenuName];
+                                    <tr data-menuid="@rr.MenuId" class="DataRow">
+                                        <td>
+                                            @rr.MenuName
+                                            @if (Occurrences > 1)
+                                            {
+                                                <span class="am-menu-dupe-tag">(#@rr.MenuId)</span>
+                                            }
+                                        </td>
+                                        <td class="am-col-toggle"><input type="checkbox" class="CanAddEdit" @(rr.CanAddEdit ? "checked=\"checked\"" : "") /></td>
+                                        <td class="am-col-toggle"><input type="checkbox" class="CanView" @(rr.CanView ? "checked=\"checked\"" : "") /></td>
+                                        <td class="am-col-toggle"><input type="checkbox" class="CanDelete" @(rr.CanDelete ? "checked=\"checked\"" : "") /></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="am-sticky-footer">
+            <button type="button" class="btn btn-am-light" onclick="CancelRole();">Cancel</button>
+            <button type="submit" class="btn btn-am-primary"><i class="fa fa-save"></i> Save Role</button>
+        </div>
+    </form>
 </div>
-
-
 
 <script type="text/javascript">
 
+    function ToggleGroup(head) {
+        $(head).closest(".am-group").toggleClass("collapsed");
+    }
+
+    function ToggleColumn(th, cls) {
+        event.stopPropagation();
+        var group = $(th).closest(".am-group");
+        var boxes = group.find("tbody ." + cls);
+        var allChecked = boxes.length > 0 && boxes.filter(":not(:checked)").length === 0;
+        boxes.prop("checked", !allChecked);
+    }
+
+    function CancelRole() {
+        loadPage('@Url.Action("GetRoleList", "Role")', "GetRoleList");
+    }
 
     function SaveRole()
     {
@@ -178,7 +131,6 @@
         $("#accordion .DataRow").each(function () {
             var row = {
                 MenuId: $(this).data("menuid"),
-                //this is jquery command to check the checed
                 CanAddEdit: $(this).find(".CanAddEdit").is(":checked") ? true : false,
                 CanView :   $(this).find(".CanView").is(":checked") ? true : false,
                 CanDelete :   $(this).find(".CanDelete").is(":checked") ? true : false,
@@ -190,8 +142,28 @@
 
         });
 
+        if (!Role.RoleName) {
+            ShowAlertMessage("Role name is required", "warning", "Missing data");
+            return false;
+        }
+
+        var wasActive = $("#Active").data("original-active") === true || $("#Active").data("original-active") === "true";
+        if (wasActive && !Role.Active) {
+            ConfirmAction({
+                title: "Deactivate this role?",
+                text: "This will deactivate the \"" + Role.RoleName + "\" role, hiding it everywhere it's assigned.",
+                confirmButtonText: "Yes, deactivate"
+            }, function () { SubmitRoleSave(Data); });
+        } else {
+            SubmitRoleSave(Data);
+        }
+
+        return false;
+
+    }
+
+    function SubmitRoleSave(Data) {
         $.ajax({
-            //both classes role and rights have been filled and passed in the actionmethod
             url: "@Url.Action("InsertUpdateRoleRight", "Role")",
             type: "post",
             dataType: "json",
@@ -205,7 +177,6 @@
                         window.location = res.RedirectUrl;
                     }
                     else {
-                        //its method to call ajax for partial view
                         setTimeout(loadPage, 1000, res.RedirectUrl, "Module");
                     }
                 }
@@ -220,9 +191,6 @@
 
 
         });
-
-        return false;
-
     }
 
 </script>

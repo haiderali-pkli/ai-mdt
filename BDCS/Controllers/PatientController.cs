@@ -37,9 +37,13 @@ namespace BDCS.Controllers
         {
             _CommonBL = new CommonBL();
             _PatientBL = new PatientBL();
-            
+
         }
         #endregion
+
+        //users with no assigned locations are unrestricted; an empty csv tells the
+        //location-aware stored procs to skip the location filter entirely
+        private string SessionLocationIdsCsv => Session["LocationIds"] as string ?? "";
 
         #region [AddEditPatient]
         public async Task<ActionResult> AddEditPatient(int patId = 0)
@@ -47,7 +51,7 @@ namespace BDCS.Controllers
             Patient pat = new Patient();
             if (patId > 0)
             {
-                pat = _PatientBL.GetPatientById(patId);
+                pat = _PatientBL.GetPatientById(patId, SessionLocationIdsCsv);
                 if (pat.DOB.HasValue && pat.DOB.Value.Date != DateTime.MinValue.Date)
                 {
                     int PatientAgeDays = Convert.ToInt32((DateTime.Now.Date - pat.DOB.Value.Date).TotalDays);
@@ -106,6 +110,8 @@ namespace BDCS.Controllers
 
             ViewBag.BloodGroupVB = BloodGroup.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
+            List<BDCS.Model.RoleRights.Location> LocationList = new LocationBL().GetLocationList();
+            ViewBag.LocationVB = LocationList.Select(a => new SelectListItem() { Text = a.LocationName, Value = a.LocationId.ToString() }).ToList();
 
             return View(pat);
         }
@@ -150,7 +156,7 @@ namespace BDCS.Controllers
                 {
                     await Task.Run(() =>
                     {
-                        pat = _PatientBL.GetPatientList(searchText, clinicId);
+                        pat = _PatientBL.GetPatientList(searchText, clinicId, SessionLocationIdsCsv);
                     });
                 }
                 ViewBag.SearchText = searchText;
@@ -536,7 +542,7 @@ namespace BDCS.Controllers
             if (patId != 0 && visitId != 0)
             {
                 await Task.Run(() =>
-                    Data = _PatientBL.GetPatientById(patId)
+                    Data = _PatientBL.GetPatientById(patId, SessionLocationIdsCsv)
                );
             }
 
@@ -589,7 +595,7 @@ namespace BDCS.Controllers
             if (patId!=0 && visitId!=0)
             {
                 await Task.Run(() =>
-                    Data = _PatientBL.GetPatientById(patId)
+                    Data = _PatientBL.GetPatientById(patId, SessionLocationIdsCsv)
                );
             }
 
@@ -644,7 +650,7 @@ namespace BDCS.Controllers
 
             if (patId != 0)
             {
-                Data = _PatientBL.GetPatientById(patId);
+                Data = _PatientBL.GetPatientById(patId, SessionLocationIdsCsv);
                
             }
             
@@ -1108,6 +1114,12 @@ namespace BDCS.Controllers
                         ? _user.GetRoleRightsAgainstRoles(roleIds)
                         : _user.GetRoleRightsAgainstRole(data.RoleId);
                     Session["Rights"] = Rights;
+
+                    //users with no assigned locations are unrestricted (legacy behaviour); an empty
+                    //LocationIds csv tells the location-aware stored procs to skip the location filter
+                    List<int> locationIds = _user.GetUserLocations(data.UserId).Select(a => Convert.ToInt32(a.Id)).ToList();
+                    Session["LocationIds"] = string.Join(",", locationIds);
+
                     res.Code = 200;
                     res.DoFullRedirect = true;
                     res.IsSuccess = true;
@@ -1136,7 +1148,7 @@ namespace BDCS.Controllers
             if (patId != 0 && visitId != 0)
             {
                 await Task.Run(() =>
-                    Patient = _PatientBL.GetPatientById(patId)
+                    Patient = _PatientBL.GetPatientById(patId, SessionLocationIdsCsv)
                );
             }
             ViewBag.Patient = Patient;
@@ -1607,11 +1619,131 @@ namespace BDCS.Controllers
         }
 
         [CheckUserRights(MenuName = "Add Lookup", Order = 1, UserRightType = RightType.View)]
-        public async Task<ActionResult> AddEditLookupData()
+        public ActionResult AddEditLookupData()
         {
-            List<KeyAndValuePair> LookupData = await _CommonBL.GetDefinationData("GetAllLookups", "System", "");
-            
-            return View(LookupData);
+            //22k+ rows live under a handful of categories (DiagnosisType alone is 20k+) - rendering every
+            //row into the page would be a huge, unusable DOM, so this view only ever gets category summaries;
+            //a category's rows are fetched on demand by GetLookupCategoryRows when the admin expands it
+            List<BDCS.Model.Misc.LookupItem> LookupData = _CommonBL.GetAllLookupsForAdmin();
+            List<LookupCategorySummary> Summaries = LookupData
+                .GroupBy(a => a.LookupType)
+                .Select(g => new LookupCategorySummary { Category = g.Key, Total = g.Count(), Active = g.Count(a => a.IsActive) })
+                .OrderBy(a => a.Category)
+                .ToList();
+
+            return View(Summaries);
+        }
+
+        const int LookupPageSize = 100;
+
+        [CheckUserRights(MenuName = "Add Lookup", Order = 1, UserRightType = RightType.View)]
+        public ActionResult GetLookupCategoryRows(string category, int page = 1)
+        {
+            List<BDCS.Model.Misc.LookupItem> items = _CommonBL.GetAllLookupsForAdmin()
+                .Where(a => a.LookupType == category)
+                .OrderBy(a => a.DisplayValue)
+                .ToList();
+
+            int totalPages = (int)Math.Ceiling(items.Count / (double)LookupPageSize);
+            List<BDCS.Model.Misc.LookupItem> pageItems = items.Skip((page - 1) * LookupPageSize).Take(LookupPageSize).ToList();
+
+            ViewBag.Category = category;
+            ViewBag.Page = page;
+            ViewBag.HasMore = page < totalPages;
+            return PartialView("_LookupRows", pageItems);
+        }
+
+        [CheckUserRights(MenuName = "Add Lookup", Order = 1, UserRightType = RightType.View)]
+        public ActionResult SearchLookups(string term)
+        {
+            term = term ?? "";
+            List<BDCS.Model.Misc.LookupItem> matches = _CommonBL.GetAllLookupsForAdmin()
+                .Where(a => (a.DisplayValue != null && a.DisplayValue.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0)
+                    || (a.LookupType != null && a.LookupType.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0))
+                .OrderBy(a => a.LookupType).ThenBy(a => a.DisplayValue)
+                .Take(300)
+                .ToList();
+
+            ViewBag.TotalMatchesCapped = matches.Count == 300;
+            return PartialView("_LookupRows", matches);
+        }
+
+        [CheckUserRights(MenuName = "Add Lookup", Order = 1, UserRightType = RightType.AddEdit)]
+        public async Task<ActionResult> UpdateLookupData(int LookupId, string DisplayValue, string ReturnValue, string Category)
+        {
+            AjaxResponse response = new AjaxResponse();
+            int result = 0;
+            try
+            {
+                if (LookupId <= 0 || string.IsNullOrEmpty(DisplayValue) || string.IsNullOrEmpty(Category))
+                {
+                    response = new AjaxResponse
+                    {
+                        Code = 403,
+                        IsSuccess = false,
+                        Message = "No Data Received",
+                        MessageTitle = "No Data",
+                        MessageClass = MessageConstants.MessageClassWarning,
+                        ResponseObject = result
+                    };
+                }
+                else
+                {
+                    result = await _CommonBL.UpdateLookupValue(LookupId, DisplayValue, ReturnValue, Category);
+                    response = new AjaxResponse
+                    {
+                        Code = 200,
+                        IsSuccess = true,
+                        Message = "Saved",
+                        MessageTitle = MessageConstants.MessageClassSuccess,
+                        ResponseObject = result
+                    };
+                }
+            }
+            catch (Exception e)
+            {
+                response = new AjaxResponse
+                {
+                    Code = 505,
+                    IsSuccess = false,
+                    Message = "Internal Error",
+                    MessageTitle = MessageConstants.InternalError,
+                    MessageClass = MessageConstants.MessageClassError,
+                    ResponseObject = e.Message
+                };
+            }
+            return Json(response);
+        }
+
+        [CheckUserRights(MenuName = "Add Lookup", Order = 1, UserRightType = RightType.Delete)]
+        public async Task<ActionResult> ToggleLookupActive(int LookupId)
+        {
+            AjaxResponse response = new AjaxResponse();
+            try
+            {
+                int result = await _CommonBL.ToggleLookupActive(LookupId);
+                response = new AjaxResponse
+                {
+                    Code = 200,
+                    IsSuccess = true,
+                    Message = "Updated",
+                    MessageTitle = MessageConstants.MessageClassSuccess,
+                    ResponseObject = result
+                };
+            }
+            catch (Exception e)
+            {
+                response = new AjaxResponse
+                {
+                    Code = 505,
+                    IsSuccess = false,
+                    Message = "Internal Error",
+                    MessageTitle = MessageConstants.InternalError,
+                    MessageClass = MessageConstants.MessageClassError,
+                    ResponseObject = e.Message
+                };
+            }
+            return Json(response);
         }
 
         [CheckUserRights(MenuName = "Add Lookup", Order = 1, UserRightType = RightType.AddEdit)]
@@ -1691,7 +1823,7 @@ namespace BDCS.Controllers
 
             if (patientId!= 0 && visitId != 0)
             {
-                Data = _PatientBL.GetPatientById(patientId);
+                Data = _PatientBL.GetPatientById(patientId, SessionLocationIdsCsv);
                 list = _PatientBL.GetPatientServiceAgainstVisit(visitId);
             }
 

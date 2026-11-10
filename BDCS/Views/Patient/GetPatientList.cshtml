@@ -1,4 +1,4 @@
-﻿@model List<BDCS.Model.Patient.Patient>
+@model List<BDCS.Model.Patient.Patient>
 
 @{
     if (Request.IsAjaxRequest())
@@ -7,62 +7,47 @@
     }
 
     List<string> userMdtRight = (ViewBag.mdtTypesNameVb as List<SelectListItem>).Select(a => a.Text).ToList();
+    bool CanManagePatients = BDCS.Models.SessionHelper.GetUserObject().RoleId == 1;
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="row" style="margin-top: 47px;">
-                <h3 class="heading">Patient Search</h3>
+<div class="admin-module">
+    <div class="container-fluid">
+
+        <div class="am-page-head">
+            <div>
+                <h3><i class="fa fa-user-circle-o"></i> Patient Search</h3>
+                <span class="am-subtitle">Find an existing patient or register a new one</span>
             </div>
-            <!-- Container for buttons alignment -->
-            <div class="row">
-                <!-- Left side: Search and Add buttons -->
-                <div class="col-sm-8">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <input type="text" id="SearchTextBox" class="form-control padding-input full-width" style="max-width:100%" placeholder="Search Hospital Number, MRN,Name,Father Name,Contact Number,Address" value="@ViewBag.SearchText" />
-                        </div>
-                        <div class="col-sm-2">
-                            <button class="btn btn-block btn-dark btn-info" onclick="LoadPageData();"><span class="glyphicon glyphicon-search"></span> Search</button>
-                        </div>
-                        <div class="col-sm-2">
-                            <button class="btn btn-block btn-success" onclick="OpenPatientPopup();"><span class="glyphicon glyphicon-plus-sign"></span> Add</button>
-                        </div>
-                    </div>
-                </div>
+            <button class="btn btn-am-primary" onclick="OpenPatientPopup();"><i class="fa fa-plus"></i> Add Patient</button>
+        </div>
 
-                <!-- Right side: Advanced Search, MDT, BMT buttons -->
-                <div class="col-sm-4 text-right">
-                    <div class="row">
-
-                        @if (userMdtRight.Contains("Liver"))
-                        {
-                            <div class="col-sm-3">
-                                <button class="btn btn-blockbtn-warning" id="btnsms" onclick="loadPage('@Url.Action("PatientListForMDT","Patient")','Patient');">MDT Patient</button>
-                            </div>
-                            <div class="col-sm-4">
-                                <button class="btn btn-block btn-info" id="btnsms" onclick="loadPage('@Url.Action("PatientVisitAdvanceSearch","Patient")','Patient');">Advance Search</button>
-                            </div>
-                        }
-                        @if (userMdtRight.Contains("Bone Marrow"))
-                        {
-                            <div class="col-sm-3">
-                                <button class="btn btn-blockbtn-warning" id="btnsms" onclick="loadPage('@Url.Action("PatientListOfBMTForMDT","Patient")','Patient');">BMT Patient</button>
-                            </div>
-                        }
-                    </div>
+        <div class="am-card">
+            <div class="am-toolbar" style="margin-bottom:16px; flex-wrap:wrap;">
+                <div class="am-search" style="flex:2 1 320px;">
+                    <i class="fa fa-search"></i>
+                    <input type="text" id="SearchTextBox" class="form-control" placeholder="Search Hospital Number, MRN, Name, Father Name, Contact Number, Address" value="@ViewBag.SearchText" />
                 </div>
+                <button class="btn btn-am-light" onclick="LoadPageData();"><i class="fa fa-search"></i> Search</button>
+
+                @if (userMdtRight.Contains("Liver"))
+                {
+                    <button class="btn btn-am-light" id="btnsms" onclick="loadPage('@Url.Action("PatientListForMDT","Patient")','Patient');"><i class="fa fa-list"></i> MDT Patient</button>
+                    <button class="btn btn-am-light" id="btnsms" onclick="loadPage('@Url.Action("PatientVisitAdvanceSearch","Patient")','Patient');"><i class="fa fa-filter"></i> Advance Search</button>
+                }
+                @if (userMdtRight.Contains("Bone Marrow"))
+                {
+                    <button class="btn btn-am-light" id="btnsms" onclick="loadPage('@Url.Action("PatientListOfBMTForMDT","Patient")','Patient');"><i class="fa fa-list"></i> BMT Patient</button>
+                }
             </div>
 
-            <div class="row">
-                <div class="col-lg-12" style="margin-top:20px;padding-left:0px" id="PatientSearchList">
-                    <div class="col-lg-12">
-                        @if (Model != null && Model.Any())
-                        {
-                            <table class="table table-bordered table-striped">
+            <div id="PatientSearchList" class="col-lg-12" style="padding-left:0px;">
+                <div class="col-lg-12" style="padding:0;">
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="am-table">
                                 <thead>
-                                    <tr style="background-color: #57b7fd;color:white;">
+                                    <tr>
                                         <th>Picture</th>
                                         <th>Registration</th>
                                         <th>Hospital Number</th>
@@ -70,14 +55,13 @@
                                         <th>Name</th>
                                         <th>Gender</th>
                                         <th>Contact</th>
-                                        @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
+                                        @if (CanManagePatients)
                                         {
                                             <th>Discussion</th>
-                                            <th>Edit</th>
-                                            <th style="column-width:41px;">Action</th>
+                                            <th style="width:60px;">Edit</th>
+                                            <th style="width:120px;">Action</th>
                                         }
                                         <th>MDT History</th>
-
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -87,28 +71,35 @@
                                             <td>
                                                 @if (!string.IsNullOrEmpty(item.ImageURL))
                                                 {
-                                                    <img src="@Url.Content(item.ImageURL)" class="img img-thumbnail" style="max-width: 75px; height: auto;" />
+                                                    <img src="@Url.Content(item.ImageURL)" class="img img-thumbnail" style="max-width: 56px; height: auto;" />
                                                 }
                                             </td>
                                             <td>@item.EnteredOn.Value.ToString("dd-MMM-yyyy")</td>
                                             <td>@item.HospitalNumber</td>
                                             <td>@item.MrNumber</td>
-                                            <td>@item.FullName</td>
+                                            <td><strong>@item.FullName</strong></td>
                                             <td>@item.Gender</td>
                                             <td>@item.MobileNumber</td>
-                                            @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
+                                            @if (CanManagePatients)
                                             {
-                                                @*<td>@(item.DiscussionRequired ? "Yes" : "No")</td><td></td>*@
-
-                                                <td>@(item.DiscussionRequired.Equals(true)  ? "Yes" : "No")</td>
                                                 <td>
-                                                    <a href="#" onclick="AddEditPatientDemographics(@item.PatientId);">
-                                                        <span class="glyphicon glyphicon-edit"></span>
+                                                    @if (item.DiscussionRequired.Equals(true))
+                                                    {
+                                                        <span class="am-pill am-pill-active"><i class="fa fa-circle"></i> Yes</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="am-pill am-pill-inactive"><i class="fa fa-circle"></i> No</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <a href="#" title="Edit" onclick="AddEditPatientDemographics(@item.PatientId); return false;">
+                                                        <i class="fa fa-pencil"></i> Edit
                                                     </a>
                                                 </td>
-                                                <td style="column-width:41px;">
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                                                <td>
+                                                    <div class="dropdown" style="display:inline-block;">
+                                                        <button class="btn btn-am-light dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="padding:5px 10px; font-size:12px;">
                                                             MDT
                                                             <span class="caret"></span>
                                                         </button>
@@ -126,103 +117,76 @@
                                                             }
                                                         </ul>
                                                     </div>
-                                                    |
-                                                    <a href="#" onclick="ToggleDiscussionStatus(@item.PatientId,this);" title="Toggle Discussion Status">
-                                                        <span class="glyphicon glyphicon-tasks"></span>
+                                                    <a href="#" onclick="ToggleDiscussionStatus(@item.PatientId,this); return false;" title="Toggle Discussion Status" style="margin-left:6px;">
+                                                        <i class="fa fa-tasks"></i>
                                                     </a>
                                                 </td>
                                             }
-                                        <td>
-
-                                                            @*@if (userMdtRight.Contains("Liver"))
-                        {
-                            <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','Liver');">
-                                <span class="glyphicon glyphicon-link"> History1</span>
-                            </a>
-                        }
-                        @if (userMdtRight.Contains("Bone Marrow"))
-                        {
-                            <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','BoneMarrow');">
-                                <span class="glyphicon glyphicon-link"> History2</span>
-                            </a>
-                        }*@
-
-                                            @if (userMdtRight.Contains("Liver") && !userMdtRight.Contains("Bone Marrow"))
-                                            {
-                                                // Only Liver
-                                                <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','Liver');">
-                                                    <span class="glyphicon glyphicon-link"></span> Liver History
-                                                </a>
-                                            }
-                                            else if (!userMdtRight.Contains("Liver") && userMdtRight.Contains("Bone Marrow"))
-                                            {
-                                                // Only Bone Marrow
-                                                <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','BoneMarrow');">
-                                                    <span class="glyphicon glyphicon-link"></span> BMT History
-                                                </a>
-                                            }
-                                            else if (userMdtRight.Contains("Liver") && userMdtRight.Contains("Bone Marrow"))
-                                            {
-                                                // Both
-                                                <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','Liver');">
-                                                    <span class="glyphicon glyphicon-link"></span> Liver History
-                                                </a>
+                                            <td>
+                                                @if (userMdtRight.Contains("Liver") && !userMdtRight.Contains("Bone Marrow"))
+                                                {
+                                                    <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','Liver');"><i class="fa fa-link"></i> Liver History</a>
+                                                }
+                                                else if (!userMdtRight.Contains("Liver") && userMdtRight.Contains("Bone Marrow"))
+                                                {
+                                                    <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','BoneMarrow');"><i class="fa fa-link"></i> BMT History</a>
+                                                }
+                                                else if (userMdtRight.Contains("Liver") && userMdtRight.Contains("Bone Marrow"))
+                                                {
+                                                    <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','Liver');"><i class="fa fa-link"></i> Liver History</a>
+                                                    <span>&nbsp;|&nbsp;</span>
+                                                    <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','BoneMarrow');"><i class="fa fa-link"></i> BMT History</a>
+                                                }
                                                 <span>&nbsp;|&nbsp;</span>
-                                                <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','BoneMarrow');">
-                                                    <span class="glyphicon glyphicon-link"></span> BMT History
-                                                </a>
-                                            }
-
-                                            <a href="@Url.Action("PatientCard", new {PatientId = item.PatientId})" target="_blank">
-                                                <span class="glyphicon glyphicon-certificate">Card</span>
-                                            </a>
-                                        </td>
-                                     
+                                                <a href="@Url.Action("PatientCard", new {PatientId = item.PatientId})" target="_blank"><i class="fa fa-id-card"></i> Card</a>
+                                            </td>
                                         </tr>
                                     }
                                 </tbody>
                             </table>
-                        }
-                        else
-                        {
-                            <h3>No Data found</h3>
-                        }
-                    </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="am-empty">
+                            <i class="fa fa-user-circle-o"></i>
+                            No patients found.
+                        </div>
+                    }
                 </div>
+            </div>
 
-                <div class="col-lg-4 col-lg-offset-0" id="PatientInfoBoxContainer" style="display:none;">
-                    <div id="PatientInfoBox">
-                        @*//Histordiv will load here*@
-                    </div>
+            <div class="col-lg-4 col-lg-offset-0" id="PatientInfoBoxContainer" style="display:none;">
+                <div id="PatientInfoBox">
+                    @*//Histordiv will load here*@
                 </div>
             </div>
         </div>
     </div>
-</div>
 
+    <div class="modal fade modal-sm" tabindex="-1" modal hide" data-backdrop="static" data-keyboard="false" role="dialog" id="MDTTypePopup" style="margin:auto">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Choose MDT Type</h5>
+                </div>
+                <div class="modal-body" id="MDTTypeBody">
+                    @Html.Hidden("hfpatientId")
+                    <div class="row">
+                        <div class="col-xs-12">
 
-<div class="modal fade modal-sm" tabindex="-1" modal hide" data-backdrop="static" data-keyboard="false" role="dialog" id="MDTTypePopup" style="margin:auto">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" style="text-align:center">Choose MDT Type</h5>
-            </div>
-            <div class="modal-body" id="MDTTypeBody">
-                @Html.Hidden("hfpatientId")
-                <div class="row">
-                    <div class="col-xs-12">
+                            @Html.DropDownList("MDTType", (List<SelectListItem>)ViewBag.MDTTypes, new { @class = "form-control", id = "ddlMDTTypeId" })
 
-                        @Html.DropDownList("MDTType", (List<SelectListItem>)ViewBag.MDTTypes, new { @class = "form-control", id = "ddlMDTTypeId" })
-
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-success" onclick="CreateVisit($('#hfpatientId').val(), this);">Create Visit</button>
-            </div>
-        </div><!-- /.modal-content -->
-    </div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
+                <div class="modal-footer">
+                    <button class="btn btn-am-primary" onclick="CreateVisit($('#hfpatientId').val(), this);"><i class="fa fa-check"></i> Create Visit</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+</div>
 
 <script type="text/javascript">
     $(document).ready(function () {
@@ -230,7 +194,7 @@
         PostPageLoad();
     });
 
-    
+
 
     function OpenPatientPopup() {
         var Url = '@Url.Action("AddEditPatient", "Patient")';
@@ -344,7 +308,8 @@
 
             success: (function (msg) {
                 if (parseInt(msg.Code) == 200) {
-                    alert('Status updated');
+                    ShowAlertMessage('Status updated', 'success');
+                    LoadPageData();
                 }
                 else {
                     ShowAlertMessage('Unable to Update Status', 'warning');

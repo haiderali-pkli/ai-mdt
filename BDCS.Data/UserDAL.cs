@@ -42,7 +42,7 @@ namespace BDCS.Data
                         UserId=Convert.ToInt32(a["UserId"]),
                         UserFullName=a["UserFullName"].ToString(),
                         RoleId=Convert.ToInt32(a["RoleId"]),
-                        Active =Convert.ToBoolean(a["Active"]),
+                        Active = a["Active"] != DBNull.Value && Convert.ToBoolean(a["Active"]),
                         //this is because that we dont need a list only firsr row required therefore .Tolist(); will not use
                     }).FirstOrDefault();
                 }
@@ -175,7 +175,7 @@ namespace BDCS.Data
                         LoginId = a["LoginId"].ToString(),
                         UserFullName = a["UserFullName"].ToString(),
                         Password = a["Password"].ToString(),
-                        Active=Convert.ToBoolean(a["Active"]),
+                        Active = a["Active"] != DBNull.Value && Convert.ToBoolean(a["Active"]),
                         //mdtType = a["mdtType"].ToString()
                     }).ToList();
                 }
@@ -207,7 +207,7 @@ namespace BDCS.Data
                         LoginId = a["LoginId"].ToString(),
                         UserFullName = a["UserFullName"].ToString(),
                         Password = a["Password"].ToString(),
-                        Active = Convert.ToBoolean(a["Active"])
+                        Active = a["Active"] != DBNull.Value && Convert.ToBoolean(a["Active"])
                     }).ToList().FirstOrDefault();
                 }
             }
@@ -332,6 +332,56 @@ namespace BDCS.Data
             {
                 new DbParameters() {Name="UserId", Type=DbType.Int32, Value=userId },
                 new DbParameters() {Name="ClinicIds", Type=DbType.String, Value=clinicIdsCsv },
+            };
+            try
+            {
+                result = await _db.ExecuteNonQueryAsync(Query, CommandType.StoredProcedure, pars);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return result;
+        }
+
+        public List<KeyAndValuePair> GetUserLocations(int userId)
+        {
+            List<KeyAndValuePair> Data = new List<KeyAndValuePair>();
+            string Query = QueryHelper.GetQueryString("GetUserLocations", "Clinical");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="UserId", Type=DbType.Int32, Value=userId}
+            };
+            try
+            {
+                DataSet ds = _db.LoadDataSet(Query, CommandType.StoredProcedure, pars);
+
+                if (ds?.Tables.Count > 0)
+                {
+                    Data = ds.Tables[0].AsEnumerable().Select(a => new KeyAndValuePair
+                    {
+                        Id = a["LocationId"].ToString(),
+                        Value = a["LocationName"].ToString()
+                    }).ToList();
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+            return Data;
+        }
+
+        public async Task<int> InsertUpdateUserLocations(int userId, string locationIdsCsv)
+        {
+            int result = 0;
+            string Query = QueryHelper.GetQueryString("InsertUpdateUserLocations", "Clinical");
+            List<DbParameters> pars = new List<DbParameters>()
+            {
+                new DbParameters() {Name="UserId", Type=DbType.Int32, Value=userId },
+                new DbParameters() {Name="LocationIds", Type=DbType.String, Value=locationIdsCsv },
             };
             try
             {

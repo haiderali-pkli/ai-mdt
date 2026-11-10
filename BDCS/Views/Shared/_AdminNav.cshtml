@@ -1,0 +1,21 @@
+@{
+    string CurrentController = ViewContext.RouteData.Values["controller"] as string ?? "";
+}
+
+<div class="am-tabs">
+    <a href="@Url.Action("SearchByUserName", "User")" class="@(CurrentController == "User" ? "active" : "")">
+        <i class="fa fa-users"></i> Users
+    </a>
+    <a href="@Url.Action("GetRoleList", "Role")" class="@(CurrentController == "Role" ? "active" : "")">
+        <i class="fa fa-shield"></i> Roles
+    </a>
+    <a href="@Url.Action("GetClinicList", "Clinic")" class="@(CurrentController == "Clinic" ? "active" : "")">
+        <i class="fa fa-stethoscope"></i> MDT Types
+    </a>
+    <a href="@Url.Action("GetLocationList", "Location")" class="@(CurrentController == "Location" ? "active" : "")">
+        <i class="fa fa-map-marker"></i> Locations
+    </a>
+    <a href="@Url.Action("AddEditLookupData", "Patient")" class="@(CurrentController == "Patient" ? "active" : "")">
+        <i class="fa fa-list"></i> Lookups
+    </a>
+</div>

@@ -1,0 +1,71 @@
+@model BDCS.Model.RoleRights.Location
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+
+<div class="admin-module">
+    <form id="frmLocation" onsubmit="return SaveLocation();">
+        @Html.HiddenFor(a => a.LocationId)
+
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label>Location Name</label>
+                        @Html.TextBoxFor(a => a.LocationName, new { @class = "form-control", placeholder = "e.g. PKLI Rawalpindi", required = "required" })
+                    </div>
+                </div>
+            </div>
+            <div class="row am-field-divider-row">
+                <div class="col-sm-12">
+                    <label class="am-switch">
+                        <input type="checkbox" id="IsActive" @(Model.IsActive || Model.LocationId == 0 ? "checked=\"checked\"" : "") />
+                        <span class="am-switch-track"></span>
+                        Active
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-am-light" onclick="ClosePopup();">Cancel</button>
+            <button type="submit" class="btn btn-am-primary"><i class="fa fa-save"></i> Save Location</button>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+
+    function SaveLocation() {
+        var data = {
+            LocationId: $("#LocationId").val(),
+            LocationName: $("#LocationName").val(),
+            IsActive: $("#IsActive").is(":checked")
+        };
+
+        $.ajax({
+            url: '@Url.Action("InsertUpdateLocation", "Location")',
+            type: "post",
+            dataType: "json",
+            data: JSON.stringify(data),
+            contentType: "application/json;",
+            success: function (res) {
+                ShowAlertMessage(res.Message, res.MessageClass, res.MessageTitle);
+                if (res.IsSuccess) {
+                    ClosePopup();
+                    if (typeof ReloadLocationList == "function") {
+                        ReloadLocationList();
+                    }
+                }
+            },
+            error: function () {
+                ShowAlertMessage("An error occured", "error", "Error!");
+            }
+        });
+
+        return false;
+    }
+
+</script>

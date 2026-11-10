@@ -8,6 +8,7 @@
     List<Users> UserList = ViewBag.GetUserList ?? new List<Users>();
     Dictionary<int, List<Role>> RolesByUser = ViewBag.RolesByUser ?? new Dictionary<int, List<Role>>();
     Dictionary<int, List<KeyAndValuePair>> ClinicsByUser = ViewBag.ClinicsByUser ?? new Dictionary<int, List<KeyAndValuePair>>();
+    Dictionary<int, List<KeyAndValuePair>> LocationsByUser = ViewBag.LocationsByUser ?? new Dictionary<int, List<KeyAndValuePair>>();
 
     Func<string, string> initials = name =>
     {
@@ -21,6 +22,8 @@
 
 <div class="admin-module">
     <div class="container-fluid">
+
+        @Html.Partial("_AdminNav")
 
         <div class="am-page-head">
             <div>
@@ -49,9 +52,10 @@
                             <tr>
                                 <th>User</th>
                                 <th>Roles</th>
+                                <th>MDT Types</th>
                                 <th>Locations</th>
                                 <th>Status</th>
-                                <th style="width:60px;"></th>
+                                <th style="width:90px;"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -85,7 +89,20 @@
                                         {
                                             foreach (KeyAndValuePair c in ClinicsByUser[item.UserId])
                                             {
-                                                <span class="am-badge am-badge-location"><i class="fa fa-map-marker"></i> @c.Value</span>
+                                                <span class="am-badge"><i class="fa fa-stethoscope"></i> @c.Value</span>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <span class="am-badge am-badge-muted">No MDT type</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (LocationsByUser.ContainsKey(item.UserId) && LocationsByUser[item.UserId].Any())
+                                        {
+                                            foreach (KeyAndValuePair l in LocationsByUser[item.UserId])
+                                            {
+                                                <span class="am-badge am-badge-location"><i class="fa fa-map-marker"></i> @l.Value</span>
                                             }
                                         }
                                         else
@@ -105,7 +122,7 @@
                                     </td>
                                     <td>
                                         <a href="#" title="Edit" onclick="AddEditUser(@item.UserId); return false;">
-                                            <i class="fa fa-pencil"></i>
+                                            <i class="fa fa-pencil"></i> Edit
                                         </a>
                                     </td>
                                 </tr>

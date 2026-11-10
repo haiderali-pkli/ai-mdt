@@ -23,9 +23,10 @@ namespace BDCS.Controllers
             return View(Data);
         }
 
-        public ActionResult GetClinicList()
+        public ActionResult GetClinicList(string searchText)
         {
             List<Clinic> Data = _clinicBL.GetClinicList();
+            ViewBag.SearchText = searchText;
             return View(Data);
         }
 

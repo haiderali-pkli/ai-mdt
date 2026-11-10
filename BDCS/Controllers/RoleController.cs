@@ -104,15 +104,13 @@ namespace BDCS.Controllers
 
         public async Task<ActionResult> GetRoleList(string searchText)
         {
+            // No search term yet (e.g. arriving fresh from the nav/admin links) -> list everyone,
+            // same as typing nothing into the search box and hitting Search.
             List<Role> Data = new List<Role>();
-            if (searchText != null)
-            {
-
-                await Task.Run(() =>
-               {
-                   Data = _roleBL.GetRoleListByName(searchText);
-               });
-            }
+            await Task.Run(() =>
+           {
+               Data = _roleBL.GetRoleListByName(searchText ?? string.Empty);
+           });
             ViewBag.SearchTextbyRole = searchText;
             return View(Data);
         }

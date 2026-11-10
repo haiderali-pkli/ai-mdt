@@ -52,11 +52,9 @@ namespace BDCS.Controllers
 
         public ActionResult SearchByUserName(string searchByUserName)
         {
-            List<Users> Data = new List<Users>();
-            if (searchByUserName != null)
-            {
-                Data = _ubl.GetUserAgainstUserName(searchByUserName);
-            }
+            // No search term yet (e.g. arriving fresh from the nav/admin links) -> list everyone,
+            // same as typing nothing into the search box and hitting Search.
+            List<Users> Data = _ubl.GetUserAgainstUserName(searchByUserName ?? string.Empty);
 
             Dictionary<int, List<Role>> RolesByUser = new Dictionary<int, List<Role>>();
             Dictionary<int, List<KeyAndValuePair>> ClinicsByUser = new Dictionary<int, List<KeyAndValuePair>>();

@@ -1,0 +1,17 @@
+@model string
+@{
+    var adminNavTabs = new[]
+    {
+        new { Key = "Users", Text = "Users", Icon = "fa-users", Url = Url.Action("SearchByUserName", "User") },
+        new { Key = "Roles", Text = "Roles", Icon = "fa-shield", Url = Url.Action("GetRoleList", "Role") },
+        new { Key = "MDTTypes", Text = "MDT Types", Icon = "fa-sitemap", Url = Url.Action("GetClinicList", "Clinic") },
+        new { Key = "Locations", Text = "Locations", Icon = "fa-map-marker", Url = Url.Action("GetLocationList", "Location") },
+        new { Key = "Lookups", Text = "Lookups", Icon = "fa-list", Url = Url.Action("AddEditLookupData", "Patient") },
+    };
+}
+<div class="am-tabs">
+    @foreach (var tab in adminNavTabs)
+    {
+        <a href="@tab.Url" class="am-tab @(tab.Key == Model ? "active" : "")"><i class="fa @tab.Icon"></i> @tab.Text</a>
+    }
+</div>

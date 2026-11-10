@@ -209,7 +209,7 @@ namespace BDCS.Data
                         HospitalNumber = a["HospitalNumber"].ToString(),
                         LocationId = a["LocationId"] == DBNull.Value ? (int?)null : Convert.ToInt32(a["LocationId"]),
 
-                    }).FirstOrDefault();
+                    }).FirstOrDefault() ?? new Patient();
                 }
             }
             catch (Exception e)

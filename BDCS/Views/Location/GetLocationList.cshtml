@@ -9,6 +9,8 @@
 <div class="admin-module">
     <div class="container-fluid">
 
+        @Html.Partial("_AdminNav", "Locations")
+
         <div class="am-page-head">
             <div>
                 <h3><i class="fa fa-map-marker"></i> Locations</h3>
@@ -28,7 +30,7 @@
                             <tr>
                                 <th>Location</th>
                                 <th>Status</th>
-                                <th style="width:60px;"></th>
+                                <th style="width:90px;"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -47,8 +49,8 @@
                                         }
                                     </td>
                                     <td>
-                                        <a href="#" title="Edit" onclick="AddEditLocation(@item.LocationId); return false;">
-                                            <i class="fa fa-pencil"></i>
+                                        <a href="#" title="Edit" class="am-edit-link" onclick="AddEditLocation(@item.LocationId); return false;">
+                                            <i class="fa fa-pencil"></i> Edit
                                         </a>
                                     </td>
                                 </tr>

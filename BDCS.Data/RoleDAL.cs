@@ -42,9 +42,9 @@ namespace BDCS.Data
                         MenuGroupName = a["MenuGroupName"].ToString(),
                         MenuName = a["MenuName"].ToString(),
                         MenuParentId = Convert.ToInt32(a["MenuParentId"]),
-                        CanView = Convert.ToBoolean(a["CanView"]),
-                        CanAddEdit = Convert.ToBoolean(a["CanAddEdit"]),
-                        CanDelete = Convert.ToBoolean(a["CanDelete"]),
+                        CanView = a["CanView"] != DBNull.Value && Convert.ToBoolean(a["CanView"]),
+                        CanAddEdit = a["CanAddEdit"] != DBNull.Value && Convert.ToBoolean(a["CanAddEdit"]),
+                        CanDelete = a["CanDelete"] != DBNull.Value && Convert.ToBoolean(a["CanDelete"]),
 
                     }).ToList();
                     
@@ -76,7 +76,7 @@ namespace BDCS.Data
                     {
                         RoleId = Convert.ToInt32(a["RoleId"]),
                         RoleName = a["RoleName"].ToString(),
-                        Active = Convert.ToBoolean((a["Active"])),
+                        Active = a["Active"] != DBNull.Value && Convert.ToBoolean(a["Active"]),
                     }).ToList();
 
                 }
@@ -132,7 +132,7 @@ namespace BDCS.Data
                     {
                         RoleId = Convert.ToInt32(a["RoleId"]),
                         RoleName = a["RoleName"].ToString(),
-                        Active = Convert.ToBoolean(a["Active"])
+                        Active = a["Active"] != DBNull.Value && Convert.ToBoolean(a["Active"])
 
                     }).FirstOrDefault();
 

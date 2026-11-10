@@ -56,7 +56,7 @@ namespace BDCS.Controllers
             if (patId > 0)
             {
                 pat = _PatientBL.GetPatientById(patId, GetUserLocationIdsCsv());
-                if (pat.PatientId <= 0)
+                if (pat == null || pat.PatientId <= 0)
                 {
                     // Either the patient doesn't exist, or it's tagged with a Location this user isn't assigned to.
                     return RedirectToAction("GetPatientList", "Patient");

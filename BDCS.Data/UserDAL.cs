@@ -42,7 +42,7 @@ namespace BDCS.Data
                         UserId=Convert.ToInt32(a["UserId"]),
                         UserFullName=a["UserFullName"].ToString(),
                         RoleId=Convert.ToInt32(a["RoleId"]),
-                        Active =Convert.ToBoolean(a["Active"]),
+                        Active = a["Active"] != DBNull.Value && Convert.ToBoolean(a["Active"]),
                         //this is because that we dont need a list only firsr row required therefore .Tolist(); will not use
                     }).FirstOrDefault();
                 }
@@ -175,7 +175,7 @@ namespace BDCS.Data
                         LoginId = a["LoginId"].ToString(),
                         UserFullName = a["UserFullName"].ToString(),
                         Password = a["Password"].ToString(),
-                        Active=Convert.ToBoolean(a["Active"]),
+                        Active = a["Active"] != DBNull.Value && Convert.ToBoolean(a["Active"]),
                         //mdtType = a["mdtType"].ToString()
                     }).ToList();
                 }
@@ -207,7 +207,7 @@ namespace BDCS.Data
                         LoginId = a["LoginId"].ToString(),
                         UserFullName = a["UserFullName"].ToString(),
                         Password = a["Password"].ToString(),
-                        Active = Convert.ToBoolean(a["Active"])
+                        Active = a["Active"] != DBNull.Value && Convert.ToBoolean(a["Active"])
                     }).ToList().FirstOrDefault();
                 }
             }

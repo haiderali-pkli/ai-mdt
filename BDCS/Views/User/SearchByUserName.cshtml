@@ -23,6 +23,8 @@
 <div class="admin-module">
     <div class="container-fluid">
 
+        @Html.Partial("_AdminNav", "Users")
+
         <div class="am-page-head">
             <div>
                 <h3><i class="fa fa-users"></i> Users</h3>
@@ -53,7 +55,7 @@
                                 <th>MDT Types</th>
                                 <th>Locations</th>
                                 <th>Status</th>
-                                <th style="width:60px;"></th>
+                                <th style="width:90px;"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -119,8 +121,8 @@
                                         }
                                     </td>
                                     <td>
-                                        <a href="#" title="Edit" onclick="AddEditUser(@item.UserId); return false;">
-                                            <i class="fa fa-pencil"></i>
+                                        <a href="#" title="Edit" class="am-edit-link" onclick="AddEditUser(@item.UserId); return false;">
+                                            <i class="fa fa-pencil"></i> Edit
                                         </a>
                                     </td>
                                 </tr>

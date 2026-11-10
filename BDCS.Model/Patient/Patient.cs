@@ -54,6 +54,7 @@ namespace BDCS.Model.Patient
 
         //ViewModel
         public int ClinicId { get; set; }
+        public int? LocationId { get; set; }
 
         public string Rel { get; set; }
         public bool DiscussionRequired { get; set; }

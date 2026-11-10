@@ -36,12 +36,16 @@ namespace BDCS.Controllers
                 Data = _ubl.GetUserById(UserId);
                 Data.RoleIds = _ubl.GetUserRoles(UserId).Select(a => a.RoleId).ToList();
                 Data.ClinicIds = _ubl.GetUserClinics(UserId).Select(a => Convert.ToInt32(a.Id)).ToList();
+                Data.LocationIds = _ubl.GetUserLocations(UserId).Select(a => Convert.ToInt32(a.Id)).ToList();
             }
             List<Role> RoleList = _ubl.GetRoleList();
             ViewBag.RoleList = RoleList;
 
             List<Clinic> ClinicList = new ClinicBL().GetClinicList();
             ViewBag.ClinicList = ClinicList;
+
+            List<Location> LocationList = new LocationBL().GetLocationList();
+            ViewBag.LocationList = LocationList;
 
             return View(Data);
         }
@@ -56,20 +60,23 @@ namespace BDCS.Controllers
 
             Dictionary<int, List<Role>> RolesByUser = new Dictionary<int, List<Role>>();
             Dictionary<int, List<KeyAndValuePair>> ClinicsByUser = new Dictionary<int, List<KeyAndValuePair>>();
+            Dictionary<int, List<KeyAndValuePair>> LocationsByUser = new Dictionary<int, List<KeyAndValuePair>>();
             foreach (Users u in Data)
             {
                 RolesByUser[u.UserId] = _ubl.GetUserRoles(u.UserId);
                 ClinicsByUser[u.UserId] = _ubl.GetUserClinics(u.UserId);
+                LocationsByUser[u.UserId] = _ubl.GetUserLocations(u.UserId);
             }
 
             ViewBag.SearchTextByUser = searchByUserName;
             ViewBag.GetUserList = Data;
             ViewBag.RolesByUser = RolesByUser;
             ViewBag.ClinicsByUser = ClinicsByUser;
+            ViewBag.LocationsByUser = LocationsByUser;
             return View();
         }
 
-        public async Task<ActionResult> InsertUpdateUser(Users user, List<int> RoleIds, List<int> ClinicIds)
+        public async Task<ActionResult> InsertUpdateUser(Users user, List<int> RoleIds, List<int> ClinicIds, List<int> LocationIds)
         {
             AjaxResponse response = new AjaxResponse();
             int result = 0;
@@ -112,6 +119,7 @@ namespace BDCS.Controllers
                     {
                         await _ubl.InsertUpdateUserRoles(result, RoleIds);
                         await _ubl.InsertUpdateUserClinics(result, ClinicIds);
+                        await _ubl.InsertUpdateUserLocations(result, LocationIds);
 
                         response = new AjaxResponse
                         {

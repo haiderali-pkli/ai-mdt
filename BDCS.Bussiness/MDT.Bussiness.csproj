@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClinicBL.cs" />
+    <Compile Include="LocationBL.cs" />
     <Compile Include="CommonBL.cs" />
     <Compile Include="RoleBL.cs" />
     <Compile Include="UserBL.cs" />

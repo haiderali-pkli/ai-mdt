@@ -73,6 +73,17 @@
                         </div>
                     </div>
 
+                    @{ List<SelectListItem> locationOptions = ViewBag.LocationVB as List<SelectListItem> ?? new List<SelectListItem>(); }
+                    @if (locationOptions.Count > 0)
+                    {
+                        <div class="col-sm-3 col-xs-6">
+                            <div class="form-group">
+                                <label>Location</label>
+                                @Html.DropDownListFor(a => a.LocationId, locationOptions, "--Select--", new { @class = "form-control" })
+                            </div>
+                        </div>
+                    }
+
                     <div class="col-sm-3 col-xs-6">
                         <div class="form-group">
                             <label>First Name</label>

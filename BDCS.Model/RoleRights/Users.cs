@@ -19,5 +19,6 @@ namespace BDCS.Model.RoleRights
         public string mdtType { get; set; }
         public List<int> RoleIds { get; set; } = new List<int>();
         public List<int> ClinicIds { get; set; } = new List<int>();
+        public List<int> LocationIds { get; set; } = new List<int>();
     }
 }

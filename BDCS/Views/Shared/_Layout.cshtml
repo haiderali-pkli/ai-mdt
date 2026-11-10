@@ -32,6 +32,56 @@
     <!-- Admin Module CSS (User / Role / Clinic management) -->
     <link rel="stylesheet" href="~/Content/theme/css/admin-module.css">
 
+    <!-- Global header / footer chrome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mh-ink: #15232E; --mh-muted: #5A6B78; --mh-border: #DCE4EA;
+            --mh-teal: #0B6E8A; --mh-teal-dark: #08506A; --mh-teal-tint: #F0F8FB;
+            --mh-red: #B42318; --mh-red-bg: #FDF0EE; --mh-bg: #FFFFFF;
+        }
+        header, .mh-bar, .mh-bar *, .mh-footer, .mh-footer * {
+            font-family: 'IBM Plex Sans', -apple-system, 'Segoe UI', Roboto, Arial, sans-serif !important;
+        }
+        header { background: var(--mh-bg) !important; box-shadow: 0 1px 0 rgba(21,35,46,.07) !important; }
+        .mh-bar { background: var(--mh-bg) !important; float: none !important; border-bottom: 1px solid var(--mh-border); }
+        .mh-row { display: flex !important; align-items: center; justify-content: space-between; gap: 16px; min-height: 64px; padding: 0 24px; flex-wrap: wrap; }
+
+        .mh-left { display: flex !important; align-items: center; gap: 18px; min-width: 0; }
+        .mh-burger { background: transparent !important; border: 1px solid var(--mh-border) !important; border-radius: 8px !important; width: 38px !important; height: 38px !important; min-height: 0 !important; display: flex !important; align-items: center; justify-content: center; margin: 0 !important; padding: 0 !important; float: none !important; }
+        .mh-burger svg { color: var(--mh-ink) !important; flex: none; }
+        .mh-burger:hover { background: var(--mh-teal-tint) !important; }
+
+        .mh-brand { display: flex !important; align-items: center; gap: 10px; text-decoration: none !important; }
+        .mh-brand-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--mh-teal); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; letter-spacing: .3px; flex: none; }
+        .mh-brand-text { display: flex; flex-direction: column; line-height: 1.15; }
+        .mh-brand-name { font-weight: 700; font-size: 15px; color: var(--mh-ink); }
+        .mh-brand-sub { font-size: 11px; color: var(--mh-muted); font-weight: 500; }
+
+        .mh-nav { float: none !important; margin: 0 !important; padding: 0 !important; }
+        .mh-links { display: flex !important; gap: 4px; margin: 0 !important; padding: 0 !important; float: none !important; list-style: none !important; }
+        .mh-links > li { float: none !important; }
+        .mh-links > li > a { color: var(--mh-muted) !important; font-size: 14px !important; font-weight: 600 !important; text-transform: none !important; letter-spacing: 0 !important; padding: 10px 14px !important; border-radius: 8px !important; transition: background .15s, color .15s; }
+        .mh-links > li > a:hover, .mh-links > li > a:focus { color: var(--mh-teal) !important; background: var(--mh-teal-tint) !important; }
+
+        .mh-right { display: flex !important; align-items: center; gap: 8px; float: none !important; flex: none; }
+        .mh-user { display: flex !important; align-items: center; gap: 8px; }
+        .mh-user-avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--mh-teal-tint); color: var(--mh-teal-dark); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 12px; flex: none; }
+        .mh-user-name { font-size: 13px; font-weight: 600; color: var(--mh-ink); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .mh-logout { display: flex !important; align-items: center; gap: 6px; color: var(--mh-muted) !important; font-size: 13px !important; font-weight: 600 !important; text-decoration: none !important; padding: 8px 10px !important; border-radius: 8px !important; }
+        .mh-logout:hover { color: var(--mh-red) !important; background: var(--mh-red-bg) !important; }
+        .mh-logout svg { flex: none; }
+
+        @@media (max-width: 767px) {
+            .mh-row { min-height: auto; padding: 10px 16px; }
+            .mh-nav { flex-basis: 100%; order: 3; }
+            .mh-links { flex-direction: column; width: 100%; }
+        }
+
+        .mh-footer { background: var(--mh-bg) !important; border-top: 1px solid var(--mh-border); float: none !important; padding: 16px 24px !important; }
+        .mh-footer p { margin: 0 !important; text-align: center !important; color: var(--mh-muted) !important; font-size: 13px !important; }
+    </style>
 
     <link href="~/Content/Plugin/Jquery.toast/jquery.toast.min.css" rel="stylesheet" />
 
@@ -54,71 +104,55 @@
     </div>
     <!-- END LOADER -->
 
+    @{
+        string mhUserName = Session["User"] != null ? (Session["User"] as BDCS.Model.RoleRights.Users).UserFullName : null;
+        string mhUserInitials = "";
+        if (!string.IsNullOrWhiteSpace(mhUserName))
+        {
+            var mhNameParts = mhUserName.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            mhUserInitials = string.Join("", mhNameParts.Take(2).Select(p => char.ToUpper(p[0])));
+        }
+    }
     <header>
-        
-        <div class="header-bottom wow fadeIn hidden-print">
-            <div class="container">
-                <nav class="main-menu">
-                    <div class="navbar-header">
-                        
-                        
-                        <div class="col-sm-6">
-                            <div class="col-sm-3">
-                                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar"><i class="fa fa-bars" aria-hidden="true"></i></button>
-                            </div>
-                            <div class="col-sm-3" style="margin-top:-10px;">
-                                <a  style="color:white;font-size:25px;" hrf="#" onclick="closeForm();">
-                                    <i class="fa fa-times"></i> Logout
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="navbar" class="navbar-collapse collapse">
-                        <ul class="nav navbar-nav">
+        <div class="header-bottom mh-bar hidden-print">
+            <div class="mh-row">
+                <div class="mh-left">
+                    <button type="button" class="navbar-toggle collapsed mh-burger" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"></path></svg>
+                    </button>
+
+                    <a class="mh-brand" href="@(Session["User"] != null ? Url.Action("GetPatientList", "Patient") : Url.Action("Login", "Home"))">
+                        <span class="mh-brand-mark">MDT</span>
+                        <span class="mh-brand-text">
+                            <span class="mh-brand-name">MDT Portal</span>
+                            <span class="mh-brand-sub">PKLI Hospital</span>
+                        </span>
+                    </a>
+
+                    <nav id="navbar" class="navbar-collapse collapse mh-nav">
+                        <ul class="nav navbar-nav mh-links">
                             @if (Session["User"] != null)
                             {
                                 <li><a href="@Url.Action("GetPatientList","Patient")">Home</a></li>
                             }
 
                             <li><a href="@Url.Action("AddEditLookupData","Patient")">Add Lookup</a></li>
-
-                            @*<li><a class="active" href="@Url.Action("GetPatientList","Patient")">Patient</a></li>
-                            
-                            <li><a href="@Url.Action("Dashboard","Home")">Dashboard</a></li>
-                            
-                            <li><a href="#" onclick="$('#MenuContainer').toggle();">Menu</a> </li>*@
                         </ul>
-                        @*@if (Session["User"] != null)
-                        {
+                    </nav>
+                </div>
 
-                            <a>@((Session["User"] as BDCS.Model.RoleRights.Users).UserFullName)</a>
-
-                        }*@
-                    </div>
-                </nav>
-                <div class="serch-bar">
-                    <div id="custom-search-input">
-                        <div class="input-group col-md-12">
-                            @*<input type="text" class="form-control input-lg" placeholder="Search" />
-                            <span class="input-group-btn">
-                                <button class="btn btn-info btn-lg" type="button">
-                                    <i class="fa fa-search" aria-hidden="true">
-
-                                    </i>
-                                </button>
-                            </span>*@
-                            <div class="form-group">
-                                @if (Session["User"] != null)
-                                {
-                                    <a class="form-control">@((Session["User"] as BDCS.Model.RoleRights.Users).UserFullName)</a>
-                                }
-                            </div>
-                           
-                          
-                        </div>
-                       
-                    </div>
-                   
+                <div class="mh-right">
+                    @if (Session["User"] != null)
+                    {
+                        <span class="mh-user">
+                            <span class="mh-user-avatar">@mhUserInitials</span>
+                            <span class="mh-user-name">@mhUserName</span>
+                        </span>
+                        <a href="#" class="mh-logout" onclick="closeForm();">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path></svg>
+                            Logout
+                        </a>
+                    }
                 </div>
             </div>
         </div>
@@ -134,31 +168,8 @@
     </div>
 
 
-    <div class="copyright-area wow fadeIn hidden-print">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="footer-text">
-                        <div class="col-sm-12" style="text-align:center;">
-                            <p style="text-align:center;">Copyright 2018 - @System.DateTime.Now.Year | All Rights Reserved | Developed by ICT Department - PKLI Hospital</p>
-                        </div>
-                        
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="social">
-                        <ul class="social-links">
-                            <li><a href=""><i class="fa fa-rss"></i></a></li>
-                            <li><a href=""><i class="fa fa-facebook"></i></a></li>
-                            <li><a href=""><i class="fa fa-twitter"></i></a></li>
-                            <li><a href=""><i class="fa fa-google-plus"></i></a></li>
-                            <li><a href=""><i class="fa fa-youtube"></i></a></li>
-                            <li><a href=""><i class="fa fa-pinterest"></i></a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="copyright-area mh-footer hidden-print">
+        <p>Copyright 2018 - @System.DateTime.Now.Year | All Rights Reserved | Developed by ICT Department - PKLI Hospital</p>
     </div>
     <!-- end copyrights -->
     <a href="#home" data-scroll class="dmtop global-radius"><i class="fa fa-angle-up"></i></a>

@@ -37,9 +37,17 @@ namespace BDCS.Controllers
         {
             _CommonBL = new CommonBL();
             _PatientBL = new PatientBL();
-            
+
         }
         #endregion
+
+        // Comma-separated ids of the Locations assigned to the logged-in user (System.UserLocation),
+        // cached in Session at login. Empty means "no Locations assigned" -> unrestricted (legacy behaviour).
+        private string GetUserLocationIdsCsv()
+        {
+            List<int> ids = Session["LocationIds"] as List<int>;
+            return ids != null && ids.Count > 0 ? string.Join(",", ids) : string.Empty;
+        }
 
         #region [AddEditPatient]
         public async Task<ActionResult> AddEditPatient(int patId = 0)
@@ -47,7 +55,12 @@ namespace BDCS.Controllers
             Patient pat = new Patient();
             if (patId > 0)
             {
-                pat = _PatientBL.GetPatientById(patId);
+                pat = _PatientBL.GetPatientById(patId, GetUserLocationIdsCsv());
+                if (pat.PatientId <= 0)
+                {
+                    // Either the patient doesn't exist, or it's tagged with a Location this user isn't assigned to.
+                    return RedirectToAction("GetPatientList", "Patient");
+                }
                 if (pat.DOB.HasValue && pat.DOB.Value.Date != DateTime.MinValue.Date)
                 {
                     int PatientAgeDays = Convert.ToInt32((DateTime.Now.Date - pat.DOB.Value.Date).TotalDays);
@@ -106,6 +119,10 @@ namespace BDCS.Controllers
 
             ViewBag.BloodGroupVB = BloodGroup.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
+            // Only the Locations this user is assigned to - a patient can only be registered against one of them.
+            Users currentUser = Session["User"] as Users;
+            List<KeyAndValuePair> userLocations = currentUser != null ? new UserBL().GetUserLocations(currentUser.UserId) : new List<KeyAndValuePair>();
+            ViewBag.LocationVB = userLocations.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
             return View(pat);
         }
@@ -150,7 +167,7 @@ namespace BDCS.Controllers
                 {
                     await Task.Run(() =>
                     {
-                        pat = _PatientBL.GetPatientList(searchText, clinicId);
+                        pat = _PatientBL.GetPatientList(searchText, clinicId, GetUserLocationIdsCsv());
                     });
                 }
                 ViewBag.SearchText = searchText;
@@ -299,6 +316,23 @@ namespace BDCS.Controllers
                     Users u = Session["User"] as Users;
                     pat.EnteredBy = u.UserId;
                     pat.ClinicId = Convert.ToInt32(Session["ClinicId"]);
+
+                    // Stamp the patient with a Location this user is actually assigned to - never trust the
+                    // posted LocationId blindly. A null LocationId on an update is a no-op (the proc keeps
+                    // whatever the patient already had), so this only ever narrows access, never un-assigns
+                    // a patient someone else correctly tagged earlier.
+                    List<int> allowedLocationIds = (Session["LocationIds"] as List<int>) ?? new List<int>();
+                    bool postedLocationIsAllowed = pat.LocationId.HasValue && allowedLocationIds.Contains(pat.LocationId.Value);
+                    if (pat.PatientId <= 0 && allowedLocationIds.Count == 1)
+                    {
+                        // New patient, operator has exactly one Location -> use it automatically.
+                        pat.LocationId = allowedLocationIds[0];
+                    }
+                    else if (!postedLocationIsAllowed)
+                    {
+                        pat.LocationId = null;
+                    }
+
                     result = await _PatientBL.InsertUpdatePatient(pat);
                     if (result>0)
                     {
@@ -536,7 +570,7 @@ namespace BDCS.Controllers
             if (patId != 0 && visitId != 0)
             {
                 await Task.Run(() =>
-                    Data = _PatientBL.GetPatientById(patId)
+                    Data = _PatientBL.GetPatientById(patId, GetUserLocationIdsCsv())
                );
             }
 
@@ -589,7 +623,7 @@ namespace BDCS.Controllers
             if (patId!=0 && visitId!=0)
             {
                 await Task.Run(() =>
-                    Data = _PatientBL.GetPatientById(patId)
+                    Data = _PatientBL.GetPatientById(patId, GetUserLocationIdsCsv())
                );
             }
 
@@ -644,8 +678,8 @@ namespace BDCS.Controllers
 
             if (patId != 0)
             {
-                Data = _PatientBL.GetPatientById(patId);
-               
+                Data = _PatientBL.GetPatientById(patId, GetUserLocationIdsCsv());
+
             }
             
             if (Data.DOB.HasValue && Data.DOB.Value.Date != DateTime.MinValue.Date)
@@ -1108,6 +1142,9 @@ namespace BDCS.Controllers
                         ? _user.GetRoleRightsAgainstRoles(roleIds)
                         : _user.GetRoleRightsAgainstRole(data.RoleId);
                     Session["Rights"] = Rights;
+                    // Locations (hospital sites) assigned to this user - drives which patients they can see/open.
+                    // Empty list means no restriction has been configured for them yet (see GetUserLocationIdsCsv).
+                    Session["LocationIds"] = _user.GetUserLocations(data.UserId).Select(a => Convert.ToInt32(a.Id)).ToList();
                     res.Code = 200;
                     res.DoFullRedirect = true;
                     res.IsSuccess = true;
@@ -1136,7 +1173,7 @@ namespace BDCS.Controllers
             if (patId != 0 && visitId != 0)
             {
                 await Task.Run(() =>
-                    Patient = _PatientBL.GetPatientById(patId)
+                    Patient = _PatientBL.GetPatientById(patId, GetUserLocationIdsCsv())
                );
             }
             ViewBag.Patient = Patient;
@@ -1429,7 +1466,7 @@ namespace BDCS.Controllers
             Patient pat = new Patient();
             if (PatientId> 0)
             {
-                pat = _PatientBL.GetPatientById(PatientId);
+                pat = _PatientBL.GetPatientById(PatientId, GetUserLocationIdsCsv());
             }
 
             return View(pat);
@@ -1691,7 +1728,7 @@ namespace BDCS.Controllers
 
             if (patientId!= 0 && visitId != 0)
             {
-                Data = _PatientBL.GetPatientById(patientId);
+                Data = _PatientBL.GetPatientById(patientId, GetUserLocationIdsCsv());
                 list = _PatientBL.GetPatientServiceAgainstVisit(visitId);
             }
 
@@ -1996,7 +2033,7 @@ namespace BDCS.Controllers
             fromDate = fromDate ?? DateTime.Now;
             toDate = toDate ?? DateTime.Now;
 
-            Data = _PatientBL.GetPatientListForMDTList(fromDate.Value, toDate.Value);
+            Data = _PatientBL.GetPatientListForMDTList(fromDate.Value, toDate.Value, GetUserLocationIdsCsv());
 
             ViewBag.FromDate = fromDate.Value;
             ViewBag.ToDate = toDate.Value;
@@ -2010,7 +2047,7 @@ namespace BDCS.Controllers
             fromDate = fromDate ?? DateTime.Now;
             toDate = toDate ?? DateTime.Now;
 
-            Data = _PatientBL.GetPatientListForMDTList(fromDate.Value, toDate.Value);
+            Data = _PatientBL.GetPatientListForMDTList(fromDate.Value, toDate.Value, GetUserLocationIdsCsv());
 
             DataTable dt = ToDataTable<VitalHistory>(Data);
 
@@ -2370,7 +2407,7 @@ namespace BDCS.Controllers
             fromDate = fromDate ?? DateTime.Now;
             toDate = toDate ?? DateTime.Now;
 
-            Data = _PatientBL.GetPatientListOfBMTForMDTList(fromDate.Value, toDate.Value);
+            Data = _PatientBL.GetPatientListOfBMTForMDTList(fromDate.Value, toDate.Value, GetUserLocationIdsCsv());
 
             ViewBag.FromDate = fromDate.Value;
             ViewBag.ToDate = toDate.Value;

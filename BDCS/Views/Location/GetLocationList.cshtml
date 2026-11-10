@@ -1,0 +1,82 @@
+@model List<BDCS.Model.RoleRights.Location>
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+
+<div class="admin-module">
+    <div class="container-fluid">
+
+        <div class="am-page-head">
+            <div>
+                <h3><i class="fa fa-map-marker"></i> Locations</h3>
+                <span class="am-subtitle">Hospital sites this system serves &mdash; e.g. PKLI Lahore, PKLI Rawalpindi</span>
+            </div>
+            <button type="button" class="btn btn-am-primary" onclick="AddEditLocation(0);">
+                <i class="fa fa-plus"></i> Add Location
+            </button>
+        </div>
+
+        <div class="am-card">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="am-table">
+                        <thead>
+                            <tr>
+                                <th>Location</th>
+                                <th>Status</th>
+                                <th style="width:60px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (BDCS.Model.RoleRights.Location item in Model)
+                            {
+                                <tr>
+                                    <td><strong>@item.LocationName</strong></td>
+                                    <td>
+                                        @if (item.IsActive)
+                                        {
+                                            <span class="am-pill am-pill-active"><i class="fa fa-circle"></i> Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="am-pill am-pill-inactive"><i class="fa fa-circle"></i> Inactive</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a href="#" title="Edit" onclick="AddEditLocation(@item.LocationId); return false;">
+                                            <i class="fa fa-pencil"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="am-empty">
+                    <i class="fa fa-map-marker"></i>
+                    No locations configured yet.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function AddEditLocation(locationId) {
+        var url = '@Url.Action("AddEditLocation", "Location")' + '/?LocationId=' + locationId;
+        OpenPopup(url, locationId > 0 ? "Edit Location" : "Add Location");
+    }
+
+    function ReloadLocationList() {
+        loadPage('@Url.Action("GetLocationList", "Location")', "GetLocationList");
+    }
+
+</script>

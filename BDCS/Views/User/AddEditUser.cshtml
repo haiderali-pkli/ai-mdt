@@ -5,8 +5,10 @@
     bool isEdit = Model.UserId > 0;
     List<BDCS.Model.RoleRights.Role> RoleList = ViewBag.RoleList ?? new List<BDCS.Model.RoleRights.Role>();
     List<BDCS.Model.RoleRights.Clinic> ClinicList = ViewBag.ClinicList ?? new List<BDCS.Model.RoleRights.Clinic>();
+    List<BDCS.Model.RoleRights.Location> LocationList = ViewBag.LocationList ?? new List<BDCS.Model.RoleRights.Location>();
     List<int> SelectedRoleIds = Model.RoleIds ?? new List<int>();
     List<int> SelectedClinicIds = Model.ClinicIds ?? new List<int>();
+    List<int> SelectedLocationIds = Model.LocationIds ?? new List<int>();
 }
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@500&amp;display=swap" rel="stylesheet">
@@ -149,7 +151,7 @@
     <div class="au-head">
         <div>
             <h1>@(isEdit ? "Edit user" : "Add user")</h1>
-            <p>@(isEdit ? "Update this person's account, roles and locations." : "Create an account and choose what this person can do and where.")</p>
+            <p>@(isEdit ? "Update this person's account, roles, MDT types and locations." : "Create an account and choose what this person can do and where.")</p>
         </div>
         <div class="au-head-actions">
             <button type="button" class="au-btn" id="auClearBtn">@(isEdit ? "Cancel" : "Clear form")</button>
@@ -242,13 +244,25 @@
             <section class="au-card" aria-labelledby="au-sec-locs">
                 <div class="au-card-head">
                     <div>
-                        <h2 id="au-sec-locs">Locations</h2>
-                        <p>Where this user can work and see patients.</p>
+                        <h2 id="au-sec-locs">MDT Types</h2>
+                        <p>Which MDT types (e.g. MDT, MDT BMT) this user can access.</p>
                     </div>
                     <button type="button" class="au-btn" id="auToggleAllLocs" style="min-height:40px;padding:0 12px;color:var(--au-teal);">Select all</button>
                 </div>
                 <div class="au-locs" id="auLocs"></div>
-                <p class="au-err" id="auLocsErr" style="margin:12px 0 0;" hidden>Choose at least one location.</p>
+                <p class="au-err" id="auLocsErr" style="margin:12px 0 0;" hidden>Choose at least one MDT type.</p>
+            </section>
+
+            <section class="au-card" aria-labelledby="au-sec-reallocs">
+                <div class="au-card-head">
+                    <div>
+                        <h2 id="au-sec-reallocs">Locations</h2>
+                        <p>Which hospital site(s) this user works from.</p>
+                    </div>
+                    <button type="button" class="au-btn" id="auToggleAllRealLocs" style="min-height:40px;padding:0 12px;color:var(--au-teal);">Select all</button>
+                </div>
+                <div class="au-locs" id="auRealLocs"></div>
+                <p class="au-err" id="auRealLocsErr" style="margin:12px 0 0;" hidden>Choose at least one location.</p>
             </section>
         </div>
 
@@ -269,13 +283,19 @@
             </div>
 
             <div class="au-aside-block">
-                <h3>Locations</h3>
+                <h3>MDT Types</h3>
                 <p class="au-none" id="auNoLocs">None selected yet</p>
                 <div class="au-chiprow" id="auPickedLocs"></div>
             </div>
 
             <div class="au-aside-block">
-                <h3 id="auReadyTitle">Ready to create &middot; 0 of 5</h3>
+                <h3>Locations</h3>
+                <p class="au-none" id="auNoRealLocs">None selected yet</p>
+                <div class="au-chiprow" id="auPickedRealLocs"></div>
+            </div>
+
+            <div class="au-aside-block">
+                <h3 id="auReadyTitle">Ready to create &middot; 0 of 6</h3>
                 <ul class="au-checks" id="auChecks"></ul>
             </div>
 
@@ -298,8 +318,15 @@
         <text>{ id: @c.ClinicId, name: @Html.Raw(Json.Encode(c.ClinicName)) },</text>
     }
     ];
+    var REALLOCS = [
+    @foreach (var l in LocationList)
+    {
+        <text>{ id: @l.LocationId, name: @Html.Raw(Json.Encode(l.LocationName)) },</text>
+    }
+    ];
     var SELECTED_ROLES = [@string.Join(",", SelectedRoleIds)];
     var SELECTED_LOCS = [@string.Join(",", SelectedClinicIds)];
+    var SELECTED_REALLOCS = [@string.Join(",", SelectedLocationIds)];
 
     var ROLE_META = {
         admin: { desc: 'Manage users, lookups and settings', icon: 'shield' },
@@ -337,11 +364,13 @@
         active: true,
         roles: {},
         locs: {},
+        realLocs: {},
         tried: false,
         saving: false
     };
     SELECTED_ROLES.forEach(function (id) { state.roles[id] = true; });
     SELECTED_LOCS.forEach(function (id) { state.locs[id] = true; });
+    SELECTED_REALLOCS.forEach(function (id) { state.realLocs[id] = true; });
 
     @if (isEdit)
     {
@@ -369,9 +398,11 @@
 
         var pickedRoleIds = Object.keys(state.roles).filter(function (k) { return state.roles[k]; }).map(Number);
         var pickedLocIds = Object.keys(state.locs).filter(function (k) { return state.locs[k]; }).map(Number);
+        var pickedRealLocIds = Object.keys(state.realLocs).filter(function (k) { return state.realLocs[k]; }).map(Number);
         var rolesOk = pickedRoleIds.length > 0;
         var locsOk = pickedLocIds.length > 0;
-        var allOk = nameOk && loginOk && pwOk && rolesOk && locsOk;
+        var realLocsOk = pickedRealLocIds.length > 0;
+        var allOk = nameOk && loginOk && pwOk && rolesOk && locsOk && realLocsOk;
         var t = state.tried;
 
         // ----- account fields -----
@@ -423,6 +454,15 @@
         el('auToggleAllLocs').textContent = (pickedLocIds.length === LOCS.length && LOCS.length > 0) ? 'Clear all' : 'Select all';
         el('auLocsErr').hidden = !(t && !locsOk);
 
+        // ----- real locations (hospital sites) -----
+        el('auRealLocs').innerHTML = REALLOCS.map(function (l) {
+            var on = !!state.realLocs[l.id];
+            var cls = 'au-loc' + (on ? ' on' : '') + ((t && !realLocsOk) ? ' au-bad' : '');
+            return '<button type="button" class="' + cls + '" data-realloc="' + l.id + '" aria-pressed="' + on + '">' + ICONS.pin + l.name + '</button>';
+        }).join('');
+        el('auToggleAllRealLocs').textContent = (pickedRealLocIds.length === REALLOCS.length && REALLOCS.length > 0) ? 'Clear all' : 'Select all';
+        el('auRealLocsErr').hidden = !(t && !realLocsOk);
+
         // ----- sidebar summary -----
         var initials = name ? name.split(/\s+/).slice(0, 2).map(function (w) { return w.charAt(0).toUpperCase(); }).join('') : '?';
         el('auInitials').textContent = initials;
@@ -441,12 +481,17 @@
         el('auNoLocs').hidden = pickedLocNames.length > 0;
         el('auPickedLocs').innerHTML = pickedLocNames.map(function (n) { return '<span class="au-chip-loc">' + n + '</span>'; }).join('');
 
+        var pickedRealLocNames = REALLOCS.filter(function (l) { return state.realLocs[l.id]; }).map(function (l) { return l.name; });
+        el('auNoRealLocs').hidden = pickedRealLocNames.length > 0;
+        el('auPickedRealLocs').innerHTML = pickedRealLocNames.map(function (n) { return '<span class="au-chip-loc">' + n + '</span>'; }).join('');
+
         var checks = [
             { label: 'Full name', done: nameOk },
             { label: 'Login ID', done: loginOk },
             { label: isEdit ? 'Password (optional)' : 'Password (8+ characters)', done: pwOk },
             { label: 'At least one role', done: rolesOk },
-            { label: 'At least one location', done: locsOk }
+            { label: 'At least one MDT type', done: locsOk },
+            { label: 'At least one location', done: realLocsOk }
         ];
         var doneCount = checks.filter(function (c) { return c.done; }).length;
         el('auReadyTitle').textContent = (isEdit ? 'Ready to save' : 'Ready to create') + ' \u00B7 ' + doneCount + ' of ' + checks.length;
@@ -457,7 +502,7 @@
 
         [el('auSaveBtn1'), el('auSaveBtn2')].forEach(function (b) { b.disabled = state.saving; });
 
-        return { allOk: allOk, pickedRoleIds: pickedRoleIds, pickedLocIds: pickedLocIds, name: name };
+        return { allOk: allOk, pickedRoleIds: pickedRoleIds, pickedLocIds: pickedLocIds, pickedRealLocIds: pickedRealLocIds, name: name };
     }
 
     function set(patch) {
@@ -526,6 +571,23 @@
         set({ locs: n });
     });
 
+    el('auRealLocs').addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-realloc]');
+        if (!btn) return;
+        var id = btn.getAttribute('data-realloc');
+        var n = Object.assign({}, state.realLocs);
+        n[id] = !n[id];
+        set({ realLocs: n });
+    });
+
+    el('auToggleAllRealLocs').addEventListener('click', function () {
+        var pickedCount = Object.keys(state.realLocs).filter(function (k) { return state.realLocs[k]; }).length;
+        var allOn = pickedCount === REALLOCS.length && REALLOCS.length > 0;
+        var n = {};
+        if (!allOn) REALLOCS.forEach(function (l) { n[l.id] = true; });
+        set({ realLocs: n });
+    });
+
     el('auClearBtn').addEventListener('click', function () {
         if (isEdit) {
             window.location.href = '@Url.Action("SearchByUserName", "User")';
@@ -537,7 +599,7 @@
         el('auPw').type = 'password';
         el('auEyeOpen').hidden = false;
         el('auEyeClosed').hidden = true;
-        state = { name: '', login: '', pw: '', showPw: false, active: true, roles: {}, locs: {}, tried: false, saving: false };
+        state = { name: '', login: '', pw: '', showPw: false, active: true, roles: {}, locs: {}, realLocs: {}, tried: false, saving: false };
         render();
     });
 
@@ -562,7 +624,8 @@
                 Active: state.active
             },
             RoleIds: r.pickedRoleIds,
-            ClinicIds: r.pickedLocIds
+            ClinicIds: r.pickedLocIds,
+            LocationIds: r.pickedRealLocIds
         };
 
         $.ajax({
@@ -582,7 +645,7 @@
                         el('auSuccessBanner').hidden = false;
                         el('auSuccessBanner').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                         el('auName').value = ''; el('auLogin').value = ''; el('auPw').value = '';
-                        state = { name: '', login: '', pw: '', showPw: false, active: true, roles: {}, locs: {}, tried: false, saving: false };
+                        state = { name: '', login: '', pw: '', showPw: false, active: true, roles: {}, locs: {}, realLocs: {}, tried: false, saving: false };
                         render();
                     }
                 } else {

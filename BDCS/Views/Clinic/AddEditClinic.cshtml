@@ -14,8 +14,8 @@
             <div class="row">
                 <div class="col-sm-12">
                     <div class="form-group">
-                        <label>Location Name</label>
-                        @Html.TextBoxFor(a => a.ClinicName, new { @class = "form-control", placeholder = "e.g. PKLI Rawalpindi", required = "required" })
+                        <label>MDT Type Name</label>
+                        @Html.TextBoxFor(a => a.ClinicName, new { @class = "form-control", placeholder = "e.g. MDT, MDT BMT", required = "required" })
                     </div>
                 </div>
             </div>
@@ -45,7 +45,7 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-am-light" onclick="ClosePopup();">Cancel</button>
-            <button type="submit" class="btn btn-am-primary"><i class="fa fa-save"></i> Save Location</button>
+            <button type="submit" class="btn btn-am-primary"><i class="fa fa-save"></i> Save MDT Type</button>
         </div>
     </form>
 </div>

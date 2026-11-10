@@ -43,6 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClinicDAL.cs" />
+    <Compile Include="LocationDAL.cs" />
     <Compile Include="CommonDAL.cs" />
     <Compile Include="Helpers\DbParameters.cs" />
     <Compile Include="Helpers\IDBManger.cs" />

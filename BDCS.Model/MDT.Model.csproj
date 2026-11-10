@@ -48,6 +48,7 @@
     <Compile Include="Patient\PatientAlert.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoleRights\Clinic.cs" />
+    <Compile Include="RoleRights\Location.cs" />
     <Compile Include="RoleRights\Menu.cs" />
     <Compile Include="RoleRights\Role.cs" />
     <Compile Include="RoleRights\RoleRight.cs" />

@@ -53,6 +53,12 @@ namespace BDCS.Bussiness
 
         public async Task<int> InsertUpdateUserClinics(int userId, List<int> clinicIds)
             => await _userDAL.InsertUpdateUserClinics(userId, string.Join(",", clinicIds ?? new List<int>()));
+
+        public List<KeyAndValuePair> GetUserLocations(int userId)
+            => _userDAL.GetUserLocations(userId);
+
+        public async Task<int> InsertUpdateUserLocations(int userId, List<int> locationIds)
+            => await _userDAL.InsertUpdateUserLocations(userId, string.Join(",", locationIds ?? new List<int>()));
     }
 }
 

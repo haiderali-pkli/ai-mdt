@@ -25,7 +25,7 @@ namespace BDCS.Bussiness
         }
 
 
-        public List<Patient> GetPatientList(string searchText,int clinicId) => _patientBL.PatientSearchByText("PatientSearchByText", "Clinical", searchText,clinicId);
+        public List<Patient> GetPatientList(string searchText,int clinicId,string locationIdsCsv="") => _patientBL.PatientSearchByText("PatientSearchByText", "Clinical", searchText,clinicId,locationIdsCsv);
         public List<Patient> GetFollowupPatientsForDate(DateTime date) => _patientBL.GetFollowupPatientsForDate(date);
         public async Task<int> InsertUpdatePatient(Patient patient) =>await _patientBL.InsertUpdatePatient(patient, "InsertUpdatePatient", "Clinical");
 
@@ -35,8 +35,8 @@ namespace BDCS.Bussiness
         public async Task<int> ToggleDiscussionStatus(int patientId) => await _patientBL.ToggleDiscussionStatus(patientId);
         public async Task<int> CreateVisit(Visit vist) => await _patientBL.CreateVisit(vist, "InsertUpdateVisit", "Clinical");
 
-        public Patient GetPatientById(int patId) => _patientBL.GetPatientById(patId, "GetPatientById", "Clinical");
-        public List<Patient> GetPatientByIdForRpt(int patId) => _patientBL.GetPatientByIdForRpt(patId, "GetPatientById", "Clinical");
+        public Patient GetPatientById(int patId,string locationIdsCsv="") => _patientBL.GetPatientById(patId, "GetPatientById", "Clinical",locationIdsCsv);
+        public List<Patient> GetPatientByIdForRpt(int patId,string locationIdsCsv="") => _patientBL.GetPatientByIdForRpt(patId, "GetPatientById", "Clinical",locationIdsCsv);
         public List<LabReports> GetLabOrders(int visitId) => _patientBL.GetLabOrders("GetLabOrders", "Clinical", visitId);
 
         public List<LabReports> GetLabOrdersAgainstPreviousVisits(int visitId) => _patientBL.GetLabOrders("GetLabOrdersAgainstPreviousVisits", "Clinical", visitId);
@@ -269,8 +269,8 @@ namespace BDCS.Bussiness
             => _patientBL.GetVisitListAgainstSearch(ChildStatus, MeldStatus, BCLCStatus, ECOG, TreatmentResponse,
             MdtOutcome, HepatitisStatus, AscitiesStatus, Svr, OtherComorbidities, AngioInvasion, AFP, LiverCirrhosis, PortalHypertension, Varices, MeetingMilan, UCSF, ASAN);
 
-        public List<VitalHistory> GetPatientListForMDTList(DateTime fromDate, DateTime toDate)
-            => _patientBL.GetPatientListForMDTList(fromDate, toDate);
+        public List<VitalHistory> GetPatientListForMDTList(DateTime fromDate, DateTime toDate, string locationIdsCsv="")
+            => _patientBL.GetPatientListForMDTList(fromDate, toDate, locationIdsCsv);
 
 
         #region [BMT]
@@ -375,8 +375,8 @@ namespace BDCS.Bussiness
         public List<LabReportsBMT> GetPreviousVisitLabTestsBMT(int patientId, int visitId)
             => _patientBL.GetPreviousVisitLabTestsBMT(patientId, visitId);
 
-        public List<VitalHistoryBMT> GetPatientListOfBMTForMDTList(DateTime fromDate, DateTime toDate)
-            => _patientBL.GetPatientListOfBMTForMDTList(fromDate, toDate);
+        public List<VitalHistoryBMT> GetPatientListOfBMTForMDTList(DateTime fromDate, DateTime toDate, string locationIdsCsv="")
+            => _patientBL.GetPatientListOfBMTForMDTList(fromDate, toDate, locationIdsCsv);
         #endregion
     }
 

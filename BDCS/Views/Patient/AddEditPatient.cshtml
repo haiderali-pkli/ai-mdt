@@ -1,279 +1,295 @@
-﻿@model BDCS.Model.Patient.Patient
+@model BDCS.Model.Patient.Patient
 
 @{
     if (Request.IsAjaxRequest())
     {
         Layout = null;
     }
+    bool IsNewPatient = Model.PatientId == 0;
 }
-
-
-<style type="text/css">
-    input[required], select[required]
-    {
-        border: 1px solid #ff0000;
-    }
-</style>
 
 <script src="~/Scripts/webcamjs-master/webcam.min.js"></script>
 
-<div class="container-fluid">
+<div class="admin-module">
+    <form id="PatientForm" action="@Url.Action("InsertUpdatePatient","Patient")" enctype="multipart/form-data" method="post" onsubmit="return SaveData();">
+        @Html.HiddenFor(a => Model.PatientId)
+        @Html.HiddenFor(a => a.ImageURL)
 
+        <div class="am-form-grid">
+                <div class="am-form-main">
 
-    <div class="row">
-        <div class="col-sm-12">
-            @*If type of button is submit then it will call, not for plain button*@
-            <form id="PatientForm" action="@Url.Action("InsertUpdatePatient","Patient")" enctype="multipart/form-data" method="post" onsubmit="return SaveData();">
-                @Html.HiddenFor(a => Model.PatientId)
-                @Html.HiddenFor(a=> a.ImageURL)
-                
-                
-                <div class="row">
-                   
-                   <h3 class="heading">
-                       Patient Demographics   
-                       @*<button type="button" style="margin-top:1px;margin-right: 2px" class="btn btn-primary pull-right" onclick="SavePatientAndCreateVisit();"><span class="glyphicon glyphicon-save"></span> Save &amp; Create Visit</button>*@
-                    </h3>
+                    <div class="am-rolecard">
+                        <div class="am-rolecard-body">
+                            <div class="am-rolecard-head-row" style="margin-bottom:14px;">
+                                <div>
+                                    <div class="am-rolecard-title">Registration</div>
+                                    <span class="am-subtitle">Hospital identifiers for this patient.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Registration Date</label>
+                                        @Html.TextBoxFor(a => a.EnteredOn, Model.EnteredOn.HasValue ? Model.EnteredOn.Value.ToString("dd-MM-yyyy") : "", new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>MRN</label>
+                                        @Html.TextBoxFor(a => a.MrNumber, new { @class = "form-control", @readonly = "readonly" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Hospital No.<span class="am-required">*</span></label>
+                                        @Html.TextBoxFor(a => a.HospitalNumber, new { @class = "form-control", @required = "required" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Location</label>
+                                        @Html.DropDownListFor(a => a.LocationId, (List<SelectListItem>)ViewBag.LocationVB, "--Select--", new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="am-rolecard">
+                        <div class="am-rolecard-body">
+                            <div class="am-rolecard-head-row" style="margin-bottom:14px;">
+                                <div>
+                                    <div class="am-rolecard-title">Demographics</div>
+                                    <span class="am-subtitle">Who the patient is.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>First Name<span class="am-required">*</span></label>
+                                        @Html.TextBoxFor(a => a.FirstName, new { @class = "form-control", @required = "required" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Last Name<span class="am-required">*</span></label>
+                                        @Html.TextBoxFor(a => a.LastName, new { @class = "form-control", @required = "required" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Relationship</label>
+                                        @Html.DropDownListFor(a => a.Relationship, (List<SelectListItem>)ViewBag.RelationshipVB, "--Select--", new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Father / Spouse Name</label>
+                                        @Html.TextBoxFor(a => a.FatherSpouseName, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-4 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Gender<span class="am-required">*</span></label>
+                                        @Html.DropDownListFor(a => a.GenderId, (List<SelectListItem>)ViewBag.GenderVB, "--Select--", new { @class = "form-control", @required = "required" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Age<span class="am-required">*</span></label>
+                                        <div style="display:flex; gap:8px;">
+                                            @Html.TextBoxFor(a => a.Age, new { @class = "form-control", @required = "required", style = "flex:1 1 55%;" })
+                                            @Html.DropDownListFor(a => a.AgeUnit, (List<SelectListItem>)ViewBag.AgeUnit, new { @class = "form-control", style = "flex:1 1 45%;" })
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Date of Birth</label>
+                                        @Html.TextBoxFor(a => a.DOB, Model.DOB.HasValue ? Model.DOB.Value.ToString("dd-MMM-yyyy") : "", new { @class = "form-control datepicker" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="am-rolecard">
+                        <div class="am-rolecard-body">
+                            <div class="am-rolecard-head-row" style="margin-bottom:14px;">
+                                <div>
+                                    <div class="am-rolecard-title">Address &amp; Contact</div>
+                                    <span class="am-subtitle">How and where to reach this patient.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Country</label>
+                                        @Html.DropDownListFor(a => a.CountryId, (List<SelectListItem>)ViewBag.CountryVB, "--Select--", new { @class = "form-control AddressField", onchange = "LoadProvince();", id = "CountryId" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Province</label>
+                                        @Html.DropDownListFor(a => a.ProvinceId, new List<SelectListItem>(), new { @class = "form-control AddressField", onchange = "LoadDistrict();", id = "ProvinceId" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>District</label>
+                                        @Html.DropDownListFor(a => a.DistrictId, new List<SelectListItem>(), new { @class = "form-control AddressField", id = "districtId" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Address</label>
+                                        @Html.TextBoxFor(a => a.Address, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Mobile<span class="am-required">*</span></label>
+                                        @Html.TextBoxFor(a => a.MobileNumber, new { @class = "form-control", @required = "required" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Contact Number</label>
+                                        @Html.TextBoxFor(a => a.ContactNumber, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        @Html.TextBoxFor(a => a.EmailId, new { @class = "form-control", type = "email" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Referred By</label>
+                                        @Html.TextBoxFor(a => a.ReferredBy, new { @class = "form-control", @list = "ReferredbyDL" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="am-rolecard">
+                        <div class="am-rolecard-body">
+                            <div class="am-rolecard-head-row" style="margin-bottom:14px;">
+                                <div>
+                                    <div class="am-rolecard-title">Other Details</div>
+                                    <span class="am-subtitle">Optional clinical and background information.</span>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Ethnicity</label>
+                                        @Html.TextBoxFor(a => a.Ethnicity, new { @class = "form-control", @list = "dlEthnicity" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Blood Group</label>
+                                        @Html.DropDownListFor(a => a.BloodGroupId, (List<SelectListItem>)ViewBag.BloodGroupVB, "--Select--", new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>&nbsp;</label>
+                                        <div style="height:34px; display:flex; align-items:center;">
+                                            <label style="font-weight:500; margin:0;">
+                                                @Html.CheckBoxFor(a => a.IsDiabeties, new { style = "width:16px; height:16px; margin-right:7px; vertical-align:middle;" })
+                                                Diabetic
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Comments</label>
+                                        @Html.TextBoxFor(a => a.Comments, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="am-rolecard">
+                        <div class="am-rolecard-body">
+                            <div class="am-rolecard-head-row" style="margin-bottom:14px;">
+                                <div>
+                                    <div class="am-rolecard-title">Photo</div>
+                                    <span class="am-subtitle">Upload a picture, or capture one with the webcam.</span>
+                                </div>
+                            </div>
+                            <div id="my_camera"></div>
+                            <div id="results"></div>
+                            <div class="row">
+                                <div class="col-sm-4 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Image file</label>
+                                        <input type="file" name="PatientImage" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-4 col-xs-6">
+                                    <label>&nbsp;</label>
+                                    <div>
+                                        <button type="button" class="btn btn-am-light" onclick="InitiliazeCamera();"><i class="fa fa-video-camera"></i> Camera</button>
+                                        <button type="button" class="btn btn-am-light" onclick="take_snapshot();"><i class="fa fa-camera"></i> Capture</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
 
+                <div class="am-form-side">
+                    <div class="am-rolecard">
+                        <div class="am-rolecard-body">
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <span class="am-preview-avatar" id="PreviewAvatar">?</span>
+                                <span>
+                                    <span class="am-preview-name" id="PreviewName">@(IsNewPatient ? "New patient" : Model.FullName)</span>
+                                    <span class="am-preview-sub" id="PreviewHospitalNo">@(string.IsNullOrEmpty(Model.HospitalNumber) ? "No hospital number yet" : Model.HospitalNumber)</span>
+                                </span>
+                            </div>
 
+                            <div class="am-preview-section-label">Gender / Age</div>
+                            <div class="am-preview-value am-preview-empty" id="PreviewGenderAge">Not set</div>
 
-                <div class="row">
+                            <div class="am-preview-section-label">Location</div>
+                            <div class="am-preview-value am-preview-empty" id="PreviewLocation">No location set</div>
 
-                    
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>Registration Date</label>
-                            @Html.TextBoxFor(a => a.EnteredOn, Model.EnteredOn.HasValue ? Model.EnteredOn.Value.ToString("dd-MM-yyyy") : "", new { @class = "form-control", @readonly = "readonly"})
+                            <div class="am-preview-section-label" id="ReadyLabel">@(IsNewPatient ? "READY TO REGISTER" : "READY TO SAVE") &middot; 0 OF 6</div>
+                            <ul class="am-checklist" id="ReadyChecklist">
+                                <li data-check="firstname"><i class="fa fa-circle-o"></i> First name</li>
+                                <li data-check="lastname"><i class="fa fa-circle-o"></i> Last name</li>
+                                <li data-check="hospitalno"><i class="fa fa-circle-o"></i> Hospital number</li>
+                                <li data-check="gender"><i class="fa fa-circle-o"></i> Gender</li>
+                                <li data-check="age"><i class="fa fa-circle-o"></i> Age</li>
+                                <li data-check="mobile"><i class="fa fa-circle-o"></i> Mobile number</li>
+                            </ul>
+
+                            <button type="submit" class="btn btn-am-primary" id="SidePreviewSubmit" style="width:100%; margin-top:14px;">
+                                <i class="fa fa-save"></i> @(IsNewPatient ? "Register patient" : "Save changes")
+                            </button>
                         </div>
-                    </div>
-
-                    @*<div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>Diagnosis</label>
-                            @Html.DropDownListFor(a => a.DiagnosisId, (List<SelectListItem>)ViewBag.DiagnosisVB, "--Select--", new { @class = "form-control" })
-                     
-                        </div>
-                    </div>*@
-
-              
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>MRN</label>
-                            @Html.TextBoxFor(a => a.MrNumber, new { @class = "form-control", @readonly = "readonly" })
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>Hospital No.</label>
-                            @Html.TextBoxFor(a => a.HospitalNumber, new { @class = "form-control",@required="required" })
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>Location</label>
-                            @Html.DropDownListFor(a => a.LocationId, (List<SelectListItem>)ViewBag.LocationVB, "--Select--", new { @class = "form-control" })
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>First Name</label>
-                            @Html.TextBoxFor(a => a.FirstName, new { @class = "form-control", @required = "required" })
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>Last Name</label>
-                            @Html.TextBoxFor(a => a.LastName, new { @class = "form-control", @required = "required" })
-                        </div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>Relationship</label>
-                            @Html.DropDownListFor(a => a.Relationship, (List<SelectListItem>)ViewBag.RelationshipVB, "--Select--", new { @class = "form-control" })
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>Father Spouse Name</label>
-                            @Html.TextBoxFor(a => a.FatherSpouseName, new { @class = "form-control" })
-                        </div>
-                    </div>
-
-
-                    <div class="col-sm-3 col-xs-3">
-                        <div class="form-group">
-                            <label>Gender</label>
-                            @Html.DropDownListFor(a => a.GenderId, (List<SelectListItem>)ViewBag.GenderVB, "--Select--", new { @class = "form-control", @required = "required" })
-                        </div>
-                    </div>
-
-                    <div class="col-sm-1 col-xs-6">
-                        <div class="form-group">
-                            <label>Age</label>
-                            @Html.TextBoxFor(a => a.Age, new { @class = "form-control", @required = "required" })
-                        </div>
-                    </div>
-
-                    <div class="col-sm-2 col-xs-6">
-                        <div class="form-group">
-                            <label>&nbsp;</label>
-                            @Html.DropDownListFor(a => a.AgeUnit, (List<SelectListItem>)ViewBag.AgeUnit, new { @class = "form-control"})
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>Date of Birth</label>
-                            @Html.TextBoxFor(a => a.DOB, Model.DOB.HasValue ? Model.DOB.Value.ToString("dd-MMM-yyyy") : "", new { @class = "form-control datepicker" })
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 col-xs-3">
-                        <div class="form-group">
-                            <label>Country</label>
-                            @*a is anyonymus object which is declear and a.means model (patient) assing the value to a.countryid*@
-                            @Html.DropDownListFor(a => a.CountryId, (List<SelectListItem>)ViewBag.CountryVB, "--Select--", new { @class = "form-control AddressField", onchange = "LoadProvince();", id = "CountryId" })
-                        </div>
-                    </div>
-
-                    <div class="cols-sm-3 col-xs-3">
-                        <div class="form-group">
-                            <label>Province</label>
-                            @Html.DropDownListFor(a => a.ProvinceId, new List<SelectListItem>(), new { @class = "form-control AddressField", onchange = "LoadDistrict();", id = "ProvinceId" })
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 col-xs-3">
-                        <div class="form-group">
-                            <label>District</label>
-                            @Html.DropDownListFor(a => a.DistrictId, new List<SelectListItem>(), new { @class = "form-control AddressField", id = "districtId" })
-                        </div>
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>Address</label>
-                            @Html.TextBoxFor(a => a.Address, new { @class = "form-control" })
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>Mobile</label>
-                            @Html.TextBoxFor(a => a.MobileNumber, new { @class = "form-control",@required="required" })
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>Contact Number</label>
-                            @Html.TextBoxFor(a => a.ContactNumber, new { @class = "form-control" })
-                        </div>
-                    </div>
-
-           
-
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>Ethnicity</label>
-                            @Html.TextBoxFor(a => a.Ethnicity, new { @class = "form-control" ,@list="dlEthnicity"})
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>email</label>
-                            @Html.TextBoxFor(a => a.EmailId, new { @class = "form-control", type = "email"})
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>Referred By</label>
-                            @Html.TextBoxFor(a => a.ReferredBy, new { @class = "form-control", @list= "ReferredbyDL" })
-                        </div>
-                    </div>
-
-                    <div class="col-sm-3 col-xs-6">
-                        <div class="form-group">
-                            <label>Comments</label>
-                            @Html.TextBoxFor(a => a.Comments, new { @class = "form-control" })
-                        </div>
-                    </div>
-                
-                    <div class="col-sm-3 col-xs-6" style="margin-top:10px">
-                            <label>Diabeties</label>
-                            @Html.CheckBoxFor(a => a.IsDiabeties, new { @style = " width: 25px; height: 15px; " })
-                    </div>
-                    <div class="col-sm-3 col-xs-6">
-                        <label>Blood Group</label>
-                        @Html.DropDownListFor(a => a.BloodGroupId, (List<SelectListItem>)ViewBag.BloodGroupVB, "--Select--", new { @class = "form-control"})
                     </div>
                 </div>
-
-
-
-
-                @*<input type=button value="Start Camera" style="margin-top:7px"; onClick="InitiliazeCamera()">*@
-                @*<input type=button value="Take Snapshot" style="margin-top:7px"; onClick="take_snapshot()">*@
-
-                <div id="my_camera">
-
-
-
-
-                </div>
-
-
-                <div id="results">
-
-
-                </div>
-
-                <div class="row" style="padding-bottom: 30px;">
-                    <div class="col-sm-2 col-xs-6">
-                        <div class="form-group">
-                            <label>Image</label>
-                            <input type="file" name="PatientImage" />
-
-                        </div>
-                    </div>
-
-
-                    <div class="col-sm-1 col-sm-offset-1 col-xs-6">
-                        <button type="button" style="margin-top:8px" class="btn btn-warning" onclick="InitiliazeCamera();"><span class="glyphicon glyphicon-facetime-video"></span> Camera</button>
-
-                    </div>
-
-
-                    <div class="col-sm-1 col-xs-6">
-                        <button type="button" style="margin-top:8px" class="btn btn-success" onclick="take_snapshot();"><span class="glyphicon glyphicon-camera "></span> Capture</button>
-                    </div>
-
-
-                    <div class="col-sm-offset-5 col-sm-1">
-                        <button type="submit" style="margin-top:8px" class="btn btn-success  pull-right"><span class="glyphicon glyphicon-save"></span> Save</button>
-                    </div>
-
-
-                    <div class="col-sm-1">
-                        <button type="button" style="margin-top:8px" class="btn btn-danger  pull-right" onclick="ClosePopup(); loadPage('@Url.Action("GetPatientList", "Patient", new { PreloadList="Yes"})')"><span class="glyphicon glyphicon-eye-close "></span> Close  </button>
-
-                    </div>
-                </div>
-            </form>
-
-
-
         </div>
-    </div>
+
+        <div class="am-sticky-footer" style="margin: 0 -22px -22px;">
+            <button type="button" class="btn btn-am-light" onclick="ClosePopup(); loadPage('@Url.Action("GetPatientList", "Patient", new { PreloadList="Yes"})')"><i class="fa fa-times"></i> Close</button>
+            <button type="submit" class="btn btn-am-primary"><i class="fa fa-save"></i> Save</button>
+        </div>
+    </form>
 </div>
 
 <datalist id="ReferredbyDL">
@@ -298,9 +314,14 @@
         $(document).on("change", ".AddressField", function () {
             CreatePatientAddress();
         });
+
+        $(document).on("change keyup", "#PatientForm input, #PatientForm select", function () {
+            UpdatePatientPreview();
+        });
+
+        UpdatePatientPreview();
     });
 
-   
 
 
     function InitiliazeCamera() {
@@ -316,7 +337,7 @@
     function CreatePatientAddress()
     {
 
-        
+
         var Country = $("#CountryId option:selected").text();
         var Province = $("#ProvinceId option:selected").text();
         var District = $("#districtId option:selected").text();
@@ -341,13 +362,6 @@
             DoesHospitalNumberAlreadyExist();
         });
 
-        //Webcam.set({
-        //    width: 320,
-        //    height: 240,
-        //    image_format: 'jpeg',
-        //    jpeg_quality: 90
-        //});
-        //Webcam.attach('#my_camera');
     }
 
     function take_snapshot() {
@@ -361,7 +375,7 @@
     }
 
     function LoadProvince() {
-   
+
         var VcountryId = $("#CountryId").val();
         if (VcountryId<0) {
 
@@ -410,6 +424,67 @@
             });
         }
     }
+
+    function initials(firstName, lastName) {
+        var f = (firstName || "").trim();
+        var l = (lastName || "").trim();
+        if (!f && !l) return "?";
+        var result = f ? f.substring(0, 1) : "";
+        result += l ? l.substring(0, 1) : "";
+        return result.toUpperCase() || "?";
+    }
+
+    function SetChecklistItem(selector, met) {
+        var li = $(selector);
+        li.toggleClass("am-met", met);
+        li.find("i").attr("class", met ? "fa fa-check-circle" : "fa fa-circle-o");
+        return met;
+    }
+
+    function UpdatePatientPreview() {
+        var firstName = $.trim($("#FirstName").val());
+        var lastName = $.trim($("#LastName").val());
+        var hospitalNo = $.trim($("#HospitalNumber").val());
+        var gender = $("#GenderId option:selected").text();
+        var age = $.trim($("#Age").val());
+        var ageUnit = $("#AgeUnit option:selected").text();
+        var mobile = $.trim($("#MobileNumber").val());
+        var location = $("#LocationId option:selected").text();
+
+        var fullName = (firstName + " " + lastName).trim();
+
+        $("#PreviewAvatar").text(initials(firstName, lastName)).toggleClass("am-has-name", fullName.length > 0);
+        $("#PreviewName").text(fullName || "New patient");
+        $("#PreviewHospitalNo").text(hospitalNo || "No hospital number yet");
+
+        var genderAgeEl = $("#PreviewGenderAge");
+        if (gender && gender !== "--Select--" || age) {
+            var parts = [];
+            if (gender && gender !== "--Select--") parts.push(gender);
+            if (age) parts.push(age + " " + ageUnit);
+            genderAgeEl.text(parts.join(", ")).removeClass("am-preview-empty");
+        } else {
+            genderAgeEl.text("Not set").addClass("am-preview-empty");
+        }
+
+        var locationEl = $("#PreviewLocation");
+        if (location && location !== "--Select--") {
+            locationEl.text(location).removeClass("am-preview-empty");
+        } else {
+            locationEl.text("No location set").addClass("am-preview-empty");
+        }
+
+        var metFirstName = SetChecklistItem("#ReadyChecklist li[data-check='firstname']", firstName.length > 0);
+        var metLastName = SetChecklistItem("#ReadyChecklist li[data-check='lastname']", lastName.length > 0);
+        var metHospitalNo = SetChecklistItem("#ReadyChecklist li[data-check='hospitalno']", hospitalNo.length > 0);
+        var metGender = SetChecklistItem("#ReadyChecklist li[data-check='gender']", gender && gender !== "--Select--");
+        var metAge = SetChecklistItem("#ReadyChecklist li[data-check='age']", age.length > 0);
+        var metMobile = SetChecklistItem("#ReadyChecklist li[data-check='mobile']", mobile.length > 0);
+
+        var metCount = [metFirstName, metLastName, metHospitalNo, metGender, metAge, metMobile].filter(function (v) { return v; }).length;
+        $("#ReadyLabel").text($("#ReadyLabel").text().split(String.fromCharCode(183))[0] + String.fromCharCode(183) + " " + metCount + " OF 6");
+    }
+
     function SaveData() {
 
 

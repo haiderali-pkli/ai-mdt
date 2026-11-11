@@ -19,11 +19,7 @@
 </style>
 
 
-<div class="container-fluid">
-
-    <div>
-        <h2 class="media-heading">.</h2>
-    </div>
+<div class="container-fluid admin-module">
 
     <form id="PatientDetial" action="" method="post">
         <input type="hidden" id="visitId" value="@TempData["visitIdVB"]" />
@@ -31,69 +27,43 @@
         <input type="hidden" id="reason" value="@TempData["reasonVB"]" />
         <input type="hidden" id="mdtTypeId" value="@TempData["MDTType"]"/>
 
-        <div class="row" style="background-color: #57b7fd;color:white;box-sizing: border-box; padding-right: 40px;" id="PatientHeaderContainer">
+        <div class="am-card" id="PatientHeaderContainer">
 
             @Html.Action("PatientHeader","Patient", new { patId  = TempData["patientIdVB"] })
 
         </div>
 
-        <div class="row" style="background-color: #efecec">
-            <div class="col-sm-3 col-xs-2">
+        <div class="am-card am-visit-head">
+            <div>
                 @if (TempData["MDTType"].ToString() == "BoneMarrow")
                 {
-                    <h4 style="color: red; font-size:22px;">MDT for Bone Marrow Transplant</h4>
+                    <h4 class="am-mdt-title am-mdt-title-bmt"><i class="fa fa-flask"></i> MDT for Bone Marrow Transplant</h4>
                 }
                 else if(TempData["MDTType"].ToString() == "Liver")
                 {
-                    <h4 style="color: #0037ff; font-size: 22px;">MDT for Liver Transplant (LTx)</h4>
+                    <h4 class="am-mdt-title am-mdt-title-liver"><i class="fa fa-stethoscope"></i> MDT for Liver Transplant (LTx)</h4>
                 }
-
-            </div>
-            <div class="col-sm-1 col-sm-offset-5 col-xs-1" id="saveButtonContainer">
-                </br>
-
-                <label>&nbsp;</label>
-                @if (@TempData["MDTType"].ToString() == "Liver")
-                {
-                    <button class="btn btn-block btn-success" style="margin-top: -38px;" type="button" onclick="savePatientDetail();"><span class="glyphicon glyphicon-save"></span> Save</button>
-                }
-                else if (@TempData["MDTType"].ToString() == "BoneMarrow")
-                {
-                    <button class="btn btn-block btn-success" style="margin-top: -38px;" type="button" onclick="savePatientDetailBMT();"><span class="glyphicon glyphicon-save"></span> BMT Save</button>
-                }
-
             </div>
 
+            <div class="am-visit-actions">
+                <span id="saveButtonContainer">
+                    @if (@TempData["MDTType"].ToString() == "Liver")
+                    {
+                        <button class="btn-am-primary" type="button" onclick="savePatientDetail();"><i class="fa fa-floppy-o"></i> Save</button>
+                    }
+                    else if (@TempData["MDTType"].ToString() == "BoneMarrow")
+                    {
+                        <button class="btn-am-primary" type="button" onclick="savePatientDetailBMT();"><i class="fa fa-floppy-o"></i> BMT Save</button>
+                    }
+                </span>
 
-            @*<div class="col-sm-1 col-sm-offset-8 col-xs-1">
-            </br>
-            <label>&nbsp;</label>
-        </div>*@
+                <button class="btn-am-light" type="button" onclick="PrintReport();"><i class="fa fa-print"></i> Print</button>
 
-            <div class="col-sm-1 col-xs-1">
-                </br>
-                <label>&nbsp;</label>
-
-                <button class="btn btn-block btn-primary" style="margin-top: -38px;" type="button" onclick="PrintReport();"><span class="glyphicon glyphicon-print"></span> Print</button>
-
-            </div>
-
-            <div class="col-sm-1 col-xs-1">
-                <br />
-                <label>&nbsp;</label>
-                <a class="btn btn-block btn-warning" style="margin-top: -38px;" onclick="AddEditPatientDemographics(@TempData["patientIdVB"]);" @*href="@Url.Action("AddEditPatient","Patient",new { patId=TempData["patientIdVB"] })"*@ target="_blank">
-                    <span class="glyphicon glyphicon-edit"></span>Edit
+                <a class="btn-am-light" onclick="AddEditPatientDemographics(@TempData["patientIdVB"]);" target="_blank">
+                    <i class="fa fa-pencil"></i> Edit
                 </a>
-            </div>
 
-
-            <div class="col-sm-1 col-xs-1">
-                </br>
-                <label>&nbsp;</label>
-
-                <button class="btn btn-block btn-danger" style="margin-top: -38px;" type="button" onclick="loadPage('@Url.Action("GetPatientList","Patient", new { PreloadList="Yes"})')"><span class="glyphicon glyphicon-eye-close"></span> Close</button>
-                @*<button class="btn btn-block btn-danger" style="margin-top:-4px;" type="button" onclick="loadPage('@Url.Action("GetPatientList", "Patient")')"><span class="glyphicon glyphicon-eye-close"></span> Close</button>*@
-
+                <button class="btn-am-danger" type="button" onclick="loadPage('@Url.Action("GetPatientList","Patient", new { PreloadList="Yes"})')"><i class="fa fa-times-circle"></i> Close</button>
             </div>
         </div>
 

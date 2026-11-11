@@ -9,9 +9,13 @@
 <div class="container-fluid">
     <div class="row" style="margin-top:10px;">
         <div class="col-lg-12">
-            <table id="tblLabReports" class="table table-bordered table-responsive" style="width:100%;">
+            <div class="am-rolecard-head-row" style="margin-bottom:8px;">
+                <div class="am-rolecard-title" style="font-size:13px;">Lab Reports</div>
+            </div>
+            <div class="table-responsive">
+            <table id="tblLabReports" class="am-table am-table-compact" style="width:100%;">
                 <thead>
-                    <tr style="background-color: #57b7fd;color:white;">
+                    <tr>
                         <th>Test Date</th>
                         <th class="hidden">Test Id</th>
                         <th>Test Name</th>
@@ -19,7 +23,7 @@
                         <th>Result Unit</th>
                         <th>Result Label</th>
                         @*<th>Action</th>*@
-                        <th><span class="glyphicon glyphicon-plus-sign" onclick="addRowLabReports();"></span></th>
+                        <th style="width:30px;"><span class="am-table-add glyphicon glyphicon-plus" title="Add lab test" onclick="addRowLabReports();"></span></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,13 +36,13 @@
                             <td>@Html.TextBoxFor(a => item.TestName, new { @class = "form-control TestName",@list= "dlLabTestList", tabindex = "-1" })</td>
                             @if (".TestName" == "CEA")
                             {
-		                            <td>@Html.TextBoxFor(a => item.TestResult, new { @class = "form-control TestResult" })</td>       
+		                            <td>@Html.TextBoxFor(a => item.TestResult, new { @class = "form-control TestResult" })</td>
                             }
                             else
                             {
                                 <td>@Html.TextBoxFor(a => item.TestResult, new { @class = "form-control TestResult", style = "border-color:red;" })</td>
                             }
-                            
+
                             <td>@Html.TextBoxFor(a => item.TestUnit, new { @class = "form-control TestUnit", @list = "dlResultUnit" , tabindex = "-1" })</td>
                             <td>@Html.TextBoxFor(a => item.TestResultLabel, new { @class = "form-control TestResultLabel", @list = "dlResultLabel", tabindex = "-1" })</td>
                             @*<td align="center"><span class="glyphicon glyphicon-remove-circle" onclick="removeRow(this);"></span></td>*@
@@ -46,6 +50,7 @@
                     }
                 </tbody>
             </table>
+            </div>
         </div>
         <table style="display:none">
             <tr id="SampleDataRowLabReports" data-recordid="0" class="DataRowLabReports">

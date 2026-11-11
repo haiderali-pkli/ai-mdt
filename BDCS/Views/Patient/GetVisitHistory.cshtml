@@ -1,81 +1,70 @@
-﻿@model List<BDCS.Model.Visit.Visit>
+@model List<BDCS.Model.Visit.Visit>
 @{
     if (Request.IsAjaxRequest())
     {
         Layout = null;
     }
+    bool CanManagePatients = BDCS.Models.SessionHelper.GetUserObject().RoleId == 1;
 }
-<div class="row" style="margin-top:-30px;">
-    <div class="col-lg-10">
-        <h2  class="media media-heading" style="font-size: 20px;">Name: @ViewBag.PatientName</h2>
+
+<div class="am-card" style="margin-bottom:0;">
+    <div class="am-rolecard-head-row" style="margin-bottom:14px;">
+        <div>
+            <div class="am-rolecard-title">Visit History</div>
+            <span class="am-subtitle">@ViewBag.PatientName</span>
+        </div>
+        <button type="button" class="btn btn-am-light" onclick="ClosePatientInfoBox();" title="Close">
+            <i class="fa fa-times"></i>
+        </button>
     </div>
-    <div class="col-lg-2">
-        <button class="btn btn-danger" onclick="ClosePatientInfoBox();"><span class="glyphicon glyphicon-th"></span></button>
-    </div>     
-</div>
-@if (Model != null && Model.Any())
-{
-    <table id="tblVisitHistory" class="table table-bordered table-responsive" style="margin-top:15px;">
 
-        <thead>
-            <tr style="background-color: #57b7fd;color:white;">
-                <th>Visit Id</th>
-                <th>Visit Date</th>
-                @*<th>Reason</th>*@
-                <th>MDT Type</th>
-                <th>Print</th>
-                
-                @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
-                {
-                    <th>Edit</th>
-                    <th>Copy</th>
-                }
-                @*<th>Service</th>*@
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (BDCS.Model.Visit.Visit item in Model)
-            {
-                <tr>
-                    <td>@item.VisitId</td>
-                    <td>@item.VisitDate</td>
-                    @*<td>@item.Reason</td>*@
-                    <td>@item.MDTType</td>
-                    <td>
-                        <a href="@Url.Action("PatientVisitReportRdlc","Patient",new { patId = item.PatientId, visitId = item.VisitId, item.Reason,mdtType=item.MDTType })" target="_blank">
-                            <span class="glyphicon glyphicon-print"></span>
-                        </a>
-                    </td>
-                    @if (BDCS.Models.SessionHelper.GetUserObject().RoleId == 1)
+    @if (Model != null && Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="am-table" id="tblVisitHistory">
+                <thead>
+                    <tr>
+                        <th>Visit Id</th>
+                        <th>Visit Date</th>
+                        <th>MDT Type</th>
+                        <th style="width:110px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (BDCS.Model.Visit.Visit item in Model)
                     {
-                        <td>
-                            <a href="#" onclick="AddEditPatientFunction(@item.PatientId,@item.VisitId,'@item.VisitDate','@item.Reason','@item.MDTType')" ;>
-                                <span class="glyphicon glyphicon-edit"></span>
-                            </a>
-                        </td>
-                        @*----------*@
-                        <td>
-                            <a href="#" onclick="CopyVisit(@item.PatientId,@item.VisitId,'@item.MDTType')" ;>
-                                <span class="glyphicon glyphicon-download"></span>
-                            </a>
-                        </td>
+                        <tr>
+                            <td>@item.VisitId</td>
+                            <td>@item.VisitDate</td>
+                            <td><span class="am-badge">@item.MDTType</span></td>
+                            <td>
+                                <a href="@Url.Action("PatientVisitReportRdlc","Patient",new { patId = item.PatientId, visitId = item.VisitId, item.Reason,mdtType=item.MDTType })" target="_blank" title="Print">
+                                    <i class="fa fa-print"></i>
+                                </a>
+                                @if (CanManagePatients)
+                                {
+                                    <a href="#" onclick="AddEditPatientFunction(@item.PatientId,@item.VisitId,'@item.VisitDate','@item.Reason','@item.MDTType')" title="Edit" style="margin-left:8px;">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                    <a href="#" onclick="CopyVisit(@item.PatientId,@item.VisitId,'@item.MDTType')" title="Copy" style="margin-left:8px;">
+                                        <i class="fa fa-copy"></i>
+                                    </a>
+                                }
+                            </td>
+                        </tr>
                     }
-
-                    @*<td>
-                        <a href="#" onclick="AddServices(@item.PatientId,@item.VisitId)" ;>
-                            <span class="glyphicon glyphicon-plus"></span>
-                        </a>
-                    </td>*@
-                </tr>
-            }
-        </tbody>
-    </table>
-}
-else
-{
-    <label>No history found for the selected patient....</label>
-}
-
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="am-empty">
+            <i class="fa fa-history"></i>
+            No history found for this patient.
+        </div>
+    }
+</div>
 
 
 <script type="text/javascript">
@@ -96,8 +85,6 @@ else
         var url = '@Url.Action("AddEditPatientDetail", "Patient")' + '/?' + $.param(par);
         loadPage(url, "Patient");
 
-        @*var URL = '@Url.Action("AddEditPatientDetail", "Patient")' + '/?' + $.param(par);
-        loadPage(URL, "VitalHistory", "VitalHx");*@
     }
 
 
@@ -111,14 +98,13 @@ else
         }
 
         $.ajax({
-            url: URL,@*'@Url.Action("CopyVisitBMT", "Patient")',*@
+            url: URL,
             type: 'Post',
             dataType: 'Json',
             data: { patientId: patId, oldVisitId: visitId, mdtType: mdtTypes },
 
             success: (function (msg) {
                 if (parseInt(msg.Code) == 200) {
-                    @*loadPage('@Url.Action("AddEditPatientDetail", "Patient")' + '/?patId=' + patId + '&visitId=' + msg.ResponseObject + ' &reason=' + 'Followup', "Prescription" + "&MDTType=" + mdtTypes);*@
 
                      loadPage('@Url.Action("AddEditPatientDetail", "Patient")' +
                          '/?patId=' + patId +

@@ -1,99 +1,75 @@
-﻿@model BDCS.Model.Patient.Patient
+@model BDCS.Model.Patient.Patient
 
 @{
     ViewBag.Title = "PatientHeader";
     Layout = null;
 }
 
-<div class="row">
+<div class="am-patient-banner">
 
-    <div class="col-sm-2 col-xs-6" style=" margin-bottom:10px;">
-
-
+    <div class="am-patient-avatar">
         @if (!string.IsNullOrEmpty(Model.ImageURL))
         {
-            <img src="@Url.Content(Model.ImageURL)" class="img-responsive" style="max-width: 110px; height: 100px; border:solid; min-height:50px; min-width:50px;padding-left: 30px; margin-top: 11px; margin-left: 35px;" />
+            <img src="@Url.Content(Model.ImageURL)" alt="Patient photo" />
         }
         else
         {
-            if (Model.Gender == "Male")
-            {
-                <img src="@Url.Content("~/Content/theme/images/doctor_02.jpg")" class="img-responsive" style="max-width: 110px; height: 100px; border:solid; min-height:50px; min-width:50px;margin: auto;margin-top: 11px; margin-left: 35px; " />
-            }
-            else
-            {
-                <img src="@Url.Content("~/Content/theme/images/doctor_02.jpg")" class="img-responsive" style="max-width: 110px; height: 100px; border:solid; min-height:50px; min-width:50px;margin: auto; margin-top: 11px;  margin-left: 35px;" />
-            }
+            <img src="@Url.Content("~/Content/theme/images/doctor_02.jpg")" alt="Patient photo" />
         }
-
     </div>
 
-    <div class="col-sm-2 col-xs-6">
-        <div class="form-group">
+    <div class="am-patient-fields">
+
+        <div class="am-patient-field">
             <label>MRN Number</label>
-            @Html.TextBoxFor(a => a.MrNumber, new { @class = "form-control", @readonly = "readonly", style = "border-bottom-style: outset" })
+            @Html.TextBoxFor(a => a.MrNumber, new { @class = "am-ro-input", @readonly = "readonly" })
         </div>
-    </div>
 
-    <div class="col-sm-2 col-xs-6">
-        <div class="form-group">
+        <div class="am-patient-field">
             <label>Hospital No.</label>
-            @Html.TextBoxFor(a => a.HospitalNumber, new { @class = "form-control", @readonly = "readonly", style = "border-bottom-style: outset" })
+            @Html.TextBoxFor(a => a.HospitalNumber, new { @class = "am-ro-input", @readonly = "readonly" })
         </div>
-    </div>
 
-    <div class="col-sm-2 col-xs-6">
-        <div class="form-group">
+        <div class="am-patient-field">
             <label>Patient Name</label>
-            @Html.TextBoxFor(a => a.FullName, new { @class = "form-control", @readonly = "readonly", style = "border-bottom-style: outset" })
+            @Html.TextBoxFor(a => a.FullName, new { @class = "am-ro-input", @readonly = "readonly" })
         </div>
-    </div>
 
-    <div class="col-sm-2 col-xs-6">
-        <div class="form-group">
-            <label>Father Spouse Name</label>
-            @Html.TextBoxFor(a => a.FatherSpouseName, new { @class = "form-control", @readonly = "readonly", style = "border-bottom-style: outset" })
+        <div class="am-patient-field">
+            <label>Father / Spouse Name</label>
+            @Html.TextBoxFor(a => a.FatherSpouseName, new { @class = "am-ro-input", @readonly = "readonly" })
         </div>
-    </div>
 
-    <div class="col-sm-2 col-xs-6">
-        <div class="form-group">
+        <div class="am-patient-field">
             <label>Date of Birth</label>
-            @Html.TextBoxFor(a => a.DOB, Model.DOB.Value.ToString("dd-MMM-yy") + " " + Model.Age + "-" + Model.AgeUnit, new { @class = "form-control", @readonly = "readonly", style = "border-bottom-style: outset" })
+            @Html.TextBoxFor(a => a.DOB, Model.DOB.Value.ToString("dd-MMM-yy") + " - " + Model.Age + " " + Model.AgeUnit, new { @class = "am-ro-input", @readonly = "readonly" })
         </div>
-    </div>
 
-    <div class="col-sm-2 col-xs-6">
-        <div class="form-group">
+        <div class="am-patient-field">
             <label>Gender</label>
-            @Html.TextBoxFor(a => a.Gender, new { @class = "form-control", @readonly = "readonly", style = "border-bottom-style: outset" })
+            @Html.TextBoxFor(a => a.Gender, new { @class = "am-ro-input", @readonly = "readonly" })
         </div>
-    </div>
-    <div class="col-sm-2 col-xs-6">
-        <label>Blood Group</label>
-        @Html.TextBoxFor(a => a.BloodGroupName, new { @class = "form-control", @readonly = "readonly", style = "border-bottom-style: outset" })
-    </div>
-    <div class="col-sm-2 col-xs-6">
-        <div class="form-group">
+
+        <div class="am-patient-field">
+            <label>Blood Group</label>
+            @Html.TextBoxFor(a => a.BloodGroupName, new { @class = "am-ro-input", @readonly = "readonly" })
+        </div>
+
+        <div class="am-patient-field">
             <label>Mobile Number</label>
-            @Html.TextBoxFor(a => a.MobileNumber, new { @class = "form-control", @readonly = "readonly", style = "border-bottom-style: outset" })
+            @Html.TextBoxFor(a => a.MobileNumber, new { @class = "am-ro-input", @readonly = "readonly" })
         </div>
-    </div>
 
-
-    <div class="col-sm-2 col-xs-6">
-        <div class="form-group">
+        <div class="am-patient-field">
             <label>Referred By</label>
-            @Html.TextBoxFor(a => a.ReferredBy, new { @class = "form-control", @readonly = "readonly", style = "border-bottom-style: outset" })
+            @Html.TextBoxFor(a => a.ReferredBy, new { @class = "am-ro-input", @readonly = "readonly" })
         </div>
+
+        <div class="am-patient-field">
+            <label>Address</label>
+            @Html.TextBoxFor(a => a.Address, new { @class = "am-ro-input", @readonly = "readonly", id = "PatientAddress" })
+        </div>
+
     </div>
 
-    <div class="col-sm-2 col-xs-6">
-        <div class="form-group">
-            <label>Address</label>
-            @Html.TextBoxFor(a => a.Address, new { @class = "form-control", @readonly = "readonly", style = "border-bottom-style: outset", id="PatientAddress" })
-        </div>
-    </div>
-   
-    
 </div>

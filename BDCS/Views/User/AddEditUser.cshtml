@@ -233,7 +233,7 @@
                             <div class="am-preview-section-label">Locations</div>
                             <div class="am-preview-value am-preview-empty" id="PreviewLocations">All locations</div>
 
-                            <div class="am-preview-section-label" id="ReadyLabel">@(IsNewUser ? "READY TO CREATE" : "READY TO SAVE") &middot; 0 OF @(IsNewUser ? 4 : 3)</div>
+                            <div class="am-preview-section-label" id="ReadyLabel">@(IsNewUser ? "Ready to Create" : "Ready to Save") &middot; 0 of @(IsNewUser ? 4 : 3)</div>
                             <ul class="am-checklist" id="ReadyChecklist">
                                 <li data-check="fullname"><i class="fa fa-circle-o"></i> Full name</li>
                                 <li data-check="loginid"><i class="fa fa-circle-o"></i> Login ID</li>
@@ -254,7 +254,7 @@
 
 <script type="text/javascript">
 
-    var ReadyLabelPrefix = "@(IsNewUser ? "READY TO CREATE" : "READY TO SAVE")";
+    var ReadyLabelPrefix = "@(IsNewUser ? "Ready to Create" : "Ready to Save")";
 
     function TogglePassword() {
         var field = document.getElementById("Password");
@@ -397,7 +397,7 @@
         var metCount = (metFullName ? 1 : 0) + (metLoginId ? 1 : 0) + (passwordRequired ? (metPassword ? 1 : 0) : 0) + (metRole ? 1 : 0);
         var allReady = metFullName && metLoginId && metPassword && metRole;
 
-        $("#ReadyLabel").text(ReadyLabelPrefix + " " + String.fromCharCode(183) + " " + metCount + " OF " + totalChecks);
+        $("#ReadyLabel").text(ReadyLabelPrefix + " " + String.fromCharCode(183) + " " + metCount + " of " + totalChecks);
         $("#SidePreviewSubmit").prop("disabled", !allReady);
     }
 

@@ -53,7 +53,7 @@
                             @foreach (BDCS.Model.RoleRights.Clinic item in FilteredModel)
                             {
                                 <tr>
-                                    <td><strong>@item.ClinicName</strong></td>
+                                    <td>@item.ClinicName</td>
                                     <td>@(string.IsNullOrEmpty(item.ContactPerson) ? "N/A" : item.ContactPerson)</td>
                                     <td>@(string.IsNullOrEmpty(item.ContactNumber) ? "N/A" : item.ContactNumber)</td>
                                     <td>

@@ -1,0 +1,75 @@
+@model BDCS.Model.Patient.Patient
+
+@{
+    ViewBag.Title = "PatientHeader";
+    Layout = null;
+}
+
+<div class="am-patient-banner">
+
+    <div class="am-patient-avatar">
+        @if (!string.IsNullOrEmpty(Model.ImageURL))
+        {
+            <img src="@Url.Content(Model.ImageURL)" alt="Patient photo" />
+        }
+        else
+        {
+            <img src="@Url.Content("~/Content/theme/images/doctor_02.jpg")" alt="Patient photo" />
+        }
+    </div>
+
+    <div class="am-patient-fields">
+
+        <div class="am-patient-field">
+            <label>MRN Number</label>
+            @Html.TextBoxFor(a => a.MrNumber, new { @class = "am-ro-input", @readonly = "readonly" })
+        </div>
+
+        <div class="am-patient-field">
+            <label>Hospital No.</label>
+            @Html.TextBoxFor(a => a.HospitalNumber, new { @class = "am-ro-input", @readonly = "readonly" })
+        </div>
+
+        <div class="am-patient-field">
+            <label>Patient Name</label>
+            @Html.TextBoxFor(a => a.FullName, new { @class = "am-ro-input", @readonly = "readonly" })
+        </div>
+
+        <div class="am-patient-field">
+            <label>Father / Spouse Name</label>
+            @Html.TextBoxFor(a => a.FatherSpouseName, new { @class = "am-ro-input", @readonly = "readonly" })
+        </div>
+
+        <div class="am-patient-field">
+            <label>Date of Birth</label>
+            @Html.TextBoxFor(a => a.DOB, Model.DOB.Value.ToString("dd-MMM-yy") + " - " + Model.Age + " " + Model.AgeUnit, new { @class = "am-ro-input", @readonly = "readonly" })
+        </div>
+
+        <div class="am-patient-field">
+            <label>Gender</label>
+            @Html.TextBoxFor(a => a.Gender, new { @class = "am-ro-input", @readonly = "readonly" })
+        </div>
+
+        <div class="am-patient-field">
+            <label>Blood Group</label>
+            @Html.TextBoxFor(a => a.BloodGroupName, new { @class = "am-ro-input", @readonly = "readonly" })
+        </div>
+
+        <div class="am-patient-field">
+            <label>Mobile Number</label>
+            @Html.TextBoxFor(a => a.MobileNumber, new { @class = "am-ro-input", @readonly = "readonly" })
+        </div>
+
+        <div class="am-patient-field">
+            <label>Referred By</label>
+            @Html.TextBoxFor(a => a.ReferredBy, new { @class = "am-ro-input", @readonly = "readonly" })
+        </div>
+
+        <div class="am-patient-field">
+            <label>Address</label>
+            @Html.TextBoxFor(a => a.Address, new { @class = "am-ro-input", @readonly = "readonly", id = "PatientAddress" })
+        </div>
+
+    </div>
+
+</div>

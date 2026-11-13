@@ -1,0 +1,270 @@
+﻿@model BDCS.Model.Patient.Patient
+
+
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+
+<script src="~/Content/Plugin/asuggest-master/jquery.a-tools-1.4.1.js"></script>
+<script src="~/Content/Plugin/asuggest-master/jquery.asuggest.js"></script>
+
+<style type="text/css"> 
+.table>tbody>tr>td
+ {
+     padding: 1.2px;
+ }
+</style>
+
+
+<div class="container-fluid admin-module">
+
+    <form id="PatientDetial" action="" method="post">
+        <input type="hidden" id="visitId" value="@TempData["visitIdVB"]" />
+        <input type="hidden" id="patientId" value="@TempData["patientIdVB"]" />
+        <input type="hidden" id="reason" value="@TempData["reasonVB"]" />
+        <input type="hidden" id="mdtTypeId" value="@TempData["MDTType"]"/>
+
+        <div class="am-card" id="PatientHeaderContainer">
+
+            @Html.Action("PatientHeader","Patient", new { patId  = TempData["patientIdVB"] })
+
+        </div>
+
+        <div class="am-card am-visit-head">
+            <div>
+                @if (TempData["MDTType"].ToString() == "BoneMarrow")
+                {
+                    <h4 class="am-mdt-title am-mdt-title-bmt"><i class="fa fa-flask"></i> MDT for Bone Marrow Transplant</h4>
+                }
+                else if(TempData["MDTType"].ToString() == "Liver")
+                {
+                    <h4 class="am-mdt-title am-mdt-title-liver"><i class="fa fa-stethoscope"></i> MDT for Liver Transplant (LTx)</h4>
+                }
+            </div>
+
+            <div class="am-visit-actions">
+                <span id="saveButtonContainer">
+                    @if (@TempData["MDTType"].ToString() == "Liver")
+                    {
+                        <button class="btn-am-primary" type="button" onclick="savePatientDetail();"><i class="fa fa-floppy-o"></i> Save</button>
+                    }
+                    else if (@TempData["MDTType"].ToString() == "BoneMarrow")
+                    {
+                        <button class="btn-am-primary" type="button" onclick="savePatientDetailBMT();"><i class="fa fa-floppy-o"></i> BMT Save</button>
+                    }
+                </span>
+
+                <button class="btn-am-light" type="button" onclick="PrintReport();"><i class="fa fa-print"></i> Print</button>
+
+                <a class="btn-am-light" onclick="AddEditPatientDemographics(@TempData["patientIdVB"]);" target="_blank">
+                    <i class="fa fa-pencil"></i> Edit
+                </a>
+
+                <button class="btn-am-danger" type="button" onclick="loadPage('@Url.Action("GetPatientList","Patient", new { PreloadList="Yes"})')"><i class="fa fa-times-circle"></i> Close</button>
+            </div>
+        </div>
+
+
+            @*<div class="panel-group top" style="margin-top:5px;">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" href="#AlertPanel" style="color:blue;">Alert</a>
+                    </h4>
+                </div>
+                <div id="AlertPanel" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <div class="row">
+                            @foreach (BDCS.Model.Patient.PatientAlert alert in ViewBag.Alerts)
+                            {
+                                <p style="color:red;"><img src ="@Url.Content("~/Content/theme/images/Blinking_warning.gif")" style="height: 20px;  width: 20px; margin-top: -8px;" /> @alert.AlertTitle  <span onclick="MarkAlertAsInactive(@alert.PatientAlertId);" class="glyphicon glyphicon-arrow-down"></span> </p>
+
+                            }
+                        </div>
+
+                        <div class="row">
+
+
+                            <div class="col-sm-6">
+                                @Html.TextBox("PatientAlert", null, new { @class = "form-control", placeholder = "Patient allergy/alert" })
+                            </div>
+
+                            <div class="col-sm-1">
+                                @Html.TextBox("PatientAlertStartDate", null, new { @class = "form-control datepicker", placeholder = "Start date" })
+                            </div>
+
+                            <div class="col-sm-1">
+                                @Html.TextBox("PatientAlertEndDate", null, new { @class = "form-control datepicker", placeholder = "End date" })
+                            </div>
+
+                            <div class="col-sm-1">
+                                <button class="btn btn-primary" type="button" onclick="SavePatientAlert();">Save Alert</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>*@
+
+
+
+            @*//Tab coloring*@
+            <div class="row" style="padding-bottom: 50px;">
+                <div class="col-md-12">
+
+                    @*<ul class="nav nav-tabs"  style="border-bottom: 1px solid #57b7fd;margin-top: 2px;">
+                    <li class="active"><a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#VitalHx" role="tab" aria-controls="nav-home" aria-selected="true" style="background-color: #57b7fd; color: white;">Vital History</a></li>
+                    <li><a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false" style="background-color: #57b7fd; color: white;">Protocol History</a></li>
+                    <li><a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#lab-profile" role="tab" aria-controls="nav-profile" aria-selected="false" style="background-color: #57b7fd; color: white;">Lab History</a></li>
+                </ul>*@
+
+                    <div class="tab-content" id="nav-tabContent " style="/*height: 550px; width: 100%; overflow: scroll;*/">
+                        <div class="tab-pane fade active in" id="VitalHx" role="tabpanel" aria-labelledby="nav-home-tab">
+
+
+                        </div>
+
+                        <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+
+                            <div id="ProtocolHx">
+
+                            </div>
+                        </div>
+
+                        <div class="tab-pane fade" id="lab-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+
+                            <div id="LabHxBMT">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+</form>
+
+</div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#nav-home-tab").click();
+        var visitId = $("#visitId").val();
+        var patientId = $("#patientId").val();
+        var reason = $("#reason").val();
+        var mdttypeValue = $("#mdtTypeId").val();
+
+        //if (mdttypeValue == "Liver") {
+        //    $('#saveButtonContainer').html('<button class="btn btn-block btn-success" style="margin-top: -38px;" type="button" onclick="savePatientDetail();"><span class="glyphicon glyphicon-save"></span> Save Liver</button>');
+        //} else if (mdttypeValue == "BoneMarrow") {
+        //    $('#saveButtonContainer').html('<button class="btn btn-block btn-success" style="margin-top: -8px;" type="button" onclick="savePatientDetailBMT();"><span class="glyphicon glyphicon-save"></span> Save BMT Data</button>');
+        //}
+
+
+        /*alert($("#mdtTypeId").val());*/
+        switch ($("#mdtTypeId").val()) {
+            case "BoneMarrow":
+                var url = '@Url.Action("VitalHistoryBMT", "Patient")' + '/?visitId=' + visitId + "&reason=" + reason + "&patId=" + patientId + "&mdtype=" + mdttypeValue;
+                @*var URL = '@Url.Action("GetProtocols", "Patient")' + '/?visitId=' + visitId + "&patId=" + patientId;*@
+                @*var LabUrl = '@Url.Action("GetPreviousVisitLabTestsBMT", "Patient")' + '/?patientId=' + patientId + '&visitId=' + visitId;*@
+                /*loadPage(URL, "ProtocolsHistory", "ProtocolHx");*/
+                loadPage(url, "VitalHistoryBMT", "VitalHx");
+                /*loadPage(LabUrl, "Lab History", "LabHxBMT");*/
+                break;
+            case "Liver":
+                var url = '@Url.Action("VitalHistory", "Patient")' + '/?visitId=' + visitId + "&reason=" + reason + "&patId=" + patientId + "&mdtype=" + mdttypeValue;
+                var URL = '@Url.Action("GetProtocols", "Patient")' + '/?visitId=' + visitId + "&patId=" + patientId;
+                @*var LabUrl = '@Url.Action("GetPreviousVisitLabTests", "Patient")' + '/?patientId=' + patientId + '&visitId=' + visitId;*@
+                /*loadPage(URL, "ProtocolsHistory", "ProtocolHx");*/
+                loadPage(url, "VitalHistory", "VitalHx");
+                /*loadPage(LabUrl, "Lab History", "LabHx");*/
+                break;
+            case "Kidney":
+                alert("Kidney MDT is under development");
+                break;
+            default:
+                alert("Invalid MDT Type");
+        }
+        @*var uRl = '@Url.Action("GetPreviousLabReport", "Patient")' + '/?visitId=' + visitId + "&patId=" + patientId;
+        loadPage(uRl,"PreviousLabReports")*@
+    });
+
+
+    function LoadPatientHeader()
+    {
+        var patientId = $("#patientId").val();
+        var HeaderUrl = '@Url.Action("PatientHeader", "Patient")' + '/?patId=' + patientId;
+
+        loadPage(HeaderUrl, "Patient Header", "PatientHeaderContainer");
+    }
+
+    function ShowHideGenderSpecificFields() {
+
+        var Gender = $("#Gender").val();
+
+        if ($.trim(Gender) === 'Male') {
+
+            $(".MaleOnly").show();
+            $(".FemaleOnly").hide();
+
+        }
+        else {
+
+            $(".MaleOnly").hide();
+            $(".FemaleOnly").show();
+        }
+    }
+
+    function SavePatientAlert()
+    {
+        var Alert = {
+            AlertTitle: $("#PatientAlert").val(),
+            ActiveFrom: $("#PatientAlertStartDate").val(),
+            ActiveTill: $("#PatientAlertEndDate").val(),
+            PatientId: $("#patientId").val(),
+        };
+
+        $.ajax({
+            url: '@Url.Action("AddPatientAlert", "Patient")',
+            type: 'Post',
+            dataType: 'Json',
+            data: JSON.stringify(Alert),
+            contentType: "application/json",
+            success: function (msg) {
+
+                ShowAlertMessage(msg.Message, msg.MessageClass);
+            },
+            error: function () {
+                alert('an error occured');
+            }
+        });
+    }
+
+    function MarkAlertAsInactive(id) {
+        $.ajax({
+            url: '@Url.Action("MarkPatientAlertAsInactive", "Patient")',
+            type: 'Post',
+            dataType: 'Json',
+            data: { patientAlertId: id },
+            success: function (msg) {
+
+                ShowAlertMessage(msg.Message, msg.MessageClass);
+            },
+            error: function () {
+                alert('an error occured');
+            }
+        });
+    }
+
+    function AddEditPatientDemographics(patId) {
+        var url = '@Url.Action("AddEditPatient","Patient")' + '/?patId=' + patId;
+        //loadPage(url, "AddEditPatient");
+        $("#GenericModalBody").load(url);
+        $("#GenericModalTitle").html("Edit Patient Information");
+        $("#GenericModal").modal('show');
+    }
+
+</script>

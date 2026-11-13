@@ -267,7 +267,7 @@
                             <div class="am-preview-section-label">Location</div>
                             <div class="am-preview-value am-preview-empty" id="PreviewLocation">No location set</div>
 
-                            <div class="am-preview-section-label" id="ReadyLabel">@(IsNewPatient ? "READY TO REGISTER" : "READY TO SAVE") &middot; 0 OF 6</div>
+                            <div class="am-preview-section-label" id="ReadyLabel">@(IsNewPatient ? "Ready to Register" : "Ready to Save") &middot; 0 of 6</div>
                             <ul class="am-checklist" id="ReadyChecklist">
                                 <li data-check="firstname"><i class="fa fa-circle-o"></i> First name</li>
                                 <li data-check="lastname"><i class="fa fa-circle-o"></i> Last name</li>
@@ -482,7 +482,7 @@
         var metMobile = SetChecklistItem("#ReadyChecklist li[data-check='mobile']", mobile.length > 0);
 
         var metCount = [metFirstName, metLastName, metHospitalNo, metGender, metAge, metMobile].filter(function (v) { return v; }).length;
-        $("#ReadyLabel").text($("#ReadyLabel").text().split(String.fromCharCode(183))[0] + String.fromCharCode(183) + " " + metCount + " OF 6");
+        $("#ReadyLabel").text($("#ReadyLabel").text().split(String.fromCharCode(183))[0] + String.fromCharCode(183) + " " + metCount + " of 6");
     }
 
     function SaveData() {

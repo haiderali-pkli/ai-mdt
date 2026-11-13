@@ -1,4 +1,4 @@
-﻿@model List<BDCS.Model.VitalHistory.LabReports>
+@model List<BDCS.Model.VitalHistory.LabReports>
 @{
     if (Request.IsAjaxRequest())
     {
@@ -6,92 +6,59 @@
     }
 
 }
-<div class="container-fluid">
-    <div class="row" style="margin-top:10px;">
-        <div class="col-lg-12">
-            <div class="am-rolecard-head-row" style="margin-bottom:8px;">
-                <div class="am-rolecard-title" style="font-size:13px;">Lab Reports</div>
+<div class="am-lab-list-head">
+    <span class="am-lab-count">@Model.Count test@(Model.Count == 1 ? "" : "s")</span>
+    <span class="am-table-add" title="Add lab test" onclick="addRowLabReports();"><i class="glyphicon glyphicon-plus"></i></span>
+</div>
+<div class="am-lab-list" id="tblLabReports">
+    @foreach (BDCS.Model.VitalHistory.LabReports item in Model)
+    {
+        <div class="am-lab-row DataRowLabReports" data-recordid="@item.LabReportId">
+            @Html.HiddenFor(a => item.TestId, new { @class = "TestId" })
+            @Html.TextBoxFor(a => item.TestName, new { @class = "am-lab-name TestName", @list = "dlLabTestList", tabindex = "-1", placeholder = "Test name" })
+            <div class="am-lab-row-fields">
+                @if (".TestName" == "CEA")
+                {
+                    @Html.TextBoxFor(a => item.TestResult, new { @class = "form-control TestResult", placeholder = "Result" })
+                }
+                else
+                {
+                    @Html.TextBoxFor(a => item.TestResult, new { @class = "form-control TestResult", style = "border-color:red;", placeholder = "Result" })
+                }
+                @Html.TextBoxFor(a => item.TestUnit, new { @class = "form-control TestUnit", @list = "dlResultUnit", tabindex = "-1", placeholder = "Unit" })
+                @Html.TextBoxFor(a => item.TestResultLabel, new { @class = "form-control TestResultLabel", @list = "dlResultLabel", tabindex = "-1", placeholder = "Label" })
             </div>
-            <div class="table-responsive">
-            <table id="tblLabReports" class="am-table am-table-compact" style="width:100%;">
-                <thead>
-                    <tr>
-                        <th>Test Date</th>
-                        <th class="hidden">Test Id</th>
-                        <th>Test Name</th>
-                        <th>Result</th>
-                        <th>Result Unit</th>
-                        <th>Result Label</th>
-                        @*<th>Action</th>*@
-                        <th style="width:30px;"><span class="am-table-add glyphicon glyphicon-plus" title="Add lab test" onclick="addRowLabReports();"></span></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (BDCS.Model.VitalHistory.LabReports item in Model)
-                    {
-                        <tr  class="DataRowLabReports" data-recordid="@item.LabReportId">
-
-                            <td>@Html.TextBoxFor(a => item.TestDate, item.TestDate.HasValue ? item.TestDate.Value.ToString("dd-MMM-yyyy") : "", new { @class = "form-control TestDate datepicker", tabindex = "-1" })</td>
-                            <td class="hidden">@Html.TextBoxFor(a => item.TestId, new { @class = "form-control TestId" })</td>
-                            <td>@Html.TextBoxFor(a => item.TestName, new { @class = "form-control TestName",@list= "dlLabTestList", tabindex = "-1" })</td>
-                            @if (".TestName" == "CEA")
-                            {
-		                            <td>@Html.TextBoxFor(a => item.TestResult, new { @class = "form-control TestResult" })</td>
-                            }
-                            else
-                            {
-                                <td>@Html.TextBoxFor(a => item.TestResult, new { @class = "form-control TestResult", style = "border-color:red;" })</td>
-                            }
-
-                            <td>@Html.TextBoxFor(a => item.TestUnit, new { @class = "form-control TestUnit", @list = "dlResultUnit" , tabindex = "-1" })</td>
-                            <td>@Html.TextBoxFor(a => item.TestResultLabel, new { @class = "form-control TestResultLabel", @list = "dlResultLabel", tabindex = "-1" })</td>
-                            @*<td align="center"><span class="glyphicon glyphicon-remove-circle" onclick="removeRow(this);"></span></td>*@
-                        </tr>
-                    }
-                </tbody>
-            </table>
-            </div>
+            @Html.TextBoxFor(a => item.TestDate, item.TestDate.HasValue ? item.TestDate.Value.ToString("dd-MMM-yyyy") : "", new { @class = "am-lab-date TestDate datepicker", tabindex = "-1" })
         </div>
-        <table style="display:none">
-            <tr id="SampleDataRowLabReports" data-recordid="0" class="DataRowLabReports">
-                <td>@Html.TextBox("TestDate", null, new { @class = "form-control TestDate", tabindex = "-1" })</td>
-                @*<td>@Html.TextBox("TestId", null, new { @class = "form-control TestId" })</td>*@
-                <td>@Html.TextBox("TestName", null, new { @class = "form-control TestName", @list = "dlLabTestList", tabindex = "-1" })</td>
-                <td>@Html.TextBox("TestResult", null, new { @class = "form-control TestResult" })</td>
-                <td>@Html.TextBox("TestUnit", null, new { @class = "form-control TestUnit", @list = "dlResultUnit" , tabindex = "-1" })</td>
-                <td>@Html.TextBox("TestResultLabel", null, new { @class = "form-control TestResultLabel", @list = "dlResultLabel", tabindex = "-1" })</td>
-                @*<td align="center"><span class="glyphicon glyphicon-remove-circle" onclick="removeRowLabReports(this);"></span></td>*@
-            </tr>
-        </table>
-
-        <datalist id="dlResultLabel">
-            @foreach (SelectListItem li in ViewBag.ResultLabelVB)
-            {
-                <option value="@li.Text"></option>
-            }
-        </datalist>
-        <datalist id="dlResultUnit">
-            @foreach (SelectListItem li in ViewBag.ResultUnitVB)
-            {
-                <option value="@li.Text"></option>
-            }
-        </datalist>
-
-    </div>
+    }
 </div>
 
+<div class="am-lab-row" id="SampleDataRowLabReports" data-recordid="0" style="display:none;">
+    @*@Html.Hidden("TestId", null, new { @class = "TestId" })*@
+    @Html.TextBox("TestName", null, new { @class = "am-lab-name TestName", @list = "dlLabTestList", tabindex = "-1", placeholder = "Test name" })
+    <div class="am-lab-row-fields">
+        @Html.TextBox("TestResult", null, new { @class = "form-control TestResult", placeholder = "Result" })
+        @Html.TextBox("TestUnit", null, new { @class = "form-control TestUnit", @list = "dlResultUnit", tabindex = "-1", placeholder = "Unit" })
+        @Html.TextBox("TestResultLabel", null, new { @class = "form-control TestResultLabel", @list = "dlResultLabel", tabindex = "-1", placeholder = "Label" })
+    </div>
+    @Html.TextBox("TestDate", null, new { @class = "am-lab-date TestDate", tabindex = "-1" })
+</div>
 
-
-
-<datalist id="dlLabTestList">
-    @foreach (SelectListItem li in ViewBag.LabTestListVB)
-            {
+<datalist id="dlResultLabel">
+    @foreach (SelectListItem li in ViewBag.ResultLabelVB)
+    {
         <option value="@li.Text"></option>
     }
 </datalist>
-<datalist id="dlResultLabel">
-    @foreach (SelectListItem li in ViewBag.ResultLabelVB)
-            {
+<datalist id="dlResultUnit">
+    @foreach (SelectListItem li in ViewBag.ResultUnitVB)
+    {
+        <option value="@li.Text"></option>
+    }
+</datalist>
+<datalist id="dlLabTestList">
+    @foreach (SelectListItem li in ViewBag.LabTestListVB)
+    {
         <option value="@li.Text"></option>
     }
 </datalist>
@@ -106,6 +73,7 @@
     function addRowLabReports() {
         var row = $("#SampleDataRowLabReports").clone();
         $(row).removeAttr('id');
+        $(row).show();
         $(row).find('input').val('');
         $(row).find('.TestDate').val('@DateTime.Now.ToString("dd-MMM-yyyy")');
         $("#tblLabReports").append(row);
@@ -117,8 +85,8 @@
         SetSpecificLabTestsAsOptional();
     }
     function removeRowLabReports(tag) {
-        $(tag).closest('tr').remove();
-        
+        $(tag).closest('.DataRowLabReports').remove();
+
     }
 
     function PopulateLabResultValue(tag) {
@@ -156,7 +124,7 @@
                     $(tag).find(".TestResultLabel").val("REACTIVE");
                 }
                 break;
-               
+
             default:
 
         }
@@ -168,19 +136,18 @@
         var OptionalTests = ["CEA", "CA19-9", "CA125", "Pivica"];
 
         $(".DataRowLabReports").each(function () {
-            
+
             var Name = $(this).find(".TestName").val();
 
             if (OptionalTests.includes(Name)) {
-                
+
                 this.querySelector(".TestResult").style.removeProperty('border-color');
-                
+
             }
 
         });
     }
-    
-    
-</script>
 
+
+</script>
 

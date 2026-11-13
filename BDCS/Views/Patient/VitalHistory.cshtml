@@ -11,10 +11,6 @@
 
 
     <style type="text/css">
-        .equal {
-            display:flex;
-            flex-wrap: wrap;
-        }
         .panel-actions {
   margin-top: -20px;
   margin-bottom: 0;
@@ -36,413 +32,326 @@
     overflow: auto;
 }
     </style>
-    
-    <div class="row equal">
 
-        <!--Column-1-->
-        <div class="col-lg-4 col-xs-6">
-            @Html.HiddenFor(a => a.PatientDetailId, new { @class = "form-control" })
+    @Html.HiddenFor(a => a.PatientDetailId, new { @class = "form-control" })
 
-            <div class="am-rolecard">
-                <div class="am-rolecard-head-row" style="padding:13px 18px; background:var(--am-bg); border-bottom:1px solid var(--am-border); margin:0;">
-                    <div class="am-rolecard-title">Visit Details</div>
+    <div class="row am-vf-columns">
+    <div class="col-lg-4 col-xs-12">
+
+    <div class="am-rolecard">
+        <div class="am-rolecard-head-row am-card-head">
+            <div class="am-rolecard-title"><i class="fa fa-calendar"></i> Visit Overview</div>
+        </div>
+        <div class="am-rolecard-body">
+            <div class="am-field-grid">
+                <div class="form-group">
+                    <label>Visit ID</label>
+                    @Html.TextBox("VisitId", (int)ViewBag.VisitIdVB, null, new { @class = "form-control", @readonly = "readonly" })
                 </div>
-                <div class="am-rolecard-body">
-                    <div class="row">
-                        <div class="col-sm-3">
-                            <div class="form-group">
-                                <label>Visit ID</label>
-                                @Html.TextBox("VisitId", (int)ViewBag.VisitIdVB, null, new { @class = "form-control", @readonly = "readonly" })
-                            </div>
-                        </div>
-                        <div class="col-sm-5">
-                            <div class="form-group">
-                                <label>Visit Date</label>
-                                @Html.TextBox("VisitDateTime", (string)ViewBag.VisitDateTimeVB, new { @class = "form-control", @readonly = "readonly" })
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="form-group">
-                                <label>Visit Type</label>
-                                @Html.TextBox("VisitType", (string)ViewBag.VisitTypeVB, null, new { @class = "form-control", @readonly = "readonly" })
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-lg-12 col-xs-6">
-                            <div class="form-group">
-                                <label>Chief Complaints</label>
-                                @Html.TextAreaFor(a => a.CIC, new { @class = "form-control ", style = "max-width:100%" })
-                            </div>
-                        </div>
-                    </div>
+                <div class="form-group">
+                    <label>Visit Date</label>
+                    @Html.TextBox("VisitDateTime", (string)ViewBag.VisitDateTimeVB, new { @class = "form-control", @readonly = "readonly" })
                 </div>
-            </div>
-
-            <div class="am-rolecard">
-                <div class="am-rolecard-head-row" style="padding:13px 18px; background:var(--am-bg); border-bottom:1px solid var(--am-border); margin:0;">
-                    <div class="am-rolecard-title">Clinical Status</div>
+                <div class="form-group">
+                    <label>Visit Type</label>
+                    @Html.TextBox("VisitType", (string)ViewBag.VisitTypeVB, null, new { @class = "form-control", @readonly = "readonly" })
                 </div>
-                <div class="am-rolecard-body">
-                    <div class="row">
-                        <div class="col-sm-3 col-xs-2">
-                            <label>Child Status</label>
-                            @Html.DropDownListFor(a => a.ChildStatus, (List<SelectListItem>)ViewBag.ChildStatusVB, "--Select--", new { @class = "form-control"})
-                        </div>
-                        <div class="col-sm-3 col-xs-2">
-                            <label>MELD-Na Status</label>
-                            @Html.DropDownListFor(a => a.MeldStatus, (List<SelectListItem>)ViewBag.MeldStatusVB, "--Select--", new { @class = "form-control" })
-                        </div>
-                        <div class="col-sm-3 col-xs-2">
-                            <label>BCLC Status</label>
-                            @Html.DropDownListFor(a => a.BCLC, (List<SelectListItem>)ViewBag.BCLCVB, "--Select--", new { @class = "form-control" })
-                        </div>
-                        <div class="col-sm-3 col-xs-2">
-                            <label>ECOG Status</label>
-                            @Html.DropDownListFor(a => a.ECOGStatus, (List<SelectListItem>)ViewBag.ECOGStatusVB, "--Select--", new { @class = "form-control" })
-                        </div>
-                    </div>
-
-                    @*LabOrders*@
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div id="labOrders" class="row">
-                                <div class="col-sm-12">
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    @*Hepatitis Status*@
-                    <div class="row hidden-print">
-                        <div class="col-sm-4 col-xs-2">
-                            <label>Hepatitis Status</label>
-                            @Html.DropDownListFor(a => a.HepStatus, (List<SelectListItem>)ViewBag.HepStatusVB, "--Select--", new { @class = "form-control" })
-                        </div>
-                        <div class="col-sm-4 col-xs-2">
-                            <label>Ascities Status</label>
-                            @Html.DropDownListFor(a => a.AscitiesStatus, (List<SelectListItem>)ViewBag.AscitiesStatusVB, "--Select--", new { @class = "form-control" })
-                        </div>
-                        <div class="col-sm-4 col-xs-2">
-                            <label>SVR Status</label>
-                            @Html.DropDownListFor(a => a.SVRStatus, (List<SelectListItem>)ViewBag.SVRStatusVB, "--Select--", new { @class = "form-control" })
-                        </div>
-                    </div>
+                <div class="form-group am-span-full">
+                    <label>Chief Complaints</label>
+                    @Html.TextAreaFor(a => a.CIC, new { @class = "form-control ", style = "max-width:100%", rows = "4" })
                 </div>
             </div>
         </div>
-        <!--Column-2-->
-        <div class="col-lg-4 col-xs-12">
-            <div class="am-rolecard">
-                <div class="am-rolecard-head-row" style="padding:13px 18px; background:var(--am-bg); border-bottom:1px solid var(--am-border); margin:0;">
-                    <div class="am-rolecard-title">Imaging &amp; Clinical Findings</div>
-                </div>
-                <div class="am-rolecard-body">
-                <div class="row">
+    </div>
+
+    <div class="am-rolecard">
+        <div class="am-rolecard-head-row am-card-head">
+            <div class="am-rolecard-title"><i class="fa fa-heartbeat"></i> Clinical Status</div>
+        </div>
+        <div class="am-rolecard-body">
+            <div class="am-field-grid">
                 <div class="form-group">
+                    <label>Child Status</label>
+                    @Html.DropDownListFor(a => a.ChildStatus, (List<SelectListItem>)ViewBag.ChildStatusVB, "--Select--", new { @class = "form-control"})
+                </div>
+                <div class="form-group">
+                    <label>MELD-Na Status</label>
+                    @Html.DropDownListFor(a => a.MeldStatus, (List<SelectListItem>)ViewBag.MeldStatusVB, "--Select--", new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    <label>BCLC Status</label>
+                    @Html.DropDownListFor(a => a.BCLC, (List<SelectListItem>)ViewBag.BCLCVB, "--Select--", new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    <label>ECOG Status</label>
+                    @Html.DropDownListFor(a => a.ECOGStatus, (List<SelectListItem>)ViewBag.ECOGStatusVB, "--Select--", new { @class = "form-control" })
+                </div>
+                <div class="form-group hidden-print">
+                    <label>Hepatitis Status</label>
+                    @Html.DropDownListFor(a => a.HepStatus, (List<SelectListItem>)ViewBag.HepStatusVB, "--Select--", new { @class = "form-control" })
+                </div>
+                <div class="form-group hidden-print">
+                    <label>Ascities Status</label>
+                    @Html.DropDownListFor(a => a.AscitiesStatus, (List<SelectListItem>)ViewBag.AscitiesStatusVB, "--Select--", new { @class = "form-control" })
+                </div>
+                <div class="form-group hidden-print">
+                    <label>SVR Status</label>
+                    @Html.DropDownListFor(a => a.SVRStatus, (List<SelectListItem>)ViewBag.SVRStatusVB, "--Select--", new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="am-rolecard">
+        <div class="am-rolecard-head-row am-card-head">
+            <div class="am-rolecard-title"><i class="fa fa-flask"></i> Laboratory</div>
+        </div>
+        <div class="am-rolecard-body">
+            <div class="am-field-grid">
+                <div class="am-span-full">
+                    <div id="labOrders"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+    <div class="col-lg-4 col-xs-12">
+
+    <div class="am-rolecard">
+        <div class="am-rolecard-head-row am-card-head">
+            <div class="am-rolecard-title"><i class="fa fa-crosshairs"></i> Imaging &amp; Tumor Characteristics</div>
+        </div>
+        <div class="am-rolecard-body">
+            <div class="am-field-grid">
+                <div class="form-group am-span-full">
                     <label>CT/MRI Conclusion</label>
-                    @Html.TextAreaFor(a => a.CTReportConclusion, new { @class = "form-control" })
+                    @Html.TextAreaFor(a => a.CTReportConclusion, new { @class = "form-control", rows = "7" })
                 </div>
-                <div class="row">
-                    <div class="col-lg-12 col-xs-12">
-                        <div class="form-group">
-                            <label>Any Other Comorbidities</label>
-                            @Html.ListBoxFor(a => a.OtherComorbities, (List<SelectListItem>)ViewBag.DiagnosisVB, new { @class = "form-control MuliDropdown" })   @*  (a => a.PastHx ,  (List<SelectListItem>)ViewBag.PastHxVB, "--Select--", new { @class="form-control" })*@
-                        </div>
-                    </div>
+                <div class="form-group am-span-full">
+                    <label>Any Other Comorbidities</label>
+                    @Html.ListBoxFor(a => a.OtherComorbities, (List<SelectListItem>)ViewBag.DiagnosisVB, new { @class = "form-control MuliDropdown" })   @*  (a => a.PastHx ,  (List<SelectListItem>)ViewBag.PastHxVB, "--Select--", new { @class="form-control" })*@
                 </div>
 
-                <div class="row">
-                    <div class="col-sm-3 col-xs-2">
-                        <div class="form-group am-check-inline">
-                            <input type="checkbox" id="Angioinvasion" name="Angioinvasion" @(Model.Angioinvasion ? "checked=\"checked\"" : "") />
-                            <label for="Angioinvasion">Angioinvasion</label>
-                        </div>
-                    </div>
-                    <div class="col-lg-9 col-xs-6">
-                        <div class="form-group" id="SiteOfAngioinvasionContainer">
-                            <label>Site of Angioinvasion</label>
-                            @Html.ListBoxFor(a => a.SiteOfAngioinvasionVB, (List<SelectListItem>)ViewBag.SiteOfAngioinvasionDropdown, new { @class = "form-control MuliDropdown" })
-                        </div>
+                <div class="am-field-divider">Vascular &amp; Extrahepatic Involvement</div>
+                <div class="form-group am-check-inline">
+                    <input type="checkbox" id="Angioinvasion" name="Angioinvasion" @(Model.Angioinvasion ? "checked=\"checked\"" : "") />
+                    <label for="Angioinvasion">Angioinvasion</label>
+                </div>
+                <div class="am-span-full" id="SiteOfAngioinvasionContainer">
+                    <div class="form-group">
+                        <label>Site of Angioinvasion</label>
+                        @Html.ListBoxFor(a => a.SiteOfAngioinvasionVB, (List<SelectListItem>)ViewBag.SiteOfAngioinvasionDropdown, new { @class = "form-control MuliDropdown" })
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-lg-3 col-xs-6">
-                        <div class="form-group am-check-inline">
-                            <input type="checkbox" id="ExtraHepaticDisease" name="ExtraHepaticDisease" @(Model.ExtraHepaticDisease ? "checked=\"checked\"" : "") />
-                            <label for="ExtraHepaticDisease">Extra Hepatic</label>
-                        </div>
-                    </div>
-                    <div class="col-lg-9 col-xs-6">
-                        <div class="form-group" id="ExtraHepaticDiseaseContainer">
-                            <label>Site of Extra Hepatic Disease History</label>
-                            @Html.ListBoxFor(a => a.SiteOfHepaticDisease, (List<SelectListItem>)ViewBag.SitesOfExtraHepaticDiseaseVB, new { @class = "form-control MuliDropdown" })
-                            @*@Html.TextBoxFor(a => a.SiteOfHepaticDisease, new { @class = "form-control", @list= "lstOfSitesOfExtraHepaticDisease" })*@
-                        </div>
-                    </div>
-
-
-
+                <div class="form-group am-check-inline">
+                    <input type="checkbox" id="ExtraHepaticDisease" name="ExtraHepaticDisease" @(Model.ExtraHepaticDisease ? "checked=\"checked\"" : "") />
+                    <label for="ExtraHepaticDisease">Extra Hepatic</label>
                 </div>
-                <div class="row">
-                    <div class="col-lg-3 col-xs-6">
-                        <div class="form-group am-check-inline">
-                            <input type="checkbox" id="LiverCirrhosis" name="LiverCirrhosis" @(Model.LiverCirrhosis ? "checked=\"checked\"" : "") />
-                            <label for="LiverCirrhosis">Liver Cirrhosis</label>
-                        </div>
-                    </div>
-
-                    <div class="col-sm-5 col-xs-2">
-                        <div class="form-group am-check-inline">
-                            <input type="checkbox" id="PortalHypertension" name="PortalHypertension" @(Model.PortalHypertension ? "checked=\"checked\"" : "") />
-                            <label for="PortalHypertension">Portal Hypertension</label>
-                        </div>
-                    </div>
-                    <div class="col-sm-4 col-xs-2">
-                        <div class="form-group am-check-inline">
-                            <input type="checkbox" id="Varices" name="Varices" @(Model.Varices ? "checked=\"checked\"" : "") />
-                            <label for="Varices">Varices</label>
-                        </div>
+                <div class="am-span-full" id="ExtraHepaticDiseaseContainer">
+                    <div class="form-group">
+                        <label>Site of Extra Hepatic Disease History</label>
+                        @Html.ListBoxFor(a => a.SiteOfHepaticDisease, (List<SelectListItem>)ViewBag.SitesOfExtraHepaticDiseaseVB, new { @class = "form-control MuliDropdown" })
+                        @*@Html.TextBoxFor(a => a.SiteOfHepaticDisease, new { @class = "form-control", @list= "lstOfSitesOfExtraHepaticDisease" })*@
                     </div>
                 </div>
-                <div class=" row">
-                    <div class="col-lg-3 col-xs-12">
-                        <div class="form-group">
-                            <label>Largest Lesion</label>
-                            @Html.TextBoxFor(a => a.LargestLesionSize, new { @class = "form-control" })
 
-                        </div>
-                    </div>
-
-                    <div class="col-sm-9 col-xs-12">
-                        <div class="form-group">
-                            <label>No of Lesion</label>
-
-                            @Html.DropDownListFor(a => a.NumberOfLesion, (List<SelectListItem>)ViewBag.LargestLesionSizeVB, "--Select--", new { @class = "form-control" })
-
-                            @*@Html.TextBoxFor(a => a.NumberOfLesion, new { @class = "form-control" })*@
-                        </div>
-                    </div>
-
+                <div class="am-field-divider">Liver &amp; Lesion Detail</div>
+                <div class="form-group am-check-inline">
+                    <input type="checkbox" id="LiverCirrhosis" name="LiverCirrhosis" @(Model.LiverCirrhosis ? "checked=\"checked\"" : "") />
+                    <label for="LiverCirrhosis">Liver Cirrhosis</label>
+                </div>
+                <div class="form-group am-check-inline">
+                    <input type="checkbox" id="PortalHypertension" name="PortalHypertension" @(Model.PortalHypertension ? "checked=\"checked\"" : "") />
+                    <label for="PortalHypertension">Portal Hypertension</label>
+                </div>
+                <div class="form-group am-check-inline">
+                    <input type="checkbox" id="Varices" name="Varices" @(Model.Varices ? "checked=\"checked\"" : "") />
+                    <label for="Varices">Varices</label>
+                </div>
+                <div class="form-group">
+                    <label>Largest Lesion</label>
+                    @Html.TextBoxFor(a => a.LargestLesionSize, new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    <label>No of Lesion</label>
+                    @Html.DropDownListFor(a => a.NumberOfLesion, (List<SelectListItem>)ViewBag.LargestLesionSizeVB, "--Select--", new { @class = "form-control" })
+                    @*@Html.TextBoxFor(a => a.NumberOfLesion, new { @class = "form-control" })*@
                 </div>
 
-                <div class="row">
-                    <div class="col-lg-3 col-xs-6">
-                        <div class="form-group am-check-inline">
-                            <input type="checkbox" id="PreviousTreatment" name="PreviousTreatment" @(Model.PreviousTreatment ? "checked=\"checked\"" : "") />
-                            <label for="PreviousTreatment">Previous Treat</label>
-                        </div>
-                    </div>
-                    <div class="col-lg-9 col-xs-6" id="TreatmentTypeDiv">
+                <div class="am-field-divider">Prior Treatment</div>
+                <div class="form-group am-check-inline">
+                    <input type="checkbox" id="PreviousTreatment" name="PreviousTreatment" @(Model.PreviousTreatment ? "checked=\"checked\"" : "") />
+                    <label for="PreviousTreatment">Previous Treat</label>
+                </div>
+                <div class="form-group am-span-2">
+                    <label>Response to Treatment</label>
+                    @Html.DropDownListFor(a => a.TreatmentResponse, (List<SelectListItem>)ViewBag.TreatmentResponseVB, "--Select--", new { @class = "form-control" })
+                </div>
+                <div class="am-span-full" id="TreatmentTypeDiv">
+                    <div class="form-group">
                         <label>Treatment Type</label>
                         @*@Html.DropDownListFor(a => a.TreatmentType, (List<SelectListItem>)ViewBag.MDTOutComeVB, "--Select--", new { @class = "form-control" })*@
                         @Html.ListBoxFor(a => a.TreatmentType, (List<SelectListItem>)ViewBag.MDTOutComeVB, new { @class = "form-control MuliDropdown" })
-
-
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12 col-xs-6">
-                        <label>Response to Treatment</label>
-
-
-                        @Html.DropDownListFor(a => a.TreatmentResponse, (List<SelectListItem>)ViewBag.TreatmentResponseVB, "--Select--", new { @class = "form-control" })
-                    </div>
-                </div>
                 </div>
             </div>
-
         </div>
-   </div>
-   <div class="col-lg-4">
-       <!--Column-3-->
+    </div>
 
-       <div class="am-rolecard">
-           <div class="am-rolecard-head-row" style="padding:13px 18px; background:var(--am-bg); border-bottom:1px solid var(--am-border); margin:0;">
-               <div class="am-rolecard-title">Diagnosis</div>
-           </div>
-           <div class="am-rolecard-body">
-       <div class="row">
-           <div class="col-lg-12 col-xs-6">
-               <div class="form-group">
-                   <label>Final Diagnosis</label>
-                   @Html.DropDownList("DiagnosisName", (IEnumerable<SelectListItem>)ViewBag.DiagnosisVB, "--Select--", new { @class = "form-control", style = "max-width:100%", onchange = "AddDiagnosisRow();" })
-               </div>
-           </div>
-           <div class="col-lg-12 col-xs-6">
-               <div class="form-group">
-                   <label>Diagnosis Detail</label>
-                   @Html.TextBoxFor(a => a.DiagnosisDetails, new { @class = "form-control ", style = "max-width:100%" })
-               </div>
-           </div>
-           <div class="col-lg-12">
-               <div class="form-group">
-                   <div class="table-responsive">
-                   <table id="tblDiagnosis" class="am-table">
-                       <thead>
-                           <tr>
-                               <th>Diagnosis Name</th>
-                               <th style="width:70px;">Active</th>
-                               <th style="width:40px;">
+    </div>
+    <div class="col-lg-4 col-xs-12">
 
-                               </th>
-                           </tr>
-                       </thead>
-                       <tbody>
-                           @if (Model != null && Model.PatientDiagnosis.Count > 0)
-                           {
-                               foreach (BDCS.Model.VitalHistory.PatientDiagnosis item in Model.PatientDiagnosis)
-                               {
-                                   <tr class="DataRowDagnosis" data-recordidPrv="@item.PatientDiagnosisId">
-                                       <td>@Html.TextBoxFor(a => item.Diagnosis, new { @class = "form-control DiagnosisName" })</td>
-                                       <td>@(item.IsActive ? "Yes" : "No")</td>
-                                       <td>
-                                           @if (item.IsActive)
-                                           {
-                                               <span class="glyphicon glyphicon-comment am-icon-btn" title="Mark this diagnosis as Inactive" onclick="MarkDianosisAsInactive(@item.PatientDiagnosisId,this);"></span>
-                                           }
-                                       </td>
-                                   </tr>
-                               }
-                           }
-                       </tbody>
-                   </table>
-                   </div>
-                   <table style="display:none">
-                       <tr id="sampleDataRowDiagnosis" class="DataRowDagnosis">
-                           <td>@Html.TextBox("DiagnosisName", null, new { @class = "DiagnosisName form-control" })</td>
-                           <td><span class="glyphicon glyphicon-remove-circle" onclick="removeRow(this);"></span></td>
-                       </tr>
-                   </table>
-               </div>
-           </div>
-       </div>
-           </div>
-       </div>
-
-       <div class="am-rolecard">
-           <div class="am-rolecard-head-row" style="padding:13px 18px; background:var(--am-bg); border-bottom:1px solid var(--am-border); margin:0;">
-               <div class="am-rolecard-title">Transplant Criteria &amp; Discussion</div>
-           </div>
-           <div class="am-rolecard-body">
-       <div class="row">
-           <div class="col-lg-3 col-xs-6">
-               <div class="form-group am-check-inline">
-                   <input type="checkbox" id="MeetingMilan" name="MeetingMilan" @(Model.MeetingMilan ? "checked=\"checked\"" : "") />
-                   <label for="MeetingMilan">Meeting Milan</label>
-               </div>
-           </div>
-           <div class="col-lg-3 col-xs-6">
-               <div class="form-group am-check-inline">
-                   <input type="checkbox" id="UCSF" name="UCSF" @(Model.UCSF ? "checked=\"checked\"" : "") />
-                   <label for="UCSF">UCSF</label>
-               </div>
-           </div>
-
-           <div class="col-lg-3 col-xs-6">
-               <div class="form-group am-check-inline">
-                   <input type="checkbox" id="ASAN" name="ASAN" @(Model.ASAN ? "checked=\"checked\"" : "") />
-                   <label for="ASAN">ASAN</label>
-               </div>
-           </div>
-
-           <div class="col-lg-3 col-xs-6">
-               <div class="form-group am-check-inline">
-                   <input type="checkbox" id="other" name="other" @(Model.other ? "checked=\"checked\"" : "") />
-                   <label for="other">Other</label>
-               </div>
-           </div>
-       </div>
-       <div class="row">
-           <div class="col-lg-12">
-                <div class="form-group" id="otherDetailDiv">
-                    <label>Other Detail</label>
-                    @Html.TextAreaFor(a => a.otherDetail, new { @class = "form-control", style = "max-width:100%" })
+    <div class="am-rolecard">
+        <div class="am-rolecard-head-row am-card-head">
+            <div class="am-rolecard-title"><i class="fa fa-stethoscope"></i> Diagnosis</div>
+        </div>
+        <div class="am-rolecard-body">
+            <div class="am-field-grid">
+                <div class="form-group">
+                    <label>Final Diagnosis</label>
+                    @Html.DropDownList("DiagnosisName", (IEnumerable<SelectListItem>)ViewBag.DiagnosisVB, "--Select--", new { @class = "form-control", style = "max-width:100%", onchange = "AddDiagnosisRow();" })
                 </div>
-           </div>
-       </div>
-        <div class="row">
-            <div class="col-lg-3 col-xs-6">
+                <div class="form-group am-span-2">
+                    <label>Diagnosis Detail</label>
+                    @Html.TextBoxFor(a => a.DiagnosisDetails, new { @class = "form-control ", style = "max-width:100%" })
+                </div>
+                <div class="am-span-full">
+                    <div class="table-responsive">
+                    <table id="tblDiagnosis" class="am-table">
+                        <thead>
+                            <tr>
+                                <th>Diagnosis Name</th>
+                                <th style="width:70px;">Active</th>
+                                <th style="width:40px;">
+
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model != null && Model.PatientDiagnosis.Count > 0)
+                            {
+                                foreach (BDCS.Model.VitalHistory.PatientDiagnosis item in Model.PatientDiagnosis)
+                                {
+                                    <tr class="DataRowDagnosis" data-recordidPrv="@item.PatientDiagnosisId">
+                                        <td>@Html.TextBoxFor(a => item.Diagnosis, new { @class = "form-control DiagnosisName" })</td>
+                                        <td>@(item.IsActive ? "Yes" : "No")</td>
+                                        <td>
+                                            @if (item.IsActive)
+                                            {
+                                                <span class="glyphicon glyphicon-comment am-icon-btn" title="Mark this diagnosis as Inactive" onclick="MarkDianosisAsInactive(@item.PatientDiagnosisId,this);"></span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                    </div>
+                    <table style="display:none">
+                        <tr id="sampleDataRowDiagnosis" class="DataRowDagnosis">
+                            <td>@Html.TextBox("DiagnosisName", null, new { @class = "DiagnosisName form-control" })</td>
+                            <td><span class="glyphicon glyphicon-remove-circle" onclick="removeRow(this);"></span></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="am-rolecard">
+        <div class="am-rolecard-head-row am-card-head">
+            <div class="am-rolecard-title"><i class="fa fa-check-square-o"></i> Transplant Eligibility</div>
+        </div>
+        <div class="am-rolecard-body">
+            <div class="am-field-grid">
+                <div class="form-group am-check-inline">
+                    <input type="checkbox" id="MeetingMilan" name="MeetingMilan" @(Model.MeetingMilan ? "checked=\"checked\"" : "") />
+                    <label for="MeetingMilan">Meeting Milan</label>
+                </div>
+                <div class="form-group am-check-inline">
+                    <input type="checkbox" id="UCSF" name="UCSF" @(Model.UCSF ? "checked=\"checked\"" : "") />
+                    <label for="UCSF">UCSF</label>
+                </div>
+                <div class="form-group am-check-inline">
+                    <input type="checkbox" id="ASAN" name="ASAN" @(Model.ASAN ? "checked=\"checked\"" : "") />
+                    <label for="ASAN">ASAN</label>
+                </div>
+                <div class="form-group am-check-inline">
+                    <input type="checkbox" id="other" name="other" @(Model.other ? "checked=\"checked\"" : "") />
+                    <label for="other">Other</label>
+                </div>
+                <div class="am-span-full" id="otherDetailDiv">
+                    <div class="form-group">
+                        <label>Other Detail</label>
+                        @Html.TextAreaFor(a => a.otherDetail, new { @class = "form-control", style = "max-width:100%" })
+                    </div>
+                </div>
+
+                <div class="am-field-divider">Transplant Decision</div>
                 <div class="form-group am-check-inline">
                     <input type="checkbox" id="PtWillingForTransplant" name="PtWillingForTransplant" @(Model.PtWillingForTransplant ? "checked=\"checked\"" : "") />
                     <label for="PtWillingForTransplant">Patient NOT Willing</label>
                 </div>
-            </div>
-            <div class="col-lg-9 col-xs-6">
-                <div class="form-group">
+                <div class="form-group am-span-2">
                     <label>Refusal Reason</label>
                     @Html.TextBoxFor(a => a.ReasonOfRefusal, new { @class = "form-control", placeholder = "Reason for Resfusal", @list = "lstRefusalReason" })
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="row">
-
-            <div class="col-lg-12 col-xs-12">
-
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">MDT Additional Discussion
-                            <a href="#" id="panel-fullscreen" role="button" title="Toggle fullscreen"><i class="glyphicon glyphicon-resize-full"></i></a>
-                        </h3>
-                    </div>
-                    <div class="panel-body">
-                        <div class="form-group">
-
-                            @Html.TextAreaFor(a => a.MDTDiscussion, new { @class = "form-control ", style = "max-width:100%" })
+    <div class="am-rolecard">
+        <div class="am-rolecard-head-row am-card-head">
+            <div class="am-rolecard-title"><i class="fa fa-comments"></i> MDT Discussion &amp; Outcome</div>
+        </div>
+        <div class="am-rolecard-body">
+            <div class="am-field-grid">
+                <div class="am-span-full">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">MDT Additional Discussion
+                                <a href="#" id="panel-fullscreen" role="button" title="Toggle fullscreen"><i class="glyphicon glyphicon-resize-full"></i></a>
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-group">
+                                @Html.TextAreaFor(a => a.MDTDiscussion, new { @class = "form-control ", style = "max-width:100%" })
+                            </div>
                         </div>
                     </div>
                 </div>
 
+                <div class="form-group am-span-full">
+                    <label>MDT Out Come</label>
+                    @Html.ListBoxFor(a => a.MDTOutCome, (List<SelectListItem>)ViewBag.MDTOutComeVB, new { @class = "form-control MuliDropdown" })
+                </div>
+                <div class="form-group am-span-full">
+                    <label>Other MDT Out Come</label>
+                    @Html.TextAreaFor(a => a.MDTOutComeOther, new { @class = "form-control", style = "max-width:100%" })
+                </div>
 
-
-            </div>
-        </div>
-    <div class="row">
-        <div class="col-lg-12 col-xs-6">
-            <div class="form-group">
-                <label>MDT Out Come</label>
-                @Html.ListBoxFor(a => a.MDTOutCome, (List<SelectListItem>)ViewBag.MDTOutComeVB, new { @class = "form-control MuliDropdown" })
+                <div class="am-field-divider">Transplant Discussion</div>
+                <div class="form-group am-check-inline">
+                    <input type="checkbox" id="TransplantDiscussion" name="TransplantDiscussion" @(Model.TransplantDiscussion ? "checked=\"checked\"" : "") />
+                    <label for="TransplantDiscussion">Transplant Discussion</label>
+                </div>
+                <div class="form-group am-span-2">
+                    <label>Imaging Date</label>
+                    @Html.TextBoxFor(a => a.ImagingDate, Model.ImagingDate.HasValue ? Model.ImagingDate.Value.ToString("dd-MMM-yyyy") : "", new { @class = "form-control datepicker" })
+                </div>
+                <div class="am-span-full" id="TransplantDiscussionDiv">
+                    <div class="form-group">
+                        <label>Transplant Discussion Detail</label>
+                        @Html.TextAreaFor(a => a.TransplantDiscussionDetail, new { @class = "form-control", rows = "2", style = "max-width:100%" })
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-       <div class="row">
-           <div class="col-lg-12 col-xs-6">
-               <div class="form-group">
-                   <label>Other MDT Out Come</label>
-                   @Html.TextAreaFor(a => a.MDTOutComeOther, new { @class = "form-control", style = "max-width:100%" })
-               </div>
-           </div>
-       </div>
-       <div class="row">
-           <div class="col-lg-3 col-xs-6">
-               <div class="form-group am-check-inline">
-                   <input type="checkbox" id="TransplantDiscussion" name="TransplantDiscussion" @(Model.TransplantDiscussion ? "checked=\"checked\"" : "") />
-                   <label for="TransplantDiscussion">Transplant Discussion</label>
-               </div>
-           </div>
-           <div class="col-lg-9 col-xs-6">
-               <div class="form-group" id="TransplantDiscussionDiv">
-                   <label>Transplant Discussion Detail</label>
-                   @Html.TextAreaFor(a => a.TransplantDiscussionDetail, new { @class = "form-control", rows = "2", style = "max-width:100%" })
-               </div>
-           </div>
-       </div>
-       <div class="row">
-           <div class="col-lg-12 col-xs-6">
-               <div class="form-group">
-                   <label>Imaging Date</label>
-                   @Html.TextBoxFor(a => a.ImagingDate, Model.ImagingDate.HasValue ? Model.ImagingDate.Value.ToString("dd-MMM-yyyy") : "", new { @class = "form-control datepicker" })
-               </div>
-           </div>
 
-       </div>
-           </div>
-       </div>
- </div>
-</div>
+    </div>
+    </div>
 
         <!--datalists-->
         <datalist id="dlLabTestList">

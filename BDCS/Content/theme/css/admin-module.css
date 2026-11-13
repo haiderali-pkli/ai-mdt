@@ -31,6 +31,12 @@ body.clinic_version {
 :root {
     --mh-header-bg: #153a63;
     --mh-header-bg-dark: #102c4c;
+    /* on :root (not inside .admin-module) so #GenericModal - a DOM sibling of
+       .admin-module, not a descendant - can see it too for its header bar.
+       Brand blue: Pantone P 115-16 C (C100 M0 Y0 K12 / R0 G156 B215 / #009CD7). */
+    --am-head-bg: #009cd7;
+    --am-head-ink: #ffffff;
+    --am-head-muted: rgba(255, 255, 255, 0.75);
 }
 
 .mh-topbar {
@@ -236,7 +242,7 @@ body.clinic_version {
     --am-primary-dark: #1f4fb0;
     --am-ink: #223047;
     --am-muted: #5a6678;
-    --am-border: #e3e8f0;
+    --am-border: #b9c2d1;
     --am-bg: #f5f7fb;
     --am-success: #0f7a51;
     --am-danger: #b8324a;
@@ -248,6 +254,12 @@ body.clinic_version {
    force it to win inside this module */
 .admin-module [hidden] {
     display: none !important;
+}
+
+/* trims Bootstrap's default 15px .form-group gap so stacked fields (dense
+   clinical forms especially) don't accumulate large dead space between rows */
+.admin-module .form-group {
+    margin-bottom: 6px;
 }
 
 .admin-module .am-page-head {
@@ -277,10 +289,10 @@ body.clinic_version {
 .admin-module .am-card {
     background: #fff;
     border: 1px solid var(--am-border);
-    border-radius: 10px;
+    border-radius: 6px;
     box-shadow: 0 2px 10px rgba(34, 48, 71, 0.05);
-    padding: 20px;
-    margin-bottom: 20px;
+    padding: 16px;
+    margin-bottom: 14px;
 }
 
 .admin-module .am-toolbar {
@@ -335,6 +347,29 @@ body.clinic_version {
     background: var(--am-bg);
 }
 
+/* Bootstrap's bare, square dropdown menu (e.g. the per-row "MDT" action menu
+   on the patient list) - give it the same card chrome as everything else. */
+.admin-module .dropdown-menu {
+    border: 1px solid var(--am-border);
+    border-radius: 9px;
+    box-shadow: 0 10px 26px rgba(16, 44, 76, 0.14);
+    padding: 6px;
+    margin-top: 6px;
+}
+
+.admin-module .dropdown-menu > li > a {
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--am-ink);
+}
+
+.admin-module .dropdown-menu > li > a:hover,
+.admin-module .dropdown-menu > li > a:focus {
+    background: var(--am-bg);
+    color: var(--am-primary-dark);
+}
+
 .admin-module .am-table {
     width: 100%;
     border-collapse: separate;
@@ -353,18 +388,19 @@ body.clinic_version {
 }
 
 .admin-module .am-table thead th {
-    background: var(--am-bg);
-    color: var(--am-muted);
+    background: var(--am-head-bg);
+    color: var(--am-head-ink);
     font-size: 13px;
-    font-weight: 600;
-    border-bottom: 1px solid var(--am-border);
-    padding: 10px 14px;
+    font-weight: 400;
+    border-bottom: 1px solid var(--am-head-bg);
+    padding: 6px 10px;
 }
 
 .admin-module .am-table tbody td {
-    padding: 12px 14px;
+    padding: 6px 10px;
     border-bottom: 1px solid var(--am-border);
     vertical-align: middle;
+    font-weight: 400;
 }
 
 .admin-module .am-table tbody tr:hover {
@@ -392,7 +428,7 @@ body.clinic_version {
 }
 
 .admin-module .am-user-cell .am-user-name {
-    font-weight: 600;
+    font-weight: 400;
     color: var(--am-ink);
     display: block;
 }
@@ -465,16 +501,21 @@ body.clinic_version {
 
 .admin-module .am-section-title {
     font-size: 13px;
-    text-transform: uppercase;
-    letter-spacing: .04em;
     color: var(--am-muted);
-    font-weight: 600;
-    margin-bottom: 12px;
+    font-weight: 400;
+    margin-bottom: 8px;
 }
 
-.admin-module .form-group label {
-    font-weight: 600;
-    color: var(--am-ink);
+/* unscoped to .form-group on purpose: several fields in dense clinical forms
+   (VitalHistory) have a bare <label> with no .form-group wrapper around it -
+   scoping to .form-group left those rendering in the browser's default label
+   weight, visibly inconsistent next to properly-wrapped bold/muted labels
+   right beside them. Every label inside .admin-module now matches. */
+.admin-module label {
+    display: block;
+    margin-bottom: 3px;
+    font-weight: 400;
+    color: var(--am-muted);
     font-size: 13px;
 }
 
@@ -492,6 +533,47 @@ body.clinic_version {
 
 .admin-module .form-control::placeholder {
     color: var(--am-muted);
+}
+
+/* legacy custom.css hardcodes ".form-group textarea { height: 90px; }" on
+   every textarea regardless of its "rows" attribute - a radiology/MDT note
+   several paragraphs long (rows="7" and up) got silently clamped back down
+   to ~2 visible lines, forcing constant scrolling to read or edit it. Three
+   classes of specificity here beats that legacy two-part selector so the
+   element's own rows attribute (its natural, intended height) wins again. */
+.admin-module .form-group textarea.form-control {
+    height: auto;
+    min-height: 90px;
+    float: none;
+}
+
+/* modern select box: the bare OS-drawn dropdown (tiny system arrow, cramped
+   padding) is the single biggest "old ASP.NET page" tell left in the app -
+   flatten it to a custom chevron that matches the rest of the inputs. */
+.admin-module select.form-control {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5L6 8l3.5-3.5' fill='none' stroke='%235a6678' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 11px;
+    padding-right: 34px;
+    cursor: pointer;
+}
+
+.admin-module select.form-control::-ms-expand {
+    display: none;
+}
+
+.admin-module select.form-control:disabled {
+    background-color: var(--am-bg);
+    cursor: not-allowed;
+}
+
+.admin-module select.form-control:hover {
+    border-color: #c7d1e3;
 }
 
 .admin-module .am-check-grid {
@@ -608,9 +690,8 @@ body.clinic_version {
 }
 
 #GenericModal .modal-header {
-    background: var(--am-bg);
-    border-bottom: 1px solid var(--am-border);
-    padding: 16px 22px;
+    background: var(--am-head-bg);
+    padding: 14px 22px;
     display: flex;
     align-items: center;
     flex: none;
@@ -618,23 +699,26 @@ body.clinic_version {
 
 #GenericModal .modal-title {
     text-align: left;
-    font-size: 19px;
-    font-weight: 700;
-    color: #223047;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--am-head-ink);
     flex: 1;
 }
 
 #GenericModal .modal-header .close {
     order: 2;
     margin: 0;
-    opacity: .5;
-    font-size: 26px;
+    opacity: .7;
+    font-size: 24px;
     font-weight: 400;
     line-height: 1;
+    color: var(--am-head-ink);
+    text-shadow: none;
 }
 
 #GenericModal .modal-header .close:hover {
-    opacity: .85;
+    opacity: 1;
+    color: var(--am-head-ink);
 }
 
 #GenericModal .modal-body {
@@ -664,16 +748,26 @@ body.clinic_version {
 }
 
 .admin-module .modal-header {
-    background: var(--am-bg);
-    border-bottom: 1px solid var(--am-border);
-    padding: 14px 20px;
+    background: var(--am-head-bg);
+    padding: 12px 20px;
+}
+
+.admin-module .modal-header .close {
+    color: var(--am-head-ink);
+    opacity: .7;
+    text-shadow: none;
+}
+
+.admin-module .modal-header .close:hover {
+    opacity: 1;
+    color: var(--am-head-ink);
 }
 
 .admin-module .modal-title {
     text-align: left;
-    font-size: 17px;
-    font-weight: 700;
-    color: #223047;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--am-head-ink);
 }
 
 .admin-module .modal-body {
@@ -732,21 +826,28 @@ body.clinic_version {
 .admin-module .am-rolecard {
     background: #fff;
     border: 1px solid var(--am-border);
-    border-radius: 10px;
-    margin-bottom: 16px;
-    overflow: hidden;
+    border-radius: 6px;
+    margin-bottom: 8px;
+    /* was overflow:hidden (to clip the head bar into the card's rounded
+       corners) - that also clipped the Chosen.js multi-select dropdown
+       (.chosen-drop, an absolutely-positioned child) whenever it popped
+       open near the bottom of a card, hiding the options list instead of
+       showing it over the rest of the page. The head bar now carries its
+       own top-corner radius below, so the card itself can stay visible. */
+    overflow: visible;
 }
 
 .admin-module .am-rolecard-head {
     display: flex;
     align-items: center;
     gap: 9px;
-    padding: 13px 18px;
-    background: var(--am-bg);
-    border-bottom: 1px solid var(--am-border);
-    font-weight: 600;
+    padding: 10px 16px;
+    border-radius: 5px 5px 0 0;
+    background: var(--am-head-bg);
+    border-bottom: 1px solid var(--am-head-bg);
+    font-weight: 400;
     font-size: 13px;
-    color: var(--am-ink);
+    color: var(--am-head-ink);
 }
 
 .admin-module .am-rolecard-head i {
@@ -754,7 +855,7 @@ body.clinic_version {
 }
 
 .admin-module .am-rolecard-body {
-    padding: 18px;
+    padding: 10px;
 }
 
 /* ---- Permission group (Roles screen): collapsible section + bulk column toggles ---- */
@@ -845,8 +946,8 @@ body.clinic_version {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    padding: 14px 20px;
-    margin: 0 -20px -20px;
+    padding: 12px 16px;
+    margin: 0 -16px -16px;
     background: #fff;
     border-top: 1px solid var(--am-border);
     box-shadow: 0 -4px 10px rgba(34, 48, 71, 0.05);
@@ -903,6 +1004,31 @@ body.clinic_version {
     font-weight: 700;
     font-size: 15px;
     color: var(--am-ink);
+}
+
+/* a dark header bar for a card section (VitalHistory's Visit Details,
+   Clinical Status, Diagnosis, etc.) - combine with .am-rolecard-head-row */
+.admin-module .am-card-head {
+    padding: 7px 14px;
+    margin: 0;
+    background: var(--am-head-bg);
+    border-bottom: none;
+    border-radius: 5px 5px 0 0;
+}
+
+.admin-module .am-card-head .am-rolecard-title {
+    color: var(--am-head-ink);
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-module .am-card-head .am-rolecard-title i {
+    color: var(--am-head-muted);
+    font-size: 14px;
+    width: 16px;
+    text-align: center;
 }
 
 .admin-module .am-required {
@@ -1073,19 +1199,18 @@ body.clinic_version {
 }
 
 .admin-module .am-preview-section-label {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: .06em;
+    font-size: 11px;
+    letter-spacing: .02em;
     color: var(--am-muted);
-    font-weight: 700;
+    font-weight: 400;
     padding-top: 10px;
     border-top: 1px solid var(--am-border);
-    margin: 16px 0 7px;
+    margin: 12px 0 6px;
 }
 
 .admin-module .am-preview-value {
     font-size: 14.5px;
-    font-weight: 600;
+    font-weight: 400;
     color: var(--am-ink);
     line-height: 1.5;
 }
@@ -1161,6 +1286,14 @@ body.clinic_version {
     color: #fff;
 }
 
+/* tightens the gap between the patient banner and the MDT title bar right
+   below it - both are plain .am-card instances (14px bottom margin each),
+   so this overrides just the banner's own margin rather than every
+   .am-card sitewide */
+.admin-module #PatientHeaderContainer {
+    margin-bottom: 6px;
+}
+
 /* ======================================================================
    Patient Visit Detail (MDT form) screen - PatientHeader banner,
    visit toolbar, Diagnosis/Discussion rolecards, lab/diagnosis tables.
@@ -1186,17 +1319,16 @@ body.clinic_version {
     flex: 1 1 auto;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 14px 22px;
+    gap: 10px 18px;
 }
 
 .admin-module .am-patient-field label {
     display: block;
     font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: .04em;
+    letter-spacing: .02em;
     color: var(--am-muted);
-    font-weight: 600;
-    margin-bottom: 3px;
+    font-weight: 400;
+    margin-bottom: 2px;
 }
 
 .admin-module .am-patient-field .am-ro-input {
@@ -1206,7 +1338,7 @@ body.clinic_version {
     height: auto;
     width: 100%;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 400;
     color: var(--am-ink);
     box-shadow: none;
 }
@@ -1217,6 +1349,10 @@ body.clinic_version {
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 14px;
+    /* overrides .am-card's 14px margin-bottom - the gap right above the
+       Visit Overview/Imaging/Diagnosis panels was looking oversized next
+       to how tight those panels now sit relative to each other */
+    margin-bottom: 4px;
 }
 
 .admin-module .am-mdt-title {
@@ -1249,7 +1385,7 @@ body.clinic_version {
 .admin-module .am-visit-actions .btn-am-primary,
 .admin-module .am-visit-actions .btn-am-light,
 .admin-module .am-visit-actions .btn-am-danger {
-    padding: 8px 16px;
+    padding: 6px 14px;
     display: inline-flex;
     align-items: center;
     gap: 7px;
@@ -1263,8 +1399,7 @@ body.clinic_version {
 .admin-module .am-check-inline {
     display: flex;
     align-items: center;
-    height: 100%;
-    min-height: 34px;
+    min-height: 22px;
 }
 
 .admin-module .am-check-inline input[type="checkbox"] {
@@ -1273,15 +1408,59 @@ body.clinic_version {
 }
 
 .admin-module .am-check-inline label {
+    display: inline-block;
     margin: 0;
     cursor: pointer;
+    white-space: nowrap;
+}
+
+/* a checkbox paired with a wide field on the same line (Angioinvasion + its
+   site list, Previous Treat + its type, etc.) - flex so the checkbox+label
+   sizes to its own text (never wraps) and the field takes the rest of the
+   row, instead of fighting over fixed Bootstrap column percentages. */
+.admin-module .am-check-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    margin-bottom: 6px;
+}
+
+.admin-module .am-check-row > .am-check-inline {
+    flex: 0 0 auto;
+    margin-bottom: 0;
+}
+
+.admin-module .am-check-row > .am-check-field {
+    flex: 1 1 240px;
+    min-width: 0;
+}
+
+.admin-module .am-check-row > .am-check-field .form-group {
+    margin-bottom: 0;
+}
+
+/* a row of several standalone yes/no flags with no adjoining field
+   (Liver Cirrhosis / Portal Hypertension / Varices, Milan / UCSF / ASAN /
+   Other) - each pill sizes to its own label, wrapping as a group rather
+   than forcing every label onto two lines inside an equal-width column. */
+.admin-module .am-check-flex-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    margin-bottom: 6px;
+}
+
+.admin-module .am-check-flex-group .am-check-inline {
+    flex: 0 0 auto;
+    min-height: auto;
 }
 
 /* Bootstrap .panel used for the collapsible/fullscreen "MDT Additional
    Discussion" box - reskinned in place so #panel-fullscreen's toggle logic
    (which walks up to the nearest .panel) keeps working untouched. */
 .admin-module .panel.panel-default {
-    border-radius: 10px;
+    border-radius: 6px;
     border-color: var(--am-border);
     box-shadow: 0 2px 10px rgba(34, 48, 71, 0.05);
 }
@@ -1289,13 +1468,18 @@ body.clinic_version {
 .admin-module .panel-default > .panel-heading {
     background: var(--am-bg);
     border-bottom: 1px solid var(--am-border);
-    border-radius: 10px 10px 0 0;
+    border-radius: 6px 6px 0 0;
     color: var(--am-ink);
+    padding: 7px 14px;
 }
 
 .admin-module .panel-default .panel-title {
     font-weight: 700;
-    font-size: 15px;
+    font-size: 14px;
+}
+
+.admin-module .panel-default .panel-body {
+    padding: 10px 14px;
 }
 
 .admin-module .am-table .am-icon-btn {
@@ -1339,4 +1523,336 @@ body.clinic_version {
 
 .admin-module .am-table-compact .form-control {
     padding: 6px 8px;
+}
+
+/* Lab Reports sits inside the Clinical Status card, between the status
+   dropdowns and the Hepatitis/Ascities/SVR row - give it its own breathing
+   room so it doesn't butt up against the rows above/below it. */
+.admin-module .am-lab-section {
+    margin: 10px 0 0;
+    padding-top: 10px;
+    border-top: 1px solid var(--am-border);
+}
+
+/* ======================================================================
+   Chosen.js (the "MuliDropdown" multi-selects - Any Other Comorbidities,
+   Site of Angioinvasion, Treatment Type, MDT Out Come, etc.). Chosen hides
+   the real <select> and renders its own markup, so the select.form-control
+   skin above never touches it - this is the single biggest leftover
+   "dated jQuery plugin" look in the clinical form. Overridden here (not in
+   chosen.css itself) so it survives a plugin update; .admin-module gives
+   every rule here two classes' worth of specificity, enough to beat
+   chosen.css's own single-class selectors regardless of stylesheet order.
+   ====================================================================== */
+
+.admin-module .chosen-container {
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.admin-module .chosen-container-multi .chosen-choices {
+    background: #fff;
+    background-image: none;
+    border: 1px solid var(--am-border);
+    border-radius: 7px;
+    box-shadow: none;
+    padding: 4px 6px;
+    min-height: 36px;
+}
+
+.admin-module .chosen-container-active.chosen-with-drop .chosen-choices,
+.admin-module .chosen-container-active .chosen-choices {
+    border-color: var(--am-primary);
+    box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.12);
+}
+
+.admin-module .chosen-container-multi .chosen-choices li.search-field {
+    margin: 2px 0;
+}
+
+.admin-module .chosen-container-multi .chosen-choices .search-field input[type="text"] {
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--am-ink);
+    height: 24px;
+    padding: 2px;
+    margin: 0;
+}
+
+.admin-module .chosen-container .chosen-choices .search-field input[type="text"]::placeholder {
+    color: var(--am-muted);
+}
+
+.admin-module .chosen-container-multi .chosen-choices .search-choice {
+    background: #eaf1ff;
+    background-image: none;
+    border: 1px solid #d8e5ff;
+    box-shadow: none;
+    color: var(--am-primary-dark);
+    border-radius: 100px;
+    padding: 3px 22px 3px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    margin: 2px 5px 2px 0;
+    line-height: 1.5;
+}
+
+.admin-module .chosen-container-multi .chosen-choices .search-choice .search-choice-close {
+    background: none;
+    top: 3px;
+    right: 5px;
+}
+
+.admin-module .chosen-container-multi .chosen-choices .search-choice .search-choice-close:after {
+    content: "\00d7";
+    color: var(--am-primary-dark);
+    font-size: 15px;
+    opacity: .6;
+}
+
+.admin-module .chosen-container-multi .chosen-choices .search-choice .search-choice-close:hover:after {
+    opacity: 1;
+}
+
+.admin-module .chosen-container-multi .chosen-choices .search-choice-disabled {
+    background: var(--am-bg);
+    border-color: var(--am-border);
+    color: var(--am-muted);
+}
+
+.admin-module .chosen-drop {
+    border: 1px solid var(--am-border);
+    border-radius: 6px;
+    box-shadow: 0 10px 26px rgba(16, 44, 76, 0.14);
+    margin-top: 6px;
+    overflow: hidden;
+}
+
+.admin-module .chosen-container .chosen-search input[type="text"] {
+    border: 1px solid var(--am-border);
+    border-radius: 6px;
+    background-image: none;
+    font-size: 13px;
+}
+
+.admin-module .chosen-results {
+    padding: 4px;
+}
+
+.admin-module .chosen-results li {
+    padding: 7px 10px;
+    font-size: 13px;
+    border-radius: 6px;
+    color: var(--am-ink);
+}
+
+.admin-module .chosen-results li.highlighted {
+    background: var(--am-primary);
+    background-image: none;
+    color: #fff;
+}
+
+.admin-module .chosen-results li.disabled-result,
+.admin-module .chosen-results li.no-results {
+    color: var(--am-muted);
+}
+
+.admin-module .chosen-results li.group-result {
+    font-weight: 600;
+    color: var(--am-muted);
+}
+
+/* ======================================================================
+   Visit Detail form - 3 parallel columns (kept, by request, to match the
+   screen's previous shape and minimize vertical scrolling) with a
+   responsive field grid inside each card. Short fields still pack
+   several to a row where the column's width allows it, and anything
+   that needs room (a textarea, a multi-select, a table) spans the
+   column's full width on its own line, instead of the old fixed
+   Bootstrap percentages that squeezed every field to the same slice
+   regardless of what it actually needed.
+   ====================================================================== */
+
+/* Bootstrap's default 15px .container-fluid edge padding looks oversized
+   now that the column gutter below is only 6px - trim it to match, so the
+   page's left/right margins are consistent with the gap between panels
+   instead of leaving a wider, unused strip on the outer edges. */
+.admin-module.container-fluid {
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+/* the Visit Detail tabs sit in their own Bootstrap row/col wrapper (around
+   #nav-tabContent) that still carries the default 15px gutter - that's
+   extra padding the "MDT for Liver Transplant" header above it doesn't
+   have, so the panels were indented further in than the header on both
+   sides. Zero it out so the panel row lines up flush with the header. */
+.admin-module .am-tab-row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.admin-module .am-tab-col {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.admin-module .am-vf-columns {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: -6px;
+    margin-right: -6px;
+}
+
+.admin-module .am-vf-columns > [class*="col-"] {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.admin-module .am-field-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px 12px;
+    align-items: start;
+}
+
+.admin-module .am-field-grid > .form-group,
+.admin-module .am-field-grid > .am-span-full,
+.admin-module .am-field-grid > .am-span-2 {
+    margin-bottom: 0;
+}
+
+.admin-module .am-field-grid .am-span-full {
+    grid-column: 1 / -1;
+}
+
+.admin-module .am-field-grid .am-span-2 {
+    grid-column: span 2;
+}
+
+@media (max-width: 760px) {
+    .admin-module .am-field-grid .am-span-2 {
+        grid-column: 1 / -1;
+    }
+}
+
+/* a checkbox toggle living as its own grid cell, sized like any other
+   field instead of the old flex-row hack */
+.admin-module .am-field-grid .am-check-inline {
+    display: flex;
+    align-items: center;
+    min-height: 28px;
+    padding-top: 4px;
+}
+
+/* section intro copy under a card's dark head bar, before its field grid */
+.admin-module .am-card-intro {
+    font-size: 13px;
+    color: var(--am-muted);
+    margin: 0 0 16px;
+}
+
+/* a labelled divider inside a long card, separating one field cluster
+   (e.g. imaging findings) from the next (tumor/lesion detail) without
+   opening a whole new card for every sub-topic */
+.admin-module .am-field-divider {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding-top: 6px;
+    border-top: 1px solid var(--am-border);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    color: var(--am-muted);
+}
+
+.admin-module .am-field-divider:first-child {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+}
+
+/* ======================================================================
+   Lab Reports - compact row list (replaces the 6-column table, which
+   could not fit Test Date/Name/Result/Unit/Label/Add in a single
+   same-sized column without a horizontal scrollbar). Each test is one
+   single-line row - name, result, unit, label and date all share the
+   same line instead of name+date stacking above a second line of
+   fields - so a long test list no longer runs the panel down the page.
+   ====================================================================== */
+
+.admin-module .am-lab-list-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.admin-module .am-lab-count {
+    font-size: 12px;
+    color: var(--am-muted);
+}
+
+.admin-module .am-lab-list {
+    border-top: 1px solid var(--am-border);
+}
+
+.admin-module .am-lab-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--am-border);
+}
+
+.admin-module .am-lab-name {
+    flex: 1 1 64px;
+    min-width: 0;
+    border: none;
+    border-bottom: 1px dashed transparent;
+    background: transparent;
+    padding: 0;
+    height: auto;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--am-ink);
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.admin-module .am-lab-name:hover {
+    border-bottom-color: var(--am-border);
+}
+
+.admin-module .am-lab-name:focus {
+    border-bottom-color: var(--am-primary);
+}
+
+.admin-module .am-lab-date {
+    flex: 0 0 auto;
+    width: 60px;
+    border: none;
+    background: transparent;
+    padding: 0;
+    height: auto;
+    font-size: 11px;
+    color: var(--am-muted);
+    text-align: right;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.admin-module .am-lab-row-fields {
+    display: flex;
+    flex: 1 1 auto;
+    gap: 4px;
+    min-width: 0;
+}
+
+.admin-module .am-lab-row-fields .form-control {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 4px 6px;
+    font-size: 11.5px;
+    height: auto;
 }

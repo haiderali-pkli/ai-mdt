@@ -9,6 +9,15 @@
     List<string> userMdtRight = (ViewBag.mdtTypesNameVb as List<SelectListItem>).Select(a => a.Text).ToList();
     bool CanManagePatients = BDCS.Models.SessionHelper.IsUserAuthorized("Add Patient", BDCS.Models.RightType.AddEdit)
         || BDCS.Models.SessionHelper.IsUserAuthorized("Create Visit", BDCS.Models.RightType.AddEdit);
+
+    //patient list filter state - re-read on every reload so the toolbar reflects
+    //whatever was last picked instead of resetting to the defaults each time
+    string CurrentFilterType = (ViewBag.FilterType as string) ?? "Count";
+    int CurrentPatientCount = (ViewBag.PatientCount as int?) ?? 20;
+    string CurrentDayPreset = (ViewBag.DayPreset as string) ?? "Last15Days";
+    DateTime? CurrentFromDate = ViewBag.FromDate as DateTime?;
+    DateTime? CurrentToDate = ViewBag.ToDate as DateTime?;
+    List<int> PatientCountOptions = new List<int> { 20, 30, 40, 50, 60, 80, 100 };
 }
 
 <div class="admin-module">
@@ -39,6 +48,62 @@
                 {
                     <button class="btn btn-am-light" id="btnsms" onclick="loadPage('@Url.Action("PatientListOfBMTForMDT","Patient")','Patient');"><i class="fa fa-list"></i> BMT Patient</button>
                 }
+            </div>
+
+            <div class="am-filter-bar">
+                <div class="am-segmented">
+                    <div class="am-segmented-option">
+                        <input type="radio" name="PatientFilterType" value="Count" id="FilterTypeCount" @(CurrentFilterType == "Count" ? "checked=\"checked\"" : "") onchange="OnFilterTypeChange();" />
+                        <label for="FilterTypeCount"><i class="fa fa-sort-numeric-desc"></i> Count</label>
+                    </div>
+                    <div class="am-segmented-option">
+                        <input type="radio" name="PatientFilterType" value="Days" id="FilterTypeDays" @(CurrentFilterType == "Days" ? "checked=\"checked\"" : "") onchange="OnFilterTypeChange();" />
+                        <label for="FilterTypeDays"><i class="fa fa-calendar"></i> Days</label>
+                    </div>
+                </div>
+
+                <div class="am-filter-divider"></div>
+
+                <div id="CountFilterPanel" style="@(CurrentFilterType == "Count" ? "" : "display:none;")">
+                    <select id="PatientCountSelect" class="form-control" style="min-width:180px;" onchange="LoadPageData();">
+                        @foreach (int opt in PatientCountOptions)
+                        {
+                            <option value="@opt" selected="@(opt == CurrentPatientCount ? "selected" : null)">Last @opt Patients</option>
+                        }
+                    </select>
+                </div>
+
+                <div id="DaysFilterPanel" style="@(CurrentFilterType == "Days" ? "display:contents;" : "display:none;")">
+                    <div class="am-check-grid" style="flex:1 1 auto;">
+                        @{
+                            var dayPresets = new List<KeyValuePair<string, string>>
+                            {
+                                new KeyValuePair<string, string>("Today", "Today"),
+                                new KeyValuePair<string, string>("Yesterday", "Yesterday"),
+                                new KeyValuePair<string, string>("Last15Days", "Last 15 Days"),
+                                new KeyValuePair<string, string>("Last1Month", "Last 1 Month"),
+                                new KeyValuePair<string, string>("Last3Months", "Last 3 Months"),
+                                new KeyValuePair<string, string>("Last6Months", "Last 6 Months"),
+                                new KeyValuePair<string, string>("Last1Year", "Last 1 Year"),
+                                new KeyValuePair<string, string>("All", "All"),
+                                new KeyValuePair<string, string>("Custom", "Custom Range"),
+                            };
+                        }
+                        @foreach (KeyValuePair<string, string> preset in dayPresets)
+                        {
+                            <div class="am-radio-pill">
+                                <input type="radio" name="DayPreset" value="@preset.Key" id="DayPreset_@preset.Key" @(CurrentDayPreset == preset.Key ? "checked=\"checked\"" : "") onchange="OnDayPresetChange();" />
+                                <label for="DayPreset_@preset.Key">@preset.Value</label>
+                            </div>
+                        }
+                    </div>
+                    <div id="CustomDateRange" style="@(CurrentDayPreset == "Custom" ? "" : "display:none;") flex-basis:100%; margin-top:10px;">
+                        <input type="text" id="FromDateInput" class="form-control datepicker" placeholder="From Date" value="@(CurrentFromDate?.ToString("dd-MMM-yyyy"))" style="display:inline-block; width:160px;" />
+                        <span style="margin:0 8px; color:var(--am-muted);">to</span>
+                        <input type="text" id="ToDateInput" class="form-control datepicker" placeholder="To Date" value="@(CurrentToDate?.ToString("dd-MMM-yyyy"))" style="display:inline-block; width:160px;" />
+                        <button class="btn btn-am-primary" onclick="LoadPageData();" style="margin-left:8px;"><i class="fa fa-check"></i> Apply</button>
+                    </div>
+                </div>
             </div>
 
             <div id="PatientSearchList" class="col-lg-12" style="padding-left:0px;">
@@ -247,11 +312,98 @@
 
     }
 
+    function OnFilterTypeChange() {
+        var type = $("input[name='PatientFilterType']:checked").val();
+        if (type === "Count") {
+            $("#CountFilterPanel").show();
+            $("#DaysFilterPanel").hide();
+        } else {
+            $("#CountFilterPanel").hide();
+            $("#DaysFilterPanel").show();
+        }
+        LoadPageData();
+    }
+
+    function OnDayPresetChange() {
+        var preset = $("input[name='DayPreset']:checked").val();
+        if (preset === "Custom") {
+            $("#CustomDateRange").show();
+            //wait for the user to actually pick both dates and hit Apply
+            return;
+        }
+        $("#CustomDateRange").hide();
+        LoadPageData();
+    }
+
+    var MonthAbbrev = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    function FormatDateForServer(d) {
+        var day = d.getDate();
+        return (day < 10 ? "0" + day : day) + "-" + MonthAbbrev[d.getMonth()] + "-" + d.getFullYear();
+    }
+
+    //computes the From/To range for every preset except Custom (which reads the
+    //two date pickers directly) - "All" still sends a (very wide) range rather than
+    //no range at all, so it goes through the same Days code path server-side instead
+    //of silently falling back to the Count-based Top(N) query
+    function GetDateRangeForPreset(preset) {
+        var to = new Date();
+        var from = new Date();
+        switch (preset) {
+            case "Today":
+                break;
+            case "Yesterday":
+                from.setDate(from.getDate() - 1);
+                to.setDate(to.getDate() - 1);
+                break;
+            case "Last15Days":
+                from.setDate(from.getDate() - 14);
+                break;
+            case "Last1Month":
+                from.setMonth(from.getMonth() - 1);
+                break;
+            case "Last3Months":
+                from.setMonth(from.getMonth() - 3);
+                break;
+            case "Last6Months":
+                from.setMonth(from.getMonth() - 6);
+                break;
+            case "Last1Year":
+                from.setFullYear(from.getFullYear() - 1);
+                break;
+            case "All":
+                from = new Date(1900, 0, 1);
+                break;
+        }
+        return { From: FormatDateForServer(from), To: FormatDateForServer(to) };
+    }
+
     function LoadPageData() {
+        var filterType = $("input[name='PatientFilterType']:checked").val() || "Count";
         var par = {
             searchText: $("#SearchTextBox").val(),
-
+            filterType: filterType
         };
+
+        if (filterType === "Count") {
+            par.count = $("#PatientCountSelect").val();
+        } else {
+            var preset = $("input[name='DayPreset']:checked").val() || "Last15Days";
+            par.dayPreset = preset;
+
+            if (preset === "Custom") {
+                par.fromDate = $("#FromDateInput").val();
+                par.toDate = $("#ToDateInput").val();
+                if (!par.fromDate || !par.toDate) {
+                    //nothing to apply yet - leave the list as it was until both dates are picked
+                    return;
+                }
+            } else {
+                var range = GetDateRangeForPreset(preset);
+                par.fromDate = range.From;
+                par.toDate = range.To;
+            }
+        }
+
         var url = '@Url.Action("GetPatientList", "Patient")' + '/?' + $.param(par);
         loadPage(url, "Patient");
     }

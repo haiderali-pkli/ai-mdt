@@ -23,7 +23,7 @@ namespace BDCS.Data
             _db = new SqlDbManager();
         }
 
-        public List<Patient> PatientSearchByText(string procedureName,string schema,string parameter,int clinicId,string locationIds)
+        public List<Patient> PatientSearchByText(string procedureName,string schema,string parameter,int clinicId,string locationIds,int count,DateTime? fromDate,DateTime? toDate)
             {
             List<Patient> Data = new List<Patient>();
             string Query = QueryHelper.GetQueryString(procedureName, schema);
@@ -32,6 +32,9 @@ namespace BDCS.Data
                 new DbParameters() { Name = "SearchText", Type = DbType.String, Value = parameter.ToString() },
                 new DbParameters() {Name="ClinicId",Type=DbType.Int32,Value=clinicId },
                 new DbParameters() {Name="LocationIds",Type=DbType.String,Value=locationIds ?? "" },
+                new DbParameters() {Name="Count",Type=DbType.Int32,Value=count },
+                new DbParameters() {Name="FromDate",Type=DbType.Date,Value=(object)fromDate ?? DBNull.Value },
+                new DbParameters() {Name="ToDate",Type=DbType.Date,Value=(object)toDate ?? DBNull.Value },
 
             };
  

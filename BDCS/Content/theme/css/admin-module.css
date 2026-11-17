@@ -686,6 +686,106 @@ body.clinic_version {
     color: var(--am-muted);
 }
 
+/* same pill look as am-check-pill, but for a mutually-exclusive radio group
+   (patient list filter presets) instead of a multi-select checkbox grid */
+.admin-module .am-radio-pill {
+    position: relative;
+}
+
+.admin-module .am-radio-pill input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+}
+
+.admin-module .am-radio-pill label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--am-border);
+    background: #fff;
+    color: var(--am-ink);
+    font-weight: 500;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .12s ease-in-out;
+    white-space: nowrap;
+}
+
+.admin-module .am-radio-pill input[type="radio"]:checked + label {
+    background: var(--am-primary);
+    border-color: var(--am-primary);
+    color: #fff;
+}
+
+/* Patient list filter bar: one tinted strip holding the Count/Days mode switch
+   and whichever controls that mode needs, instead of several stacked rows of
+   same-weight buttons competing with the search toolbar above them. */
+.admin-module .am-filter-bar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    background: var(--am-bg);
+    border: 1px solid var(--am-border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 16px;
+}
+
+.admin-module .am-filter-divider {
+    width: 1px;
+    align-self: stretch;
+    background: var(--am-border);
+}
+
+/* joined segmented control (mode switch), not two separate buttons with a gap */
+.admin-module .am-segmented {
+    display: inline-flex;
+    background: #fff;
+    border: 1px solid var(--am-border);
+    border-radius: 8px;
+    padding: 3px;
+    flex: none;
+}
+
+.admin-module .am-segmented-option {
+    position: relative;
+}
+
+.admin-module .am-segmented-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+}
+
+.admin-module .am-segmented-option label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 6px;
+    color: var(--am-muted);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .12s ease-in-out, color .12s ease-in-out;
+}
+
+.admin-module .am-segmented-option input[type="radio"]:checked + label {
+    background: var(--am-primary);
+    color: #fff;
+}
+
 .admin-module .am-check-pill input[type="checkbox"]:checked + label i {
     color: #fff;
 }

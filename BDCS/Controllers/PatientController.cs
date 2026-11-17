@@ -139,7 +139,7 @@ namespace BDCS.Controllers
         //LoginView Submit--> and call the -->ValidageLoginId and Rights-->PatientDAL-->AuthenticationFilter(check session values userId and Rigts)-->SessionHelper(check userobject and rights exists in session)-->
         #region [GetPatientList]
         [CheckUserRights(MenuName  = "Search Patient", Order = 1, UserRightType = RightType.View)]
-        public async Task<ActionResult> GetPatientList(string searchText)
+        public async Task<ActionResult> GetPatientList(string searchText, string filterType = "Count", int count = 20, DateTime? fromDate = null, DateTime? toDate = null, string dayPreset = "Last15Days")
          {
             List<Patient> pat = new List<Patient>();
             int clinicId = Convert.ToInt32(Session["ClinicId"]);
@@ -153,14 +153,24 @@ namespace BDCS.Controllers
             }
             if (userId>0)
             {
+                //"Days" mode only applies once both ends of the range are actually picked;
+                //otherwise (including the default, first-load case) it behaves exactly like
+                //the old hardcoded Top(20) always did
+                bool useDateRange = filterType == "Days" && fromDate.HasValue && toDate.HasValue;
                 if (searchText !=null)
                 {
                     await Task.Run(() =>
                     {
-                        pat = _PatientBL.GetPatientList(searchText, clinicId, SessionLocationIdsCsv);
+                        pat = _PatientBL.GetPatientList(searchText, clinicId, SessionLocationIdsCsv, count,
+                            useDateRange ? fromDate : null, useDateRange ? toDate : null);
                     });
                 }
                 ViewBag.SearchText = searchText;
+                ViewBag.FilterType = filterType;
+                ViewBag.PatientCount = count;
+                ViewBag.FromDate = fromDate;
+                ViewBag.ToDate = toDate;
+                ViewBag.DayPreset = dayPreset;
                 List<KeyAndValuePair> visit = await _CommonBL.GetDefinationData("lookups", "System", "VisitType");
                 ViewBag.VisitType = visit.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
@@ -1177,6 +1187,7 @@ namespace BDCS.Controllers
                     res.DoFullRedirect = true;
                     res.IsSuccess = true;
                     res.Message = "User Login Succcessfull";
+                    res.MessageTitle = "Success";
                     res.MessageClass = MessageConstants.MessageClassSuccess;
                     res.RedirectUrl = Url.Action("GetPatientList", "Patient");
                     res.ResponseObject = data.UserId;

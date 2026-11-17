@@ -25,7 +25,7 @@ namespace BDCS.Bussiness
         }
 
 
-        public List<Patient> GetPatientList(string searchText,int clinicId,string locationIds="") => _patientBL.PatientSearchByText("PatientSearchByText", "Clinical", searchText,clinicId,locationIds);
+        public List<Patient> GetPatientList(string searchText,int clinicId,string locationIds="",int count=20,DateTime? fromDate=null,DateTime? toDate=null) => _patientBL.PatientSearchByText("PatientSearchByText", "Clinical", searchText,clinicId,locationIds,count,fromDate,toDate);
         public List<Patient> GetFollowupPatientsForDate(DateTime date) => _patientBL.GetFollowupPatientsForDate(date);
         public async Task<int> InsertUpdatePatient(Patient patient) =>await _patientBL.InsertUpdatePatient(patient, "InsertUpdatePatient", "Clinical");
 

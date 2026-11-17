@@ -42,6 +42,14 @@ namespace BDCS.Controllers
         [AllowAnonymousSession]
         public ActionResult Login()
         {
+            //hitting the login page (or the "/" root, which routes here by default) while
+            //already logged in should land you back where you were, not re-show the login
+            //form - the session was fine, this page just never checked
+            if (SessionHelper.IsUserLoggedIn())
+            {
+                return RedirectToAction("GetPatientList", "Patient");
+            }
+
             return View();
         }
 

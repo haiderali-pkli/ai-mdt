@@ -11,6 +11,7 @@ namespace BDCS.Model.VitalHistory
         public int PatientDetailId { get; set; }
         public int PatientId { get; set; }
         public int VisitId { get; set; }
+        public bool IsLocked { get; set; }
         public DateTime? VisitDateTime { get; set; }
         public string VisitType { get; set; }
         public string CIC { get; set; }

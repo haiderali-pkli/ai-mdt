@@ -2,6 +2,7 @@ using BDCS.Bussiness;
 using BDCS.Constants;
 using BDCS.Model.Helper;
 using BDCS.Model.RoleRights;
+using BDCS.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace BDCS.Controllers
     {
         LocationBL _locationBL = new LocationBL();
 
+        [CheckUserRights(MenuName = "Locations", Order = 1, UserRightType = RightType.View)]
         public ActionResult AddEditLocation(int LocationId = 0)
         {
             Location Data = new Location();
@@ -24,6 +26,7 @@ namespace BDCS.Controllers
             return View(Data);
         }
 
+        [CheckUserRights(MenuName = "Locations", Order = 1, UserRightType = RightType.View)]
         public ActionResult GetLocationList(string searchText)
         {
             List<Location> Data = _locationBL.GetLocationList();
@@ -35,6 +38,7 @@ namespace BDCS.Controllers
             return View(Data);
         }
 
+        [CheckUserRights(MenuName = "Locations", Order = 1, UserRightType = RightType.AddEdit)]
         public async Task<ActionResult> InsertUpdateLocation(Location location)
         {
             AjaxResponse response = new AjaxResponse();

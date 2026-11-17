@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using BDCS.Models;
+using System.Web;
 using System.Web.Mvc;
 
 namespace BDCS
@@ -8,6 +9,7 @@ namespace BDCS
         public static void RegisterGlobalFilters(GlobalFilterCollection filters)
         {
             filters.Add(new HandleErrorAttribute());
+            filters.Add(new RequireSessionAttribute());
         }
     }
 }

@@ -49,10 +49,19 @@ namespace BDCS.Bussiness
                         {
                             rr.RoleId = RoleId;
 
-                            //TODO: call delete method and pass roleid and menuid
+                            //every row is submitted now (checked or not) so an unchecked right
+                            //can actually be revoked; a row with nothing granted is just deleted
+                            //instead of being re-inserted as a no-op all-false row
                             await _role.DeleteRoleRight(RoleId, rr.MenuId);
-                            Result = await _role.InsertUpdateRoleRight(rr,"InsertRoleRight", "System");
+                            if (rr.CanView || rr.CanAddEdit || rr.CanDelete)
+                            {
+                                await _role.InsertUpdateRoleRight(rr, "InsertRoleRight", "System");
+                            }
                         }
+
+                        //success is "the role itself saved", not "the last menu right insert
+                        //returned a row" - a role saved with every right revoked is still valid
+                        Result = RoleId;
                     }
 
                     scope.Complete();

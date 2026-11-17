@@ -1,5 +1,13 @@
 ﻿var HeartbeatTimer;
-function loadPage(url, name, targetElement) {
+
+// Lightweight page-history stack for the top "Back" button. Only top-level page
+// navigations (targetElement === 'MainContent') are tracked - tab switches, header
+// refreshes, and modal loads target a different element and are intentionally ignored,
+// so "Back" always means "the previous full page", not "the last thing that changed".
+var NavigationHistory = [];
+var CurrentPage = null;
+
+function loadPage(url, name, targetElement, isBackNavigation) {
     showProgressBar();
 
     targetElement = targetElement || 'MainContent';
@@ -11,6 +19,13 @@ function loadPage(url, name, targetElement) {
         success: function (res, status, jqXHR) {
             hideProgressBar();
             if (jqXHR.getResponseHeader('content-type').indexOf('text/html') >= 0) {
+
+                if (targetElement === 'MainContent') {
+                    if (!isBackNavigation && CurrentPage) {
+                        NavigationHistory.push(CurrentPage);
+                    }
+                    CurrentPage = { url: url, name: name };
+                }
 
                 $("#" + targetElement).empty();
                 $("#" + targetElement).html(res);
@@ -60,6 +75,20 @@ function loadPage(url, name, targetElement) {
             ShowAlertMessage("An error occured while loading page " + name, "Module", "error");
         }
     });
+}
+
+function GoBackPage() {
+    // Prefer the in-app AJAX history (Patient/Visit screens, which never change the
+    // browser URL) when there's an entry; the Admin screens (Users/Roles/MDT Types/
+    // Locations/Lookups) use plain full-page links instead, so they never populate
+    // this stack - the browser's own history already has a real entry for those,
+    // so falling back to it there is what makes Back work everywhere, always.
+    if (NavigationHistory.length > 0) {
+        var previous = NavigationHistory.pop();
+        loadPage(previous.url, previous.name, 'MainContent', true);
+    } else {
+        window.history.back();
+    }
 }
 
 

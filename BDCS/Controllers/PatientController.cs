@@ -129,6 +129,7 @@ namespace BDCS.Controllers
         }
         #endregion
 
+        [AllowAnonymousSession]
         public ActionResult Logout()
         {
             Session.Clear();
@@ -708,118 +709,156 @@ namespace BDCS.Controllers
             ViewBag.VisitIdVB = visitId;
             ViewBag.VisitTypeVB = reason;
             //ViewBag.VisitDateTimeVB = VisitDateTime;
-            List<KeyAndValuePair> CVS = await _CommonBL.GetDefinationData("Lookups", "System", "CVS");
+
+            //all of these lookup lists are independent of each other, so they're fired together
+            //instead of one at a time - this page was doing 30+ sequential DB round trips before.
+            //each uses its own CommonBL/connection (not the shared _CommonBL field) since that
+            //field's single SqlConnection can't safely run multiple commands at once.
+            Task<List<KeyAndValuePair>> CVSTask = new CommonBL().GetDefinationData("Lookups", "System", "CVS");
+            Task<List<KeyAndValuePair>> WeightUnitTask = new CommonBL().GetDefinationData("Lookups", "System", "WeightUnit");
+            Task<List<KeyAndValuePair>> HeightUnitTask = new CommonBL().GetDefinationData("Lookups", "System", "HeightUnit");
+            Task<List<KeyAndValuePair>> PresenttHxTask = new CommonBL().GetDefinationData("Lookups", "System", "PresentHx");
+            Task<List<KeyAndValuePair>> PastHxTask = new CommonBL().GetDefinationData("Lookups", "System", "PastHx");
+            Task<List<KeyAndValuePair>> SReponseTask = new CommonBL().GetDefinationData("Lookups", "System", "SResponse");
+            Task<List<KeyAndValuePair>> SLiverTask = new CommonBL().GetDefinationData("Lookups", "System", "SLiver");
+            Task<List<KeyAndValuePair>> SspleenTask = new CommonBL().GetDefinationData("Lookups", "System", "SSpleen");
+            Task<List<KeyAndValuePair>> PresentHistoryTask = new CommonBL().GetDefinationData("Lookups", "System", "PHx");
+            Task<List<KeyAndValuePair>> FamilyHistoryTask = new CommonBL().GetDefinationData("Lookups", "System", "FHx");
+            Task<List<KeyAndValuePair>> DrugHistoryTask = new CommonBL().GetDefinationData("Lookups", "System", "DrugHx");
+            Task<List<KeyAndValuePair>> SecHistoryTask = new CommonBL().GetDefinationData("Lookups", "System", "SECHx");
+            Task<List<KeyAndValuePair>> ComorbiditiesTask = new CommonBL().GetDefinationData("Lookups", "System", "Comorbidities");
+            Task<List<KeyAndValuePair>> TransfusionHxTask = new CommonBL().GetDefinationData("Lookups", "System", "TransfusionHx");
+            Task<List<KeyAndValuePair>> CICTask = new CommonBL().GetDefinationData("Lookups", "System", "CIC");
+            Task<List<KeyAndValuePair>> TestGroupTask = new CommonBL().GetDefinationData("Lookups", "System", "TestGroup");
+            Task<List<KeyAndValuePair>> LabTestListTask = new CommonBL().GetDefinationData("Lookups", "System", "LabTestList");
+            Task<List<KeyAndValuePair>> ResultLabelTask = new CommonBL().GetDefinationData("Lookups", "System", "ResultLabel");
+            Task<List<KeyAndValuePair>> DiagnosisTask = new CommonBL().GetDefinationData("lookups", "System", "DiagnosisType");
+            Task<List<KeyAndValuePair>> ChildStatusTask = new CommonBL().GetDefinationData("Lookups", "System", "ChildStatus");
+            Task<List<KeyAndValuePair>> MeldStatusTask = new CommonBL().GetDefinationData("Lookups", "System", "MeldStatus");
+            Task<List<KeyAndValuePair>> BCLCTask = new CommonBL().GetDefinationData("Lookups", "System", "BCLCStatus");
+            Task<List<KeyAndValuePair>> ECOGStatusTask = new CommonBL().GetDefinationData("Lookups", "System", "ECOGStatus");
+            Task<List<KeyAndValuePair>> HepStatusTask = new CommonBL().GetDefinationData("Lookups", "System", "HepStatus");
+            Task<List<KeyAndValuePair>> AscitiesStatusTask = new CommonBL().GetDefinationData("Lookups", "System", "AscitiesStatus");
+            Task<List<KeyAndValuePair>> LargestLesionSizeTask = new CommonBL().GetDefinationData("Lookups", "System", "LargestLesionSize");
+            Task<List<KeyAndValuePair>> MDTOutComeTask = new CommonBL().GetDefinationData("Lookups", "System", "MDTOutCome");
+            Task<List<KeyAndValuePair>> SiteOfAngioinvasionTask = new CommonBL().GetDefinationData("Lookups", "System", "SiteOfAngioinvasion");
+            Task<List<KeyAndValuePair>> TreatmentResponseTask = new CommonBL().GetDefinationData("Lookups", "System", "TreatmentResponse");
+            Task<List<KeyAndValuePair>> RefusalReasonTask = new CommonBL().GetDefinationData("Lookups", "System", "RefusalReason");
+            Task<List<KeyAndValuePair>> SitesOfExtraHepaticDiseaseTask = new CommonBL().GetDefinationData("Lookups", "System", "SitesOfExtraHepaticDisease");
+            Task<List<KeyAndValuePair>> SVRStatusTask = new CommonBL().GetDefinationData("Lookups", "System", "SVRStatus");
+
+            List<VitalHistory> Data = new List<VitalHistory>();
+            Task PatientDetailTask = Task.Run(() =>
+            {
+                Data = _PatientBL.GetPatientDetail(visitId, patId);
+                if (Data.Count > 0)
+                {
+                    Data[0].PatientDiagnosis = _PatientBL.GetPatientDiagnosisAgainstVisit(visitId);
+                }
+            });
+
+            await Task.WhenAll(CVSTask, WeightUnitTask, HeightUnitTask, PresenttHxTask, PastHxTask, SReponseTask,
+                SLiverTask, SspleenTask, PresentHistoryTask, FamilyHistoryTask, DrugHistoryTask, SecHistoryTask,
+                ComorbiditiesTask, TransfusionHxTask, CICTask, TestGroupTask, LabTestListTask, ResultLabelTask,
+                DiagnosisTask, ChildStatusTask, MeldStatusTask, BCLCTask, ECOGStatusTask, HepStatusTask,
+                AscitiesStatusTask, LargestLesionSizeTask, MDTOutComeTask, SiteOfAngioinvasionTask,
+                TreatmentResponseTask, RefusalReasonTask, SitesOfExtraHepaticDiseaseTask, SVRStatusTask,
+                PatientDetailTask);
+
             //select list item MVC internally manage it for dropdown id and text. we no need to make a manual list and convert it in list form
+            List<KeyAndValuePair> CVS = CVSTask.Result;
             ViewBag.cvsVB = CVS.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> WeightUnit = await _CommonBL.GetDefinationData("Lookups", "System", "WeightUnit");
+            List<KeyAndValuePair> WeightUnit = WeightUnitTask.Result;
             ViewBag.WeightUnitVB = WeightUnit.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> HeightUnit = await _CommonBL.GetDefinationData("Lookups", "System", "HeightUnit");
+            List<KeyAndValuePair> HeightUnit = HeightUnitTask.Result;
             ViewBag.HeightUnitVB = HeightUnit.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> PresenttHx = await _CommonBL.GetDefinationData("Lookups", "System", "PresentHx");
+            List<KeyAndValuePair> PresenttHx = PresenttHxTask.Result;
             ViewBag.PresenttHxVB = PresenttHx.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> PastHx = await _CommonBL.GetDefinationData("Lookups", "System", "PastHx");
+            List<KeyAndValuePair> PastHx = PastHxTask.Result;
             ViewBag.PastHxVB = PastHx.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> SReponse = await _CommonBL.GetDefinationData("Lookups", "System", "SResponse");
+            List<KeyAndValuePair> SReponse = SReponseTask.Result;
             ViewBag.sresponseVB = SReponse.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> SLiver = await _CommonBL.GetDefinationData("Lookups", "System", "SLiver");
+            List<KeyAndValuePair> SLiver = SLiverTask.Result;
             ViewBag.sliverVB = SLiver.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> Sspleen = await _CommonBL.GetDefinationData("Lookups", "System", "SSpleen");
+            List<KeyAndValuePair> Sspleen = SspleenTask.Result;
             ViewBag.sspleenVB = Sspleen.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> PresentHistory = await _CommonBL.GetDefinationData("Lookups", "System", "PHx");
+            List<KeyAndValuePair> PresentHistory = PresentHistoryTask.Result;
             ViewBag.presentHistoryVB = PresentHistory.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-            List<KeyAndValuePair> FamilyHistory = await _CommonBL.GetDefinationData("Lookups", "System", "FHx");
+            List<KeyAndValuePair> FamilyHistory = FamilyHistoryTask.Result;
             ViewBag.FamilyHistoryVB = FamilyHistory.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-            List<KeyAndValuePair> DrugHistory = await _CommonBL.GetDefinationData("Lookups", "System", "DrugHx");
+            List<KeyAndValuePair> DrugHistory = DrugHistoryTask.Result;
             ViewBag.DrugHistoryVB = DrugHistory.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-            List<KeyAndValuePair> SecHistory = await _CommonBL.GetDefinationData("Lookups", "System", "SECHx");
+            List<KeyAndValuePair> SecHistory = SecHistoryTask.Result;
             ViewBag.SecHistoryVB = SecHistory.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
 
-            List<KeyAndValuePair> Comorbidities = await _CommonBL.GetDefinationData("Lookups", "System", "Comorbidities");
+            List<KeyAndValuePair> Comorbidities = ComorbiditiesTask.Result;
             ViewBag.ComorbiditiesVB = Comorbidities.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-            List<KeyAndValuePair> TransfusionHx = await _CommonBL.GetDefinationData("Lookups", "System", "TransfusionHx");
+            List<KeyAndValuePair> TransfusionHx = TransfusionHxTask.Result;
             ViewBag.TransfusionHxVB = TransfusionHx.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> CIC = await _CommonBL.GetDefinationData("Lookups", "System", "CIC");
+            List<KeyAndValuePair> CIC = CICTask.Result;
             ViewBag.CICVBB = CIC.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-            List<KeyAndValuePair> TestGroup = await _CommonBL.GetDefinationData("Lookups", "System", "TestGroup");
+            List<KeyAndValuePair> TestGroup = TestGroupTask.Result;
             ViewBag.TestGroup = TestGroup.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-            List<KeyAndValuePair> LabTestList = await _CommonBL.GetDefinationData("Lookups", "System", "LabTestList");
+            List<KeyAndValuePair> LabTestList = LabTestListTask.Result;
             ViewBag.LabTestListVB = LabTestList.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-            List<KeyAndValuePair> ResultLabel = await _CommonBL.GetDefinationData("Lookups", "System", "ResultLabel");
+            List<KeyAndValuePair> ResultLabel = ResultLabelTask.Result;
             ViewBag.ResultLabelVB = ResultLabel.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
 
-            List<KeyAndValuePair> Diagnosis = await _CommonBL.GetDefinationData("lookups", "System", "DiagnosisType");
+            List<KeyAndValuePair> Diagnosis = DiagnosisTask.Result;
             ViewBag.DiagnosisVB = Diagnosis.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
 
-            List<KeyAndValuePair> ChildStatus = await _CommonBL.GetDefinationData("Lookups", "System", "ChildStatus");
+            List<KeyAndValuePair> ChildStatus = ChildStatusTask.Result;
             ViewBag.ChildStatusVB = ChildStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-            List<KeyAndValuePair> MeldStatus = await _CommonBL.GetDefinationData("Lookups", "System", "MeldStatus");
+            List<KeyAndValuePair> MeldStatus = MeldStatusTask.Result;
             ViewBag.MeldStatusVB = MeldStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-            List<KeyAndValuePair> BCLC = await _CommonBL.GetDefinationData("Lookups", "System", "BCLCStatus");
+            List<KeyAndValuePair> BCLC = BCLCTask.Result;
             ViewBag.BCLCVB = BCLC.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
 
-            List<KeyAndValuePair> ECOGStatus = await _CommonBL.GetDefinationData("Lookups", "System", "ECOGStatus");
+            List<KeyAndValuePair> ECOGStatus = ECOGStatusTask.Result;
             ViewBag.ECOGStatusVB = ECOGStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
 
-            List<KeyAndValuePair> HepStatus = await _CommonBL.GetDefinationData("Lookups", "System", "HepStatus");
+            List<KeyAndValuePair> HepStatus = HepStatusTask.Result;
             ViewBag.HepStatusVB = HepStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
 
-            List<KeyAndValuePair> AscitiesStatus = await _CommonBL.GetDefinationData("Lookups", "System", "AscitiesStatus");
+            List<KeyAndValuePair> AscitiesStatus = AscitiesStatusTask.Result;
             ViewBag.AscitiesStatusVB = AscitiesStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-            List<KeyAndValuePair> LargestLesionSize = await _CommonBL.GetDefinationData("Lookups", "System", "LargestLesionSize");
+            List<KeyAndValuePair> LargestLesionSize = LargestLesionSizeTask.Result;
             ViewBag.LargestLesionSizeVB = LargestLesionSize.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-            List<KeyAndValuePair> MDTOutCome = await _CommonBL.GetDefinationData("Lookups", "System", "MDTOutCome");
+            List<KeyAndValuePair> MDTOutCome = MDTOutComeTask.Result;
             ViewBag.MDTOutComeVB = MDTOutCome.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
 
 
-            List<KeyAndValuePair> SiteOfAngioinvasion = await _CommonBL.GetDefinationData("Lookups", "System", "SiteOfAngioinvasion");
+            List<KeyAndValuePair> SiteOfAngioinvasion = SiteOfAngioinvasionTask.Result;
             ViewBag.SiteOfAngioinvasionDropdown = SiteOfAngioinvasion.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
 
-            List<KeyAndValuePair> TreatmentResponse = await _CommonBL.GetDefinationData("Lookups", "System", "TreatmentResponse");
+            List<KeyAndValuePair> TreatmentResponse = TreatmentResponseTask.Result;
             ViewBag.TreatmentResponseVB = TreatmentResponse.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-            List<KeyAndValuePair> RefusalReason = await _CommonBL.GetDefinationData("Lookups", "System", "RefusalReason");
+            List<KeyAndValuePair> RefusalReason = RefusalReasonTask.Result;
             ViewBag.RefusalReasonVB = RefusalReason.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
-            List<KeyAndValuePair> SitesOfExtraHepaticDisease = await _CommonBL.GetDefinationData("Lookups", "System", "SitesOfExtraHepaticDisease");
+            List<KeyAndValuePair> SitesOfExtraHepaticDisease = SitesOfExtraHepaticDiseaseTask.Result;
             ViewBag.SitesOfExtraHepaticDiseaseVB = SitesOfExtraHepaticDisease.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
 
-            //List<KeyAndValuePair> SitesOfExtraHepaticDisease = await _CommonBL.GetDefinationData("Lookups", "System", "SitesOfExtraHepaticDisease");
-            //ViewBag.SitesOfExtraHepaticDiseaseVB = SitesOfExtraHepaticDisease.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            
-            List<KeyAndValuePair> SVRStatus = await _CommonBL.GetDefinationData("Lookups", "System", "SVRStatus");
+            List<KeyAndValuePair> SVRStatus = SVRStatusTask.Result;
             ViewBag.SVRStatusVB = SVRStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<VitalHistory> Data = new List<VitalHistory>();
 
-            //if (Data != null && Data.Count > 0)
-            //{
-                await Task.Run(() =>
-                    {
-                        Data = _PatientBL.GetPatientDetail(visitId, patId);
-                        if (Data.Count>0)
-                        {
-                            //Data[0].labreports = _PatientBL.GetLabOrders(visitId);
-                            //Data[0].PreviousLab = _PatientBL.GetPreviousLabReport(visitId);
-                            Data[0].PatientDiagnosis = _PatientBL.GetPatientDiagnosisAgainstVisit(visitId);
-                        }
-                    }
-                );
-            //}
             ViewBag.VisitIdVB = visitId;
             ViewBag.patientIdVB = patId;
             ViewBag.reasonVB = TempData["reasonVB"];
@@ -999,6 +1038,19 @@ namespace BDCS.Controllers
                         ResponseObject = result,
                     };       
                 }
+                else if (vitalHistory.PatientDetailId > 0
+                    && (_PatientBL.GetPatientDetail(vitalHistory.VisitId, vitalHistory.PatientId).FirstOrDefault()?.IsLocked ?? false)
+                    && !SessionHelper.IsUserAuthorized("Unlock MDT Record", RightType.AddEdit))
+                {
+                    response = new AjaxResponse
+                    {
+                        Code = 403,
+                        IsSuccess = false,
+                        Message = "This MDT record is locked and can only be changed by an authorized user.",
+                        MessageTitle = "Record Locked",
+                        MessageClass = MessageConstants.MessageClassWarning,
+                    };
+                }
                 else
                 {
                     Users u = Session["User"] as Users;
@@ -1076,6 +1128,7 @@ namespace BDCS.Controllers
             ViewBag.PatientName = patName;
             return View(data);
         }
+        [AllowAnonymousSession]
         public async Task<ActionResult> ValidateLogin(string loginId,string password)
         {
             Users data = new Users();
@@ -2260,131 +2313,172 @@ namespace BDCS.Controllers
             ViewBag.VisitIdVB = visitId;
             ViewBag.VisitTypeVB = reason;
             //ViewBag.VisitDateTimeVB = VisitDateTime;
-            List<KeyAndValuePair> CVS = await _CommonBL.GetDefinationData("Lookups", "System", "CVS");
-            //select list item MVC internally manage it for dropdown id and text. we no need to make a manual list and convert it in list form
-            ViewBag.cvsVB = CVS.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> WeightUnit = await _CommonBL.GetDefinationData("Lookups", "System", "WeightUnit");
-            ViewBag.WeightUnitVB = WeightUnit.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> HeightUnit = await _CommonBL.GetDefinationData("Lookups", "System", "HeightUnit");
-            ViewBag.HeightUnitVB = HeightUnit.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> PresenttHx = await _CommonBL.GetDefinationData("Lookups", "System", "PresentHx");
-            ViewBag.PresenttHxVB = PresenttHx.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> PastHx = await _CommonBL.GetDefinationData("Lookups", "System", "PastHx");
-            ViewBag.PastHxVB = PastHx.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> SReponse = await _CommonBL.GetDefinationData("Lookups", "System", "SResponse");
-            ViewBag.sresponseVB = SReponse.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> SLiver = await _CommonBL.GetDefinationData("Lookups", "System", "SLiver");
-            ViewBag.sliverVB = SLiver.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> Sspleen = await _CommonBL.GetDefinationData("Lookups", "System", "SSpleen");
-            ViewBag.sspleenVB = Sspleen.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> PresentHistory = await _CommonBL.GetDefinationData("Lookups", "System", "PHx");
-            ViewBag.presentHistoryVB = PresentHistory.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //all of these lookup lists are independent of each other, so they're fired together
+            //instead of one at a time - this page was doing 39+ sequential DB round trips before.
+            //each uses its own CommonBL/connection (not the shared _CommonBL field) since that
+            //field's single SqlConnection can't safely run multiple commands at once.
+            Task<List<KeyAndValuePair>> CVSTask = new CommonBL().GetDefinationData("Lookups", "System", "CVS");
+            Task<List<KeyAndValuePair>> WeightUnitTask = new CommonBL().GetDefinationData("Lookups", "System", "WeightUnit");
+            Task<List<KeyAndValuePair>> HeightUnitTask = new CommonBL().GetDefinationData("Lookups", "System", "HeightUnit");
+            Task<List<KeyAndValuePair>> PresenttHxTask = new CommonBL().GetDefinationData("Lookups", "System", "PresentHx");
+            Task<List<KeyAndValuePair>> PastHxTask = new CommonBL().GetDefinationData("Lookups", "System", "PastHx");
+            Task<List<KeyAndValuePair>> SReponseTask = new CommonBL().GetDefinationData("Lookups", "System", "SResponse");
+            Task<List<KeyAndValuePair>> SLiverTask = new CommonBL().GetDefinationData("Lookups", "System", "SLiver");
+            Task<List<KeyAndValuePair>> SspleenTask = new CommonBL().GetDefinationData("Lookups", "System", "SSpleen");
+            Task<List<KeyAndValuePair>> PresentHistoryTask = new CommonBL().GetDefinationData("Lookups", "System", "PHx");
+            Task<List<KeyAndValuePair>> FamilyHistoryTask = new CommonBL().GetDefinationData("Lookups", "System", "FHx");
+            Task<List<KeyAndValuePair>> DrugHistoryTask = new CommonBL().GetDefinationData("Lookups", "System", "DrugHx");
+            Task<List<KeyAndValuePair>> SecHistoryTask = new CommonBL().GetDefinationData("Lookups", "System", "SECHx");
+            Task<List<KeyAndValuePair>> ComorbiditiesTask = new CommonBL().GetDefinationData("Lookups", "System", "ComorbiditiesBMT");
+            Task<List<KeyAndValuePair>> TransfusionHxTask = new CommonBL().GetDefinationData("Lookups", "System", "TransfusionHx");
+            Task<List<KeyAndValuePair>> CICTask = new CommonBL().GetDefinationData("Lookups", "System", "CIC");
+            Task<List<KeyAndValuePair>> TestGroupTask = new CommonBL().GetDefinationData("Lookups", "System", "TestGroup");
+            Task<List<KeyAndValuePair>> LabTestListTask = new CommonBL().GetDefinationData("Lookups", "System", "LabTestList");
+            Task<List<KeyAndValuePair>> ResultLabelTask = new CommonBL().GetDefinationData("Lookups", "System", "ResultLabel");
+            Task<List<KeyAndValuePair>> DiagnosisTask = new CommonBL().GetDefinationData("lookups", "System", "DiagnosisTypeBMT");
+            Task<List<KeyAndValuePair>> DiseaseStatusTask = new CommonBL().GetDefinationData("lookups", "System", "DiseaseStatusBMT");
+            Task<List<KeyAndValuePair>> LanskyTask = new CommonBL().GetDefinationData("Lookups", "System", "LanskyBMT");
+            Task<List<KeyAndValuePair>> HCTCITask = new CommonBL().GetDefinationData("Lookups", "System", "HCTCIBMT");
+            Task<List<KeyAndValuePair>> ECOGStatusTask = new CommonBL().GetDefinationData("Lookups", "System", "ECOGStatus");
+            Task<List<KeyAndValuePair>> HepBTask = new CommonBL().GetDefinationData("Lookups", "System", "HEBBMT");
+            Task<List<KeyAndValuePair>> HepCTask = new CommonBL().GetDefinationData("Lookups", "System", "HEPCBMT");
+            Task<List<KeyAndValuePair>> HIVTask = new CommonBL().GetDefinationData("Lookups", "System", "HIVBMT");
+            Task<List<KeyAndValuePair>> StageTask = new CommonBL().GetDefinationData("Lookups", "System", "StageBMT");
+            Task<List<KeyAndValuePair>> RiskScoreTask = new CommonBL().GetDefinationData("Lookups", "System", "RiskScoreBMT");
+            Task<List<KeyAndValuePair>> ChelationTask = new CommonBL().GetDefinationData("Lookups", "System", "ChelationBMT");
+            Task<List<KeyAndValuePair>> SiteOfLymphNodesTask = new CommonBL().GetDefinationData("Lookups", "System", "SiteOfLymphNodesBMT");
+            Task<List<KeyAndValuePair>> PreviousTreatmentTypeBMTTask = new CommonBL().GetDefinationData("Lookups", "System", "PreviousTreatmentTypeBMT");
+            Task<List<KeyAndValuePair>> TreatmentTypeBMTTask = new CommonBL().GetDefinationData("Lookups", "System", "TreatmentTypeBMT");
+            Task<List<KeyAndValuePair>> MDTOutComeTask = new CommonBL().GetDefinationData("Lookups", "System", "MDTOutComesBMT");
+            Task<List<KeyAndValuePair>> SiteOfAngioinvasionTask = new CommonBL().GetDefinationData("Lookups", "System", "SiteOfAngioinvasion");
+            Task<List<KeyAndValuePair>> TreatmentResponseTask = new CommonBL().GetDefinationData("Lookups", "System", "TreatmentResponse");
+            Task<List<KeyAndValuePair>> RefusalReasonTask = new CommonBL().GetDefinationData("Lookups", "System", "RefusalReason");
+            Task<List<KeyAndValuePair>> SitesOfExtraHepaticDiseaseTask = new CommonBL().GetDefinationData("Lookups", "System", "SitesOfExtraHepaticDisease");
+            Task<List<KeyAndValuePair>> SVRStatusTask = new CommonBL().GetDefinationData("Lookups", "System", "SVRStatus");
 
-            List<KeyAndValuePair> FamilyHistory = await _CommonBL.GetDefinationData("Lookups", "System", "FHx");
-            ViewBag.FamilyHistoryVB = FamilyHistory.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-
-            List<KeyAndValuePair> DrugHistory = await _CommonBL.GetDefinationData("Lookups", "System", "DrugHx");
-            ViewBag.DrugHistoryVB = DrugHistory.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-
-            List<KeyAndValuePair> SecHistory = await _CommonBL.GetDefinationData("Lookups", "System", "SECHx");
-            ViewBag.SecHistoryVB = SecHistory.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-
-            List<KeyAndValuePair> Comorbidities = await _CommonBL.GetDefinationData("Lookups", "System", "ComorbiditiesBMT");
-            ViewBag.ComorbiditiesVB = Comorbidities.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-
-            List<KeyAndValuePair> TransfusionHx = await _CommonBL.GetDefinationData("Lookups", "System", "TransfusionHx");
-            ViewBag.TransfusionHxVB = TransfusionHx.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<KeyAndValuePair> CIC = await _CommonBL.GetDefinationData("Lookups", "System", "CIC");
-            ViewBag.CICVBB = CIC.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-
-            List<KeyAndValuePair> TestGroup = await _CommonBL.GetDefinationData("Lookups", "System", "TestGroup");
-            ViewBag.TestGroup = TestGroup.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-
-            List<KeyAndValuePair> LabTestList = await _CommonBL.GetDefinationData("Lookups", "System", "LabTestList");
-            ViewBag.LabTestListVB = LabTestList.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-
-            List<KeyAndValuePair> ResultLabel = await _CommonBL.GetDefinationData("Lookups", "System", "ResultLabel");
-            ViewBag.ResultLabelVB = ResultLabel.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            //Changes
-            List<KeyAndValuePair> Diagnosis = await _CommonBL.GetDefinationData("lookups", "System", "DiagnosisTypeBMT");
-            ViewBag.DiagnosisVB = Diagnosis.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
-            //Changes
-            List<KeyAndValuePair> DiseaseStatus = await _CommonBL.GetDefinationData("lookups", "System", "DiseaseStatusBMT");
-            ViewBag.DiseaseStatusVB = DiseaseStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            //Changes
-            List<KeyAndValuePair> Lansky= await _CommonBL.GetDefinationData("Lookups", "System", "LanskyBMT");
-            ViewBag.LanskyVB = Lansky.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            //Changes
-            List<KeyAndValuePair> HCTCI= await _CommonBL.GetDefinationData("Lookups", "System", "HCTCIBMT");
-            ViewBag.HCTCIVB = HCTCI.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            //Changes
-            List<KeyAndValuePair> ECOGStatus = await _CommonBL.GetDefinationData("Lookups", "System", "ECOGStatus");
-            ViewBag.ECOGStatusVB = ECOGStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            //Changes
-            List<KeyAndValuePair> HepB = await _CommonBL.GetDefinationData("Lookups", "System", "HEBBMT");
-            ViewBag.HepBVB= HepB.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            //Changes
-            List<KeyAndValuePair> HepC = await _CommonBL.GetDefinationData("Lookups", "System", "HEPCBMT");
-            ViewBag.HepCVB= HepC.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            //Changes
-            List<KeyAndValuePair> HIV= await _CommonBL.GetDefinationData("Lookups", "System", "HIVBMT");
-            ViewBag.HIVVB = HIV.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            //Changes
-            List<KeyAndValuePair> Stage = await _CommonBL.GetDefinationData("Lookups", "System", "StageBMT");
-            ViewBag.StageVB = Stage.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
-            //Changes
-            List<KeyAndValuePair> RiskScore = await _CommonBL.GetDefinationData("Lookups", "System", "RiskScoreBMT");
-            ViewBag.RiskScoreVB = RiskScore.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
-            //Changes
-            List<KeyAndValuePair> Chelation= await _CommonBL.GetDefinationData("Lookups", "System", "ChelationBMT");
-            ViewBag.ChelationVB = Chelation.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            //Changes
-            List<KeyAndValuePair> SiteOfLymphNodes= await _CommonBL.GetDefinationData("Lookups", "System", "SiteOfLymphNodesBMT");
-            ViewBag.SiteOfLymphNodesVB = SiteOfLymphNodes.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value}).ToList();
-            //Changes
-            List<KeyAndValuePair> PreviousTreatmentTypeBMT = await _CommonBL.GetDefinationData("Lookups", "System", "PreviousTreatmentTypeBMT");
-            ViewBag.PreviousTreatmentTypeBMTVB = PreviousTreatmentTypeBMT.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value}).ToList();
-            //Changes
-            List<KeyAndValuePair> TreatmentTypeBMT = await _CommonBL.GetDefinationData("Lookups", "System", "TreatmentTypeBMT");
-            ViewBag.TreatmentTypeBMTVB = TreatmentTypeBMT.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value}).ToList();
-
-            List<KeyAndValuePair> MDTOutCome = await _CommonBL.GetDefinationData("Lookups", "System", "MDTOutComesBMT");
-            ViewBag.MDTOutComeVB = MDTOutCome.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
-
-            List<KeyAndValuePair> SiteOfAngioinvasion = await _CommonBL.GetDefinationData("Lookups", "System", "SiteOfAngioinvasion");
-            ViewBag.SiteOfAngioinvasionDropdown = SiteOfAngioinvasion.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
-
-            List<KeyAndValuePair> TreatmentResponse = await _CommonBL.GetDefinationData("Lookups", "System", "TreatmentResponse");
-            ViewBag.TreatmentResponseVB = TreatmentResponse.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-
-            List<KeyAndValuePair> RefusalReason = await _CommonBL.GetDefinationData("Lookups", "System", "RefusalReason");
-            ViewBag.RefusalReasonVB = RefusalReason.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-
-            List<KeyAndValuePair> SitesOfExtraHepaticDisease = await _CommonBL.GetDefinationData("Lookups", "System", "SitesOfExtraHepaticDisease");
-            ViewBag.SitesOfExtraHepaticDiseaseVB = SitesOfExtraHepaticDisease.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
-
-           // List<KeyAndValuePair> MDTOutComes = await _CommonBL.GetDefinationData("Lookups", "System", "MDTOutCome");
-           // ViewBag.MDTOutComeVB = MDTOutComes.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-
-            List<KeyAndValuePair> SVRStatus = await _CommonBL.GetDefinationData("Lookups", "System", "SVRStatus");
-            ViewBag.SVRStatusVB = SVRStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
             List<VitalHistoryBMT> Data = new List<VitalHistoryBMT>();
-
-            //if (Data != null && Data.Count > 0)
-            //{
-            await Task.Run(() =>
+            Task PatientDetailTask = Task.Run(() =>
             {
                 Data = _PatientBL.GetBMTPatientDetail(visitId, patId);
                 if (Data.Count > 0)
                 {
-                    //Data[0].labreports = _PatientBL.GetLabOrders(visitId);
-                    //Data[0].PreviousLab = _PatientBL.GetPreviousLabReport(visitId);
                     Data[0].PatientDiagnosis = _PatientBL.GetPatientDiagnosisAgainstVisitBMT(visitId);
-
                 }
-            }
-            );
-            //}
+            });
+
+            await Task.WhenAll(CVSTask, WeightUnitTask, HeightUnitTask, PresenttHxTask, PastHxTask, SReponseTask,
+                SLiverTask, SspleenTask, PresentHistoryTask, FamilyHistoryTask, DrugHistoryTask, SecHistoryTask,
+                ComorbiditiesTask, TransfusionHxTask, CICTask, TestGroupTask, LabTestListTask, ResultLabelTask,
+                DiagnosisTask, DiseaseStatusTask, LanskyTask, HCTCITask, ECOGStatusTask, HepBTask, HepCTask,
+                HIVTask, StageTask, RiskScoreTask, ChelationTask, SiteOfLymphNodesTask, PreviousTreatmentTypeBMTTask,
+                TreatmentTypeBMTTask, MDTOutComeTask, SiteOfAngioinvasionTask, TreatmentResponseTask,
+                RefusalReasonTask, SitesOfExtraHepaticDiseaseTask, SVRStatusTask, PatientDetailTask);
+
+            //select list item MVC internally manage it for dropdown id and text. we no need to make a manual list and convert it in list form
+            List<KeyAndValuePair> CVS = CVSTask.Result;
+            ViewBag.cvsVB = CVS.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> WeightUnit = WeightUnitTask.Result;
+            ViewBag.WeightUnitVB = WeightUnit.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> HeightUnit = HeightUnitTask.Result;
+            ViewBag.HeightUnitVB = HeightUnit.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> PresenttHx = PresenttHxTask.Result;
+            ViewBag.PresenttHxVB = PresenttHx.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> PastHx = PastHxTask.Result;
+            ViewBag.PastHxVB = PastHx.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> SReponse = SReponseTask.Result;
+            ViewBag.sresponseVB = SReponse.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> SLiver = SLiverTask.Result;
+            ViewBag.sliverVB = SLiver.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> Sspleen = SspleenTask.Result;
+            ViewBag.sspleenVB = Sspleen.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> PresentHistory = PresentHistoryTask.Result;
+            ViewBag.presentHistoryVB = PresentHistory.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> FamilyHistory = FamilyHistoryTask.Result;
+            ViewBag.FamilyHistoryVB = FamilyHistory.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> DrugHistory = DrugHistoryTask.Result;
+            ViewBag.DrugHistoryVB = DrugHistory.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> SecHistory = SecHistoryTask.Result;
+            ViewBag.SecHistoryVB = SecHistory.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> Comorbidities = ComorbiditiesTask.Result;
+            ViewBag.ComorbiditiesVB = Comorbidities.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> TransfusionHx = TransfusionHxTask.Result;
+            ViewBag.TransfusionHxVB = TransfusionHx.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            List<KeyAndValuePair> CIC = CICTask.Result;
+            ViewBag.CICVBB = CIC.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> TestGroup = TestGroupTask.Result;
+            ViewBag.TestGroup = TestGroup.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> LabTestList = LabTestListTask.Result;
+            ViewBag.LabTestListVB = LabTestList.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> ResultLabel = ResultLabelTask.Result;
+            ViewBag.ResultLabelVB = ResultLabel.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> Diagnosis = DiagnosisTask.Result;
+            ViewBag.DiagnosisVB = Diagnosis.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+            //Changes
+            List<KeyAndValuePair> DiseaseStatus = DiseaseStatusTask.Result;
+            ViewBag.DiseaseStatusVB = DiseaseStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> Lansky= LanskyTask.Result;
+            ViewBag.LanskyVB = Lansky.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> HCTCI= HCTCITask.Result;
+            ViewBag.HCTCIVB = HCTCI.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> ECOGStatus = ECOGStatusTask.Result;
+            ViewBag.ECOGStatusVB = ECOGStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> HepB = HepBTask.Result;
+            ViewBag.HepBVB= HepB.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> HepC = HepCTask.Result;
+            ViewBag.HepCVB= HepC.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> HIV= HIVTask.Result;
+            ViewBag.HIVVB = HIV.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> Stage = StageTask.Result;
+            ViewBag.StageVB = Stage.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+            //Changes
+            List<KeyAndValuePair> RiskScore = RiskScoreTask.Result;
+            ViewBag.RiskScoreVB = RiskScore.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+            //Changes
+            List<KeyAndValuePair> Chelation= ChelationTask.Result;
+            ViewBag.ChelationVB = Chelation.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Changes
+            List<KeyAndValuePair> SiteOfLymphNodes= SiteOfLymphNodesTask.Result;
+            ViewBag.SiteOfLymphNodesVB = SiteOfLymphNodes.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value}).ToList();
+            //Changes
+            List<KeyAndValuePair> PreviousTreatmentTypeBMT = PreviousTreatmentTypeBMTTask.Result;
+            ViewBag.PreviousTreatmentTypeBMTVB = PreviousTreatmentTypeBMT.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value}).ToList();
+            //Changes
+            List<KeyAndValuePair> TreatmentTypeBMT = TreatmentTypeBMTTask.Result;
+            ViewBag.TreatmentTypeBMTVB = TreatmentTypeBMT.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value}).ToList();
+
+            List<KeyAndValuePair> MDTOutCome = MDTOutComeTask.Result;
+            ViewBag.MDTOutComeVB = MDTOutCome.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+
+            List<KeyAndValuePair> SiteOfAngioinvasion = SiteOfAngioinvasionTask.Result;
+            ViewBag.SiteOfAngioinvasionDropdown = SiteOfAngioinvasion.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+
+            List<KeyAndValuePair> TreatmentResponse = TreatmentResponseTask.Result;
+            ViewBag.TreatmentResponseVB = TreatmentResponse.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> RefusalReason = RefusalReasonTask.Result;
+            ViewBag.RefusalReasonVB = RefusalReason.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+
+            List<KeyAndValuePair> SitesOfExtraHepaticDisease = SitesOfExtraHepaticDiseaseTask.Result;
+            ViewBag.SitesOfExtraHepaticDiseaseVB = SitesOfExtraHepaticDisease.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
+
+            List<KeyAndValuePair> SVRStatus = SVRStatusTask.Result;
+            ViewBag.SVRStatusVB = SVRStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
             ViewBag.VisitIdVB = visitId;
             ViewBag.patientIdVB = patId;
@@ -2440,6 +2534,19 @@ namespace BDCS.Controllers
                         MessageTitle = MessageConstants.NoDataReceived,
                         MessageClass = MessageConstants.MessageClassWarning,
                         ResponseObject = result,
+                    };
+                }
+                else if (vitalHistory.PatientDetailId > 0
+                    && (_PatientBL.GetBMTPatientDetail(vitalHistory.VisitId, vitalHistory.PatientId).FirstOrDefault()?.IsLocked ?? false)
+                    && !SessionHelper.IsUserAuthorized("Unlock MDT Record", RightType.AddEdit))
+                {
+                    response = new AjaxResponse
+                    {
+                        Code = 403,
+                        IsSuccess = false,
+                        Message = "This MDT record is locked and can only be changed by an authorized user.",
+                        MessageTitle = "Record Locked",
+                        MessageClass = MessageConstants.MessageClassWarning,
                     };
                 }
                 else

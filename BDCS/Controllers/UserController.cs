@@ -3,6 +3,7 @@ using BDCS.Constants;
 using BDCS.Model.Helper;
 using BDCS.Model.Misc;
 using BDCS.Model.RoleRights;
+using BDCS.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,7 @@ namespace BDCS.Controllers
         }
 
 
+        [CheckUserRights(MenuName = "Users", Order = 1, UserRightType = RightType.View)]
         public ActionResult AddEditUser(int UserId=0)
        {
             Users Data = new Users();
@@ -50,6 +52,7 @@ namespace BDCS.Controllers
             return View(Data);
         }
 
+        [CheckUserRights(MenuName = "Users", Order = 1, UserRightType = RightType.View)]
         public ActionResult SearchByUserName(string searchByUserName)
         {
             List<Users> Data = _ubl.GetUserAgainstUserName(searchByUserName ?? "");
@@ -72,6 +75,7 @@ namespace BDCS.Controllers
             return View();
         }
 
+        [CheckUserRights(MenuName = "Users", Order = 1, UserRightType = RightType.AddEdit)]
         public async Task<ActionResult> InsertUpdateUser(Users user, List<int> RoleIds, List<int> ClinicIds, List<int> LocationIds)
         {
             AjaxResponse response = new AjaxResponse();

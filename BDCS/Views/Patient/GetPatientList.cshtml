@@ -7,7 +7,8 @@
     }
 
     List<string> userMdtRight = (ViewBag.mdtTypesNameVb as List<SelectListItem>).Select(a => a.Text).ToList();
-    bool CanManagePatients = BDCS.Models.SessionHelper.GetUserObject().RoleId == 1;
+    bool CanManagePatients = BDCS.Models.SessionHelper.IsUserAuthorized("Add Patient", BDCS.Models.RightType.AddEdit)
+        || BDCS.Models.SessionHelper.IsUserAuthorized("Create Visit", BDCS.Models.RightType.AddEdit);
 }
 
 <div class="admin-module">

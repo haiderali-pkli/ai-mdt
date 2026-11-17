@@ -1,5 +1,6 @@
 ﻿using BDCS.Bussiness;
 using BDCS.Model.Misc;
+using BDCS.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,8 @@ namespace BDCS.Controllers
 
             return View();
         }
+
+        [AllowAnonymousSession]
         public ActionResult Index()
         {
             return View();
@@ -36,6 +39,7 @@ namespace BDCS.Controllers
             return View();
         }
 
+        [AllowAnonymousSession]
         public ActionResult Login()
         {
             return View();
@@ -52,6 +56,7 @@ namespace BDCS.Controllers
             return Json(list);
         }
 
+        [AllowAnonymousSession]
         public ActionResult Heartbeat()
         {
             //hopefuly this shsould work sir

@@ -4,7 +4,7 @@
     {
         Layout = null;
     }
-    bool CanManagePatients = BDCS.Models.SessionHelper.GetUserObject().RoleId == 1;
+    bool CanManagePatients = BDCS.Models.SessionHelper.IsUserAuthorized("Create Visit", BDCS.Models.RightType.AddEdit);
 }
 
 <div class="am-card" style="margin-bottom:0;">
@@ -27,6 +27,7 @@
                         <th>Visit Id</th>
                         <th>Visit Date</th>
                         <th>MDT Type</th>
+                        <th>Status</th>
                         <th style="width:110px;">Actions</th>
                     </tr>
                 </thead>
@@ -38,9 +39,32 @@
                             <td>@item.VisitDate</td>
                             <td><span class="am-badge">@item.MDTType</span></td>
                             <td>
-                                <a href="@Url.Action("PatientVisitReportRdlc","Patient",new { patId = item.PatientId, visitId = item.VisitId, item.Reason,mdtType=item.MDTType })" target="_blank" title="Print">
-                                    <i class="fa fa-print"></i>
-                                </a>
+                                @if (!item.HasData)
+                                {
+                                    <span class="am-badge am-badge-muted">Blank</span>
+                                }
+                                else if (item.IsLocked)
+                                {
+                                    <span class="am-badge"><i class="fa fa-lock"></i> Locked</span>
+                                }
+                                else
+                                {
+                                    <span class="am-badge am-badge-location">Entered</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.HasData)
+                                {
+                                    <a href="@Url.Action("PatientVisitReportRdlc","Patient",new { patId = item.PatientId, visitId = item.VisitId, item.Reason,mdtType=item.MDTType })" target="_blank" title="Print">
+                                        <i class="fa fa-print"></i>
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span title="No data entered yet - nothing to print" style="color:var(--am-muted); cursor:not-allowed;">
+                                        <i class="fa fa-print"></i>
+                                    </span>
+                                }
                                 @if (CanManagePatients)
                                 {
                                     <a href="#" onclick="AddEditPatientFunction(@item.PatientId,@item.VisitId,'@item.VisitDate','@item.Reason','@item.MDTType')" title="Edit" style="margin-left:8px;">

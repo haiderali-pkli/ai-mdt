@@ -4,6 +4,27 @@
    ====================================================================== */
 
 /* ======================================================================
+   Page loader (site chrome, applies everywhere - outside .admin-module)
+   Replaces the old teal/green heart-loading2.gif overlay with a spinner in
+   the app's own brand blue, on a white background matching the page itself.
+   ====================================================================== */
+
+.am-spinner {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 5px solid #e3e8f0;
+    border-top-color: var(--am-head-bg, #009cd7);
+    animation: am-spin 0.8s linear infinite;
+}
+
+@keyframes am-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ======================================================================
    Site header (site chrome, applies everywhere - outside .admin-module)
    ====================================================================== */
 
@@ -188,6 +209,50 @@ body.clinic_version {
 
 .mh-user-name {
     font-size: 15px;
+}
+
+/* ---- Back / Logout (always-visible site chrome buttons) ---- */
+
+.mh-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-radius: 7px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    flex: none;
+}
+
+.mh-back-btn:hover,
+.mh-back-btn:focus {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.14);
+    text-decoration: none;
+}
+
+.mh-logout-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-radius: 7px;
+    margin-left: 10px;
+    flex: none;
+}
+
+.mh-logout-btn:hover,
+.mh-logout-btn:focus {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.14);
+    text-decoration: none;
 }
 
 @media (max-width: 900px) {

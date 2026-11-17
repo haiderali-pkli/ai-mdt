@@ -16,6 +16,8 @@ namespace BDCS.Model.Visit
         //View Model
         public string PatientName { get; set; }
         public string MDTType { get; set; }
+        public bool HasData { get; set; }
+        public bool IsLocked { get; set; }
 
     }
 }

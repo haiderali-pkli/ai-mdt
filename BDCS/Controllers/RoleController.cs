@@ -2,6 +2,7 @@
 using BDCS.Constants;
 using BDCS.Model.Helper;
 using BDCS.Model.RoleRights;
+using BDCS.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,7 @@ namespace BDCS.Controllers
     public class RoleController : Controller
     {
         RoleBL _roleBL = new RoleBL();
+        [CheckUserRights(MenuName = "Roles", Order = 1, UserRightType = RightType.View)]
         public ActionResult AddEditRole(int id =0)
         {
             Role Role = new Role();
@@ -35,6 +37,7 @@ namespace BDCS.Controllers
         }
 
        
+        [CheckUserRights(MenuName = "Roles", Order = 1, UserRightType = RightType.AddEdit)]
         public async Task<ActionResult> InsertUpdateRoleRight(Role Role,  List<RoleRight> Rights)
         {
             AjaxResponse res = new AjaxResponse();
@@ -102,6 +105,7 @@ namespace BDCS.Controllers
             return Json(res);
         }
 
+        [CheckUserRights(MenuName = "Roles", Order = 1, UserRightType = RightType.View)]
         public async Task<ActionResult> GetRoleList(string searchText)
         {
             List<Role> Data = new List<Role>();

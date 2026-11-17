@@ -5,6 +5,8 @@
     {
         Layout = null;
     }
+
+    bool IsLockedReadOnly = Model.PatientDetailId > 0 && Model.IsLocked && !BDCS.Models.SessionHelper.IsUserAuthorized("Unlock MDT Record", BDCS.Models.RightType.AddEdit);
 }
 
 
@@ -37,6 +39,31 @@
         overflow: auto;
     }
 </style>
+
+@if (IsLockedReadOnly)
+{
+    <div class="alert alert-warning" style="margin-bottom:12px;"><i class="fa fa-lock"></i> This MDT record has already been saved and is locked. Only an authorized user can make further changes.</div>
+    <script type="text/javascript">
+        $(function () {
+            //#VitalHx is the tab-pane this partial is loaded into (see AddEditPatientDetail.cshtml) -
+            //scoping to it, rather than guessing at this partial's own markup, keeps the rest of the
+            //page (patient header, other tabs, the Save button itself) unaffected
+            $("#VitalHx").find(":input").prop("disabled", true);
+            $("#VitalHx").css({ "pointer-events": "none", "opacity": "0.65" });
+            $("#saveButtonContainer button").prop("disabled", true).attr("title", "This record is locked");
+
+            //disabled + pointer-events:none means a textarea's own scrollbar can no
+            //longer be used, so any textarea that would need scrolling to see all its
+            //content is grown to fit everything instead - nothing stays hidden behind a
+            //scrollbar the user can't operate
+            $("#VitalHx").find("textarea").each(function () {
+                this.style.height = "auto";
+                this.style.height = (this.scrollHeight + 2) + "px";
+                this.style.overflowY = "hidden";
+            });
+        });
+    </script>
+}
 
 <div class="row equal">
 
@@ -881,11 +908,12 @@
 
                     @*   window.open("@Url.Action("PatientVisitReportRdlc","Patient")/?patId="+$("#patientId").val() + "&visitId="+$("#VisitId").val(),"_blank"); *@
 
-                        var Url = '@Url.Action("AddEditPatientDetail", "Patient")/?patId=' + $("#patientId").val() + "&visitId=" + $("#VisitId").val() + "&visitDateTime=" + $("#VisitDateTime").val() + "&reason=" + $("#VisitType").val() +
-                            "&MDTType=BoneMarrow";
+                        if (msg.IsSuccess) {
+                            var Url = '@Url.Action("AddEditPatientDetail", "Patient")/?patId=' + $("#patientId").val() + "&visitId=" + $("#VisitId").val() + "&visitDateTime=" + $("#VisitDateTime").val() + "&reason=" + $("#VisitType").val() +
+                                "&MDTType=BoneMarrow";
 
-                        loadPage(Url, "Patient visit");
-
+                            loadPage(Url, "Patient visit");
+                        }
 
                     },
                     error: function () {

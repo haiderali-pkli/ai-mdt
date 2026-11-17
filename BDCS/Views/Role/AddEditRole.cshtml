@@ -136,9 +136,9 @@
                 CanDelete :   $(this).find(".CanDelete").is(":checked") ? true : false,
             };
 
-            if (row.CanAddEdit || row.CanView || row.CanDelete) {
-                Data.Rights.push(row);
-            }
+            // Always send every menu row, checked or not - the server needs the
+            // unchecked ones too so it can revoke a right that was previously granted.
+            Data.Rights.push(row);
 
         });
 

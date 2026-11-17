@@ -450,6 +450,7 @@ namespace BDCS.Data
                     {
                         PatientDetailId = Convert.ToInt32(a["PatientDetailId"]),
                         VisitId = Convert.ToInt32(a["VisitId"]),
+                        IsLocked = Convert.ToBoolean(a["IsLocked"]),
                         VisitDateTime = Convert.ToDateTime(a["VisitDateTime"]),
                         VisitType = a["VisitType"].ToString(),
                         CIC = a["CIC"].ToString(),
@@ -990,6 +991,8 @@ namespace BDCS.Data
                         VisitDate=Convert.ToDateTime(a["VisitDateTime"]),
                         Reason=a["Reason"].ToString(),
                         MDTType= a["MDTType"].ToString(),
+                        HasData = Convert.ToBoolean(a["HasData"]),
+                        IsLocked = Convert.ToBoolean(a["IsLocked"]),
                     }).ToList();
                 }
             }
@@ -1685,6 +1688,7 @@ namespace BDCS.Data
                     {
                         PatientDetailId = Convert.ToInt32(a["PatientDetailId"]),
                         VisitId = Convert.ToInt32(a["VisitId"]),
+                        IsLocked = Convert.ToBoolean(a["IsLocked"]),
                         VisitDateTime = Convert.ToDateTime(a["VisitDateTime"]),
                         VisitType = a["VisitType"].ToString(),
                         CIC = a["CIC"].ToString(),

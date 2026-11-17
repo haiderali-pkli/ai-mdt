@@ -17,31 +17,7 @@ namespace BDCS.Models
         {
             if (!SessionHelper.IsUserLoggedIn())
             {
-                if (filterContext.HttpContext.Request.IsAjaxRequest())
-                {
-                    UrlHelper helper = new UrlHelper(filterContext.RequestContext);
-                    AjaxResponse res = new AjaxResponse() {
-                        Code = 403,
-                        DoFullRedirect = true,
-                        IsSuccess = false,
-                        Message = "User Not Logged In",
-                        MessageClass = MessageConstants.MessageClassError,
-                        MessageTitle = "User Logged Off",
-                        RedirectUrl = helper.Action("Login","Home"),
-                     
-                    };
-
-                    filterContext.Result = new JsonResult() { Data = res, JsonRequestBehavior = JsonRequestBehavior.AllowGet, ContentType = "application/json;" };
-                }
-
-                else
-                {
-                    filterContext.Result =
-                        new RedirectToRouteResult(new System.Web.Routing.RouteValueDictionary() {
-                            {"controller","Home" },
-                            {"action","Login" }
-                        });
-                }
+                filterContext.Result = SessionHelper.BuildNotLoggedInResult(filterContext);
             }
 
             else
@@ -75,6 +51,36 @@ namespace BDCS.Models
 
 
                 }
+            }
+
+            base.OnActionExecuting(filterContext);
+        }
+    }
+
+    // Marker for actions/controllers that must stay reachable without a session: the login
+    // page itself, login/logout endpoints, the heartbeat ping, and the separate ASP.NET
+    // Identity controllers (AccountController/ManageController) which already protect
+    // themselves with the framework's own [Authorize].
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+    public class AllowAnonymousSessionAttribute : Attribute
+    {
+    }
+
+    // Registered globally (see FilterConfig) so every action - not just the ones that
+    // remembered to add [CheckUserRights] - gets a clean "please log in again" redirect
+    // when Session["User"] has expired or was never set. Before this, actions like
+    // VitalHistory, AddEditPatientDetail, and ToggleDiscussionStatus read Session members
+    // with no null check at all and would throw a raw NullReferenceException instead.
+    public class RequireSessionAttribute : ActionFilterAttribute
+    {
+        public override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            bool allowAnonymous = filterContext.ActionDescriptor.IsDefined(typeof(AllowAnonymousSessionAttribute), true)
+                || filterContext.ActionDescriptor.ControllerDescriptor.IsDefined(typeof(AllowAnonymousSessionAttribute), true);
+
+            if (!allowAnonymous && !SessionHelper.IsUserLoggedIn())
+            {
+                filterContext.Result = SessionHelper.BuildNotLoggedInResult(filterContext);
             }
 
             base.OnActionExecuting(filterContext);

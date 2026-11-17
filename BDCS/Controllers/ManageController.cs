@@ -11,6 +11,7 @@ using BDCS.Models;
 namespace BDCS.Controllers
 {
     [Authorize]
+    [AllowAnonymousSession]
     public class ManageController : Controller
     {
         private ApplicationSignInManager _signInManager;

@@ -30,7 +30,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="~/Content/theme/css/custom.css">
     <!-- Admin Module CSS (User / Role / Clinic management) -->
-    <link rel="stylesheet" href="~/Content/theme/css/admin-module.css?v=20261113a">
+    <link rel="stylesheet" href="~/Content/theme/css/admin-module.css?v=20261117c">
 
 
     <link href="~/Content/Plugin/Jquery.toast/jquery.toast.min.css" rel="stylesheet" />
@@ -52,7 +52,7 @@
    
      <!-- LOADER -->
     <div id="preloader">
-        <img class="preloader" src="~/Content/theme/images/loaders/heart-loading2.gif" alt="">
+        <div class="am-spinner"></div>
     </div>
     <!-- END LOADER -->
 
@@ -69,6 +69,15 @@
             }
             CurrentUserInitials = CurrentUserInitials.ToUpper();
         }
+
+        //each Admin menu item is its own Role Right, same mechanism as Create Visit /
+        //Visit History - grant them to any role from the Role Rights screen
+        bool CanSeeUsers = BDCS.Models.SessionHelper.IsUserAuthorized("Users", BDCS.Models.RightType.View);
+        bool CanSeeRoles = BDCS.Models.SessionHelper.IsUserAuthorized("Roles", BDCS.Models.RightType.View);
+        bool CanSeeClinics = BDCS.Models.SessionHelper.IsUserAuthorized("MDT Types", BDCS.Models.RightType.View);
+        bool CanSeeLocations = BDCS.Models.SessionHelper.IsUserAuthorized("Locations", BDCS.Models.RightType.View);
+        bool CanSeeLookups = BDCS.Models.SessionHelper.IsUserAuthorized("Add Lookup", BDCS.Models.RightType.View);
+        bool CanSeeAdminMenu = CanSeeUsers || CanSeeRoles || CanSeeClinics || CanSeeLocations || CanSeeLookups;
     }
     <header class="hidden-print">
         <div class="mh-topbar">
@@ -79,21 +88,43 @@
                         <span>MDT Portal</span>
                     </a>
 
+                    @if (CurrentUser != null)
+                    {
+                        <button type="button" id="mhBackBtn" class="mh-back-btn" onclick="GoBackPage(); return false;" title="Back">
+                            <i class="fa fa-arrow-left"></i> Back
+                        </button>
+                    }
+
                     <button type="button" class="mh-toggle" onclick="$('#mhNav').toggleClass('open'); return false;">
                         <i class="fa fa-bars"></i>
                     </button>
 
                     <nav id="mhNav" class="mh-nav">
-                        @if (CurrentUser != null)
+                        @if (CanSeeAdminMenu)
                         {
                             <div class="mh-dropdown">
                                 <a href="#" onclick="return false;">Admin <span class="caret"></span></a>
                                 <ul class="mh-dropdown-menu">
-                                    <li><a href="@Url.Action("SearchByUserName","User")"><i class="fa fa-users"></i> Users</a></li>
-                                    <li><a href="@Url.Action("GetRoleList","Role")"><i class="fa fa-shield"></i> Roles</a></li>
-                                    <li><a href="@Url.Action("GetClinicList","Clinic")"><i class="fa fa-stethoscope"></i> MDT Types</a></li>
-                                    <li><a href="@Url.Action("GetLocationList","Location")"><i class="fa fa-map-marker"></i> Locations</a></li>
-                                    <li><a href="@Url.Action("AddEditLookupData","Patient")"><i class="fa fa-list"></i> Lookups</a></li>
+                                    @if (CanSeeUsers)
+                                    {
+                                        <li><a href="@Url.Action("SearchByUserName","User")"><i class="fa fa-users"></i> Users</a></li>
+                                    }
+                                    @if (CanSeeRoles)
+                                    {
+                                        <li><a href="@Url.Action("GetRoleList","Role")"><i class="fa fa-shield"></i> Roles</a></li>
+                                    }
+                                    @if (CanSeeClinics)
+                                    {
+                                        <li><a href="@Url.Action("GetClinicList","Clinic")"><i class="fa fa-stethoscope"></i> MDT Types</a></li>
+                                    }
+                                    @if (CanSeeLocations)
+                                    {
+                                        <li><a href="@Url.Action("GetLocationList","Location")"><i class="fa fa-map-marker"></i> Locations</a></li>
+                                    }
+                                    @if (CanSeeLookups)
+                                    {
+                                        <li><a href="@Url.Action("AddEditLookupData","Patient")"><i class="fa fa-list"></i> Lookups</a></li>
+                                    }
                                 </ul>
                             </div>
                         }
@@ -111,6 +142,9 @@
                                 <li><a href="#" onclick="closeForm(); return false;"><i class="fa fa-sign-out"></i> Logout</a></li>
                             </ul>
                         </div>
+                        <a href="#" class="mh-logout-btn" onclick="closeForm(); return false;" title="Logout">
+                            <i class="fa fa-sign-out"></i> Logout
+                        </a>
                     }
                 </div>
             </div>

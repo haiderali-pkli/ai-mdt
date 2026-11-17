@@ -2,6 +2,7 @@ using BDCS.Bussiness;
 using BDCS.Constants;
 using BDCS.Model.Helper;
 using BDCS.Model.RoleRights;
+using BDCS.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace BDCS.Controllers
     {
         ClinicBL _clinicBL = new ClinicBL();
 
+        [CheckUserRights(MenuName = "MDT Types", Order = 1, UserRightType = RightType.View)]
         public ActionResult AddEditClinic(int ClinicId = 0)
         {
             Clinic Data = new Clinic();
@@ -23,6 +25,7 @@ namespace BDCS.Controllers
             return View(Data);
         }
 
+        [CheckUserRights(MenuName = "MDT Types", Order = 1, UserRightType = RightType.View)]
         public ActionResult GetClinicList(string searchText)
         {
             List<Clinic> Data = _clinicBL.GetClinicList();
@@ -30,6 +33,7 @@ namespace BDCS.Controllers
             return View(Data);
         }
 
+        [CheckUserRights(MenuName = "MDT Types", Order = 1, UserRightType = RightType.AddEdit)]
         public async Task<ActionResult> InsertUpdateClinic(Clinic clinic)
         {
             AjaxResponse response = new AjaxResponse();

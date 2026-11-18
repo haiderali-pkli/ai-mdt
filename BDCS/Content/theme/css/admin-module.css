@@ -1437,6 +1437,27 @@ body.clinic_version {
     font-weight: 400;
 }
 
+/* result-count callout above a list - deliberately its own badge (not am-subtitle's
+   small muted caption style) with real margin on both sides so it never sits flush
+   against the filter bar above it or the table header below it */
+.admin-module .am-result-count {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin: 16px 0 12px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    background: #eaf1ff;
+    border: 1px solid #d8e5ff;
+    color: var(--am-primary-dark);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.admin-module .am-result-count i {
+    font-size: 12px;
+}
+
 .admin-module .btn-am-danger {
     background: #fff;
     border: 1px solid var(--am-danger);

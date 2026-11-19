@@ -1,4 +1,4 @@
-﻿
+
 @{
     ViewBag.Title = "PatientVisitAdvanceSearch";
     if (Request.IsAjaxRequest())
@@ -7,157 +7,136 @@
     }
 }
 
+<link href="~/Content/Plugin/chosen/chosen.css" rel="stylesheet" />
 
-<div class="panel panel-default" style="padding-top: 50px;">
-    <div class="panel-heading" style="background-color: #57b7fd; color:white;"><strong style="font-size:25px">Advance Search</strong></div>
-    <div class="panel-body" style="border-color:#a0e0ee">
+<div class="admin-module">
+    <div class="container-fluid">
 
-        <div class="row">
-            <div class="col-sm-2 col-xs-2">
-                <label>CHILD STATUS</label>
-                @Html.DropDownList("ChildStatus", (List<SelectListItem>)ViewBag.ChildStatusVB, "--Select--", new { @class = "form-control" })
+        <div class="am-page-head">
+            <div>
+                <h3><i class="fa fa-filter"></i> Advance Search</h3>
+                <span class="am-subtitle">Narrow the patient list down by clinical criteria</span>
             </div>
-            <div class="col-sm-2 col-xs-2">
-                <label>MELD-Na STATUS</label>
-                @Html.DropDownList("MeldStatus", (List<SelectListItem>)ViewBag.MeldStatusVB, "--Select--", new { @class = "form-control" })
+            <div>
+                <button type="button" class="btn btn-am-light" onclick="loadPage('@Url.Action("GetPatientList","Patient")','Patient');"><i class="fa fa-times-circle"></i> Close</button>
+                <button type="button" class="btn btn-am-light" onclick="ExportAdvanceSearchResults();"><i class="fa fa-file-excel-o"></i> Export to Excel</button>
+                <button type="button" class="btn btn-am-primary" onclick="GetAdvanceSearchResults();"><i class="fa fa-search"></i> Search</button>
             </div>
-            <div class="col-sm-2 col-xs-2">
-                <label>BCLC STATUS</label>
-                @Html.DropDownList("BCLC", (List<SelectListItem>)ViewBag.BCLCVB, "--Select--", new { @class = "form-control"})
-            </div>
-            <div class="col-sm-2 col-xs-2">
-                <label>ECOG STATUS</label>
-                @Html.DropDownList("ECOGStatus", (List<SelectListItem>)ViewBag.ECOGStatusVB, "--Select--", new { @class = "form-control" })
-            </div>
-
-
-            <div class="col-sm-2">
-                <label>Response to Treatment</label>
-                @Html.DropDownList("TreatmentResponse", (List<SelectListItem>)ViewBag.TreatmentResponseVB, "--Select--", new { @class = "form-control" })
-            </div>
-            <div class="col-sm-2">
-                <label>MDT OUT COME</label>
-                @Html.DropDownList("MDTOutCome", (List<SelectListItem>)ViewBag.MDTOutComeVB, new { @class = "form-control" })
-            </div>
-         
         </div>
 
-        <div class="row hidden-print">
-            <div class="col-sm-2 col-xs-2">
-                <label>HEPATITIS STATUS</label>
-                @Html.DropDownList("HepStatus", (List<SelectListItem>)ViewBag.HepStatusVB, "--Select--", new { @class = "form-control" })
-            </div>
-            <div class="col-sm-2 col-xs-2">
-                <label>ASCITIES STATUS</label>
-                @Html.DropDownList("AscitiesStatus", (List<SelectListItem>)ViewBag.AscitiesStatusVB, "--Select--", new { @class = "form-control" })
-            </div>
-            <div class="col-sm-2 col-xs-2">
-                <label>SVR STATUS</label>
-                @Html.DropDownList("SVRStatus", (List<SelectListItem>)ViewBag.SVRStatusVB, "--Select--", new { @class = "form-control" })
-            </div>
-
-            <div class="col-sm-2 col-xs-12">
+        <div class="am-card">
+            <div class="am-field-grid">
                 <div class="form-group">
-                    <label>Diagnosis</label>
-                    @Html.DropDownList("OtherComorbities", (List<SelectListItem>)ViewBag.DiagnosisVB, "--Select--", new { @class = "form-control MuliDropdown" })
+                    <label>Visit Date From</label>
+                    @Html.TextBox("FromDate", null, new { @class = "form-control datepicker", placeholder = "From Date" })
                 </div>
-            </div>
-
-
-            <div class="col-sm-2 col-xs-6">
-                <div class="form-group" id="SiteOfAngioinvasionContainer">
-                    <label>SITE OF ANGIOINVASION</label>
-                    @Html.DropDownList("SiteOfAngioinvasionVB", (List<SelectListItem>)ViewBag.SiteOfAngioinvasionDropdown, "--Select--", new { @class = "form-control" })
-                </div>
-            </div>
-            <div class="col-sm-2 col-xs-6">
-                <div class="form-group" id="SiteOfAngioinvasionContainer">
-                    <label>SITE OF ANGIOINVASION</label>
-                    @Html.DropDownList("SiteOfAngioinvasionVB", (List<SelectListItem>)ViewBag.SiteOfAngioinvasionDropdown, "--Select--", new { @class = "form-control" })
-                </div>
-            </div>
-            <div class="col-sm-2">
-                @*<label>Match:</label>
-            <select class="form-control" id="MatchingCriteria" name="MatchingCriteria">
-                <option value="AND">Match All</option>
-                <option value="OR">Match Either</option>
-            </select>*@
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-sm-2">
                 <div class="form-group">
-                    <label style="margin-left:86px;">LIVER CIRRHOSIS</label>
-                    @Html.CheckBox("LiverCirrhosis", new { @class = "form-control" })
+                    <label>Visit Date To</label>
+                    @Html.TextBox("ToDate", null, new { @class = "form-control datepicker", placeholder = "To Date" })
                 </div>
-            </div>
-
-            <div class="col-sm-2">
-                <div class="form-group pull-right">
-                    <label class="text-center" style="margin-left:75px;">Portal Hypertension</label>
-                    @Html.CheckBox("PortalHypertension", new { @class = "form-control" })
+                <div class="form-group">
+                    <label>Child Status</label>
+                    @Html.DropDownList("ChildStatus", (List<SelectListItem>)ViewBag.ChildStatusVB, "--Select--", new { @class = "form-control" })
                 </div>
-            </div>
-            <div class="col-sm-2">
-                <div class="form-group pull-right">
-                    <label class="text-center" style="margin-left:111px;">Varices</label>
-                    @Html.CheckBox("Varices", new { @class = "form-control" })
+                <div class="form-group">
+                    <label>MELD-Na Status</label>
+                    @Html.DropDownList("MeldStatus", (List<SelectListItem>)ViewBag.MeldStatusVB, "--Select--", new { @class = "form-control" })
                 </div>
-            </div>
-            <div class="col-sm-2">
-                <label style="margin-left:85px;">Meeting Milan</label>
-                @Html.CheckBox("MeetingMilan", new { @class = "form-control" })
-            </div>
-            <div class="col-sm-2">
-                <label style="margin-left:115px;">UCSF</label>
-                @Html.CheckBox("UCSF", new { @class = "form-control" })
-            </div>
-
-            <div class="col-sm-2">
-                <label style="margin-left:112px;">ASAN</label>
-                @Html.CheckBox("ASAN", new { @class = "form-control" })
-            </div>
-
-            <div class="col-sm-2" id="ExtraHepaticDiseaseContainer">
-            <label>SITE OF EXTRA HEPATIC DISEASE HISTORY</label>
-                @Html.TextBox("SiteOfHepaticDisease", null, new { @class = "form-control", @list = "lstOfSitesOfExtraHepaticDisease" })
-            </div>
-            <div class="col-sm-2">
-                <label>REFUSAL REASON</label>
-                @Html.TextBox("ReasonOfRefusal", null,new { @class = "form-control", placeholder = "Reason for Resfusal", @list = "lstRefusalReason" })
-            </div>
-
-            <div class="col-sm-1">
-                <div class="form-group pull-right">
-                    <label></label>
-                    <button class="btn btn-warning" onclick="GetAdvanceSearchResults();">Search</button>
+                <div class="form-group">
+                    <label>BCLC Status</label>
+                    @Html.DropDownList("BCLC", (List<SelectListItem>)ViewBag.BCLCVB, "--Select--", new { @class = "form-control" })
                 </div>
-            </div>
+                <div class="form-group">
+                    <label>ECOG Status</label>
+                    @Html.DropDownList("ECOGStatus", (List<SelectListItem>)ViewBag.ECOGStatusVB, "--Select--", new { @class = "form-control" })
+                </div>
+                <div class="form-group">
+                    <label>Response to Treatment</label>
+                    @Html.DropDownList("TreatmentResponse", (List<SelectListItem>)ViewBag.TreatmentResponseVB, "--Select--", new { @class = "form-control" })
+                </div>
+                <div class="form-group hidden-print">
+                    <label>Hepatitis Status</label>
+                    @Html.DropDownList("HepStatus", (List<SelectListItem>)ViewBag.HepStatusVB, "--Select--", new { @class = "form-control" })
+                </div>
+                <div class="form-group hidden-print">
+                    <label>Ascities Status</label>
+                    @Html.DropDownList("AscitiesStatus", (List<SelectListItem>)ViewBag.AscitiesStatusVB, "--Select--", new { @class = "form-control" })
+                </div>
+                <div class="form-group hidden-print">
+                    <label>SVR Status</label>
+                    @Html.DropDownList("SVRStatus", (List<SelectListItem>)ViewBag.SVRStatusVB, "--Select--", new { @class = "form-control" })
+                </div>
 
-            <div class="col-sm-1">
-                <div class="form-group pull-right">
-                    <label></label>
-                    <button class="btn btn-danger" onclick="loadPage('@Url.Action("GetPatientList","Patient")','Patient');">Close</button>
+                <div class="am-field-divider">Multiple-choice criteria - pick one or more of each</div>
+
+                <div class="am-span-2">
+                    <div class="form-group">
+                        <label>MDT Outcome</label>
+                        @Html.ListBox("MDTOutCome", (List<SelectListItem>)ViewBag.MDTOutComeVB, new { @class = "form-control MuliDropdown", data_placeholder = "Any outcome" })
+                    </div>
+                </div>
+                <div class="am-span-2">
+                    <div class="form-group">
+                        <label>Any Other Comorbidities</label>
+                        @Html.ListBox("OtherComorbities", (List<SelectListItem>)ViewBag.DiagnosisVB, new { @class = "form-control MuliDropdown", data_placeholder = "Any comorbidity" })
+                    </div>
+                </div>
+                <div class="am-span-2 hidden-print">
+                    <div class="form-group" id="SiteOfAngioinvasionContainer">
+                        <label>Site Of Angioinvasion</label>
+                        @Html.ListBox("SiteOfAngioinvasionVB", (List<SelectListItem>)ViewBag.SiteOfAngioinvasionDropdown, new { @class = "form-control MuliDropdown", data_placeholder = "Any site" })
+                    </div>
+                </div>
+                <div class="am-span-2" id="ExtraHepaticDiseaseContainer">
+                    <div class="form-group">
+                        <label>Site Of Extra Hepatic Disease History</label>
+                        @Html.ListBox("SiteOfHepaticDisease", (List<SelectListItem>)ViewBag.SitesOfExtraHepaticDiseaseVB, new { @class = "form-control MuliDropdown", data_placeholder = "Any site" })
+                    </div>
+                </div>
+
+                <div class="am-field-divider">Clinical flags</div>
+
+                <div class="am-span-full">
+                    <div class="am-check-flex-group">
+                        <div class="am-check-inline">
+                            @Html.CheckBox("LiverCirrhosis")
+                            <label for="LiverCirrhosis">Liver Cirrhosis</label>
+                        </div>
+                        <div class="am-check-inline">
+                            @Html.CheckBox("PortalHypertension")
+                            <label for="PortalHypertension">Portal Hypertension</label>
+                        </div>
+                        <div class="am-check-inline">
+                            @Html.CheckBox("Varices")
+                            <label for="Varices">Varices</label>
+                        </div>
+                        <div class="am-check-inline">
+                            @Html.CheckBox("MeetingMilan")
+                            <label for="MeetingMilan">Meeting Milan</label>
+                        </div>
+                        <div class="am-check-inline">
+                            @Html.CheckBox("UCSF")
+                            <label for="UCSF">UCSF</label>
+                        </div>
+                        <div class="am-check-inline">
+                            @Html.CheckBox("ASAN")
+                            <label for="ASAN">ASAN</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Refusal Reason</label>
+                    @Html.TextBox("ReasonOfRefusal", null, new { @class = "form-control", placeholder = "Reason for Resfusal", @list = "lstRefusalReason" })
                 </div>
             </div>
         </div>
+
+        <div class="container-fluid" id="AdvanceSearchResult" style="padding-left:0; padding-right:0;"></div>
 
     </div>
 </div>
 
-
-<div class="container-fluid" id="AdvanceSearchResult">
-
-</div>
-
-
-<datalist id="lstOfSitesOfExtraHepaticDisease">
-    @foreach (SelectListItem item in ViewBag.SitesOfExtraHepaticDiseaseVB)
-    {
-        <option>@item.Text</option>
-    }
-</datalist>
 <datalist id="lstRefusalReason">
     @foreach (SelectListItem item in ViewBag.RefusalReasonVB)
             {
@@ -165,41 +144,62 @@
     }
 </datalist>
 
-
+<script src="~/Content/Plugin/chosen/chosen.jquery.min.js"></script>
 
 <script type="text/javascript">
 
-    function GetAdvanceSearchResults() {
+    $(function () {
+        InitializeDateTimePicker('.datepicker');
+        $(".MuliDropdown").chosen({ width: "100%", placeholder_text_multiple: "Select one or more..." });
+    });
 
+    //a <select multiple> submits an array - '|' (not ',') joins it, since several real
+    //lookup values (MDTOutCome especially) contain literal commas
+    function JoinMultiSelect(id) {
+        var values = $(id).val();
+        return (values && values.length > 0) ? values.join('|') : '';
+    }
 
-        var Params = {
+    function BuildAdvanceSearchParams() {
+        return {
+            FromDate: $("#FromDate").val(),
+            ToDate: $("#ToDate").val(),
             ChildStatus: $("#ChildStatus").val(),
             MeldStatus: $("#MeldStatus").val(),
             BCLCStatus: $("#BCLC").val(),
             ECOG: $("#ECOGStatus").val(),
             TreatmentResponse: $("#TreatmentResponse").val(),
-            MdtOutcome: $("#MDTOutCome").val(),
+            MdtOutcome: JoinMultiSelect("#MDTOutCome"),
             HepatitisStatus: $("#HepStatus").val(),
             AscitiesStatus: $("#AscitiesStatus").val(),
             Svr: $("#SVRStatus").val(),
-            OtherComorbidities: $("#OtherComorbities").val(),
-            AngioInvasion: $("#SiteOfAngioinvasionVB").val(),
+            OtherComorbidities: JoinMultiSelect("#OtherComorbities"),
+            AngioInvasion: JoinMultiSelect("#SiteOfAngioinvasionVB"),
+            SiteOfHepaticDisease: JoinMultiSelect("#SiteOfHepaticDisease"),
             LiverCirrhosis: $("#LiverCirrhosis").is(":checked") ? true : false,
             PortalHypertension: $("#PortalHypertension").is(":checked") ? true : false,
             Varices: $("#Varices").is(":checked") ? true : false,
             MeetingMilan: $("#MeetingMilan").is(":checked") ? true : false,
             UCSF: $("#UCSF").is(":checked") ? true : false,
             ASAN: $("#ASAN").is(":checked") ? true : false,
-            AFP:0
+            AFP: 0
         };
+    }
 
-        var Url = '@Url.Action("PatientVisitAdvanceSearchResult", "Patient")/?'+ $.param(Params);
+    function GetAdvanceSearchResults() {
+
+        var Url = '@Url.Action("PatientVisitAdvanceSearchResult", "Patient")/?' + $.param(BuildAdvanceSearchParams());
 
         loadPage(Url, 'AdvanceSearchResult', 'AdvanceSearchResult');
 
-
     }
 
+    function ExportAdvanceSearchResults() {
 
+        var Url = '@Url.Action("ExportAdvanceSearchResults", "Patient")/?' + $.param(BuildAdvanceSearchParams());
+
+        window.open(Url, '_blank');
+
+    }
 
 </script>

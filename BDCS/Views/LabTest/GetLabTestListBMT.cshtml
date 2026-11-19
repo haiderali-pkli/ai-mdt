@@ -1,0 +1,119 @@
+@model List<BDCS.Model.Misc.LabTestDefinition>
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+
+<div class="admin-module">
+    <div class="container-fluid">
+
+        @Html.Partial("_AdminNav")
+
+        <div class="am-page-head">
+            <div>
+                <h3><i class="fa fa-flask"></i> Lab Tests (Bone Marrow)</h3>
+                <span class="am-subtitle">Tests shown on a Bone Marrow MDT visit's lab-entry grid when no results exist yet</span>
+            </div>
+            <button type="button" class="btn btn-am-primary" onclick="AddEditLabTestBMT(0);">
+                <i class="fa fa-plus"></i> Add Lab Test
+            </button>
+        </div>
+
+        <div class="am-card">
+            <div class="am-toolbar" style="margin-bottom:16px;">
+                <div class="am-search">
+                    <i class="fa fa-search"></i>
+                    <input type="text" id="SearchTextByLabTestBMT" class="form-control" placeholder="Search lab tests..." value="@ViewBag.SearchText" onkeyup="if(event.key==='Enter'){SearchLabTestsBMT();}" />
+                </div>
+                <button type="button" class="btn btn-am-light" onclick="SearchLabTestsBMT();"><i class="fa fa-search"></i> Search</button>
+            </div>
+
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="am-table">
+                        <thead>
+                            <tr>
+                                <th style="width:90px;">Order</th>
+                                <th>Test Name</th>
+                                <th>Unit</th>
+                                <th style="width:130px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (BDCS.Model.Misc.LabTestDefinition item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Order</td>
+                                    <td>@item.TestName</td>
+                                    <td>@item.TestUnit</td>
+                                    <td>
+                                        <a href="#" title="Edit" onclick="AddEditLabTestBMT(@item.TestId); return false;">
+                                            <i class="fa fa-pencil"></i> Edit
+                                        </a>
+                                        <span>&nbsp;|&nbsp;</span>
+                                        <a href="#" title="Delete" onclick="DeleteLabTestBMT(@item.TestId, '@item.TestName'); return false;">
+                                            <i class="fa fa-trash"></i> Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="am-empty">
+                    <i class="fa fa-flask"></i>
+                    @(ViewBag.SearchText != null ? "No lab tests match your search." : "No lab tests configured yet.")
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function SearchLabTestsBMT() {
+        var par = { searchText: $("#SearchTextByLabTestBMT").val() };
+        var url = '@Url.Action("GetLabTestListBMT", "LabTest")' + '/?' + $.param(par);
+        loadPage(url, "GetLabTestListBMT");
+    }
+
+    function AddEditLabTestBMT(testId) {
+        var url = '@Url.Action("AddEditLabTestBMT", "LabTest")' + '/?TestId=' + testId;
+        OpenPopup(url, testId > 0 ? "Edit Lab Test" : "Add Lab Test");
+    }
+
+    function ReloadLabTestListBMT() {
+        loadPage('@Url.Action("GetLabTestListBMT", "LabTest")', "GetLabTestListBMT");
+    }
+
+    function DeleteLabTestBMT(testId, testName) {
+        ConfirmAction({
+            title: "Delete \"" + testName + "\"?",
+            text: "This removes it from the lab-entry grid for new visits. Results already recorded against it are not affected.",
+            confirmButtonText: "Yes, delete"
+        }, function () {
+            $.ajax({
+                url: '@Url.Action("DeleteLabTestBMT", "LabTest")',
+                type: "post",
+                data: { TestId: testId },
+                dataType: "json",
+                success: function (res) {
+                    ShowAlertMessage(res.Message, res.MessageClass, res.MessageTitle);
+                    if (res.IsSuccess) {
+                        ReloadLabTestListBMT();
+                    }
+                },
+                error: function () {
+                    ShowAlertMessage("An error occured", "error", "Error!");
+                }
+            });
+        });
+    }
+
+</script>

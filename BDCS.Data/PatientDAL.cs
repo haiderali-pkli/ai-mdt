@@ -60,6 +60,8 @@ namespace BDCS.Data
                         ImageURL = a["ImageURL"].ToString(),
                         EnteredOn = Convert.ToDateTime(a["EnteredOn"]),
                         DiscussionRequired = Convert.ToBoolean(a["DiscussionRequired"]),
+                        HasLiverHistory = Convert.ToBoolean(a["HasLiverHistory"]),
+                        HasBoneMarrowHistory = Convert.ToBoolean(a["HasBoneMarrowHistory"]),
                     }).ToList();
                 }
             }
@@ -1568,10 +1570,10 @@ namespace BDCS.Data
         #region Record searching
 
 
-        public List<VitalHistory> GetVisitListAgainstSearch(int? ChildStatus, int? MeldStatus, int? BCLCStatus, int? ECOG, int? TreatmentResponse,
-            int? MdtOutcome, int? HepatitisStatus, int? AscitiesStatus, int? Svr, int? OtherComorbidities, int? AngioInvasion, double? AFP, bool LiverCirrhosis, bool PortalHypertension, bool Varices, bool MeetingMilan, bool UCSF, bool ASAN)
+        public DataTable GetVisitListAgainstSearch(int? ChildStatus, int? MeldStatus, int? BCLCStatus, int? ECOG, int? TreatmentResponse,
+            string MdtOutcome, int? HepatitisStatus, int? AscitiesStatus, int? Svr, string OtherComorbidities, string AngioInvasion, string SiteOfHepaticDisease,
+            double? AFP, bool LiverCirrhosis, bool PortalHypertension, bool Varices, bool MeetingMilan, bool UCSF, bool ASAN, DateTime? FromDate, DateTime? ToDate)
         {
-            List<VitalHistory> Data = new List<VitalHistory>();
             string Query = QueryHelper.GetQueryString("GetVisitListAgainstSearch", "Clinical");
             List<DbParameters> pars = new List<DbParameters>()
             {
@@ -1580,12 +1582,13 @@ namespace BDCS.Data
                 new DbParameters() {Name = "BCLCStatus", Type = DbType.Int32, Value =BCLCStatus},
                 new DbParameters() {Name = "ECOG", Type = DbType.Int32, Value =ECOG},
                 new DbParameters() {Name = "TreatmentResponse", Type = DbType.Int32, Value =TreatmentResponse},
-                new DbParameters() {Name = "MdtOutcome", Type = DbType.Int32, Value =MdtOutcome},
+                new DbParameters() {Name = "MdtOutcome", Type = DbType.String, Value = string.IsNullOrEmpty(MdtOutcome) ? (object)DBNull.Value : MdtOutcome},
                 new DbParameters() {Name = "HepatitisStatus", Type = DbType.Int32, Value =HepatitisStatus},
                 new DbParameters() {Name = "AscitiesStatus", Type = DbType.Int32, Value =AscitiesStatus},
                 new DbParameters() {Name = "Svr", Type = DbType.Int32, Value =Svr},
-                new DbParameters() {Name = "OtherComorbidities", Type = DbType.Int32, Value =OtherComorbidities},
-                new DbParameters() {Name = "AngioInvasion", Type = DbType.Int32, Value =AngioInvasion},
+                new DbParameters() {Name = "OtherComorbidities", Type = DbType.String, Value = string.IsNullOrEmpty(OtherComorbidities) ? (object)DBNull.Value : OtherComorbidities},
+                new DbParameters() {Name = "AngioInvasion", Type = DbType.String, Value = string.IsNullOrEmpty(AngioInvasion) ? (object)DBNull.Value : AngioInvasion},
+                new DbParameters() {Name = "SiteOfHepaticDisease", Type = DbType.String, Value = string.IsNullOrEmpty(SiteOfHepaticDisease) ? (object)DBNull.Value : SiteOfHepaticDisease},
                 new DbParameters() {Name = "LiverCirrhosis", Type = DbType.Boolean, Value = LiverCirrhosis},
                 new DbParameters() {Name = "AFP", Type = DbType.Double, Value =AFP},
                 new DbParameters() {Name = "PortalHypertension", Type = DbType.Boolean, Value = PortalHypertension },
@@ -1593,29 +1596,24 @@ namespace BDCS.Data
                 new DbParameters() {Name = "MeetingMilan", Type = DbType.Boolean, Value = MeetingMilan },
                 new DbParameters() {Name = "UCSF", Type = DbType.Boolean, Value = UCSF },
                 new DbParameters() {Name = "ASAN", Type = DbType.Boolean, Value = ASAN },
+                new DbParameters() {Name = "FromDate", Type = DbType.Date, Value =(object)FromDate ?? DBNull.Value},
+                new DbParameters() {Name = "ToDate", Type = DbType.Date, Value =(object)ToDate ?? DBNull.Value},
             };
-            
-            try
-            {
-                DataSet ds = _db.LoadDataSet(Query, CommandType.StoredProcedure, pars);
-                if (ds?.Tables.Count > 0)
-                {
-                    Data = ds.Tables[0].AsEnumerable().Select(a => new VitalHistory()
-                    {
-                        PatientId = Convert.ToInt32(a["PatientId"]),
-                        VisitId = Convert.ToInt32(a["VisitId"]),
-                        PatientName = a["PatientName"]?.ToString(),
-                        VisitDateTime = Convert.ToDateTime(a["VisitDate"]==DBNull.Value? DateTime.MinValue : a["VisitDate"]),
-                        mdtType = a["MDTType"]?.ToString()
-                    }).ToList();
 
-                }
-            }
-            catch (Exception)
+            DataSet ds = _db.LoadDataSet(Query, CommandType.StoredProcedure, pars);
+            return ds?.Tables.Count > 0 ? ds.Tables[0] : new DataTable();
+        }
+
+        public DataTable GetCurrentLabsForVisits(string visitIdsCsv)
+        {
+            string Query = QueryHelper.GetQueryString("GetCurrentLabsForVisits", "Clinical");
+            List<DbParameters> pars = new List<DbParameters>()
             {
-                throw;
-            }
-            return Data;
+                new DbParameters() {Name = "VisitIds", Type = DbType.String, Value = visitIdsCsv ?? ""},
+            };
+
+            DataSet ds = _db.LoadDataSet(Query, CommandType.StoredProcedure, pars);
+            return ds?.Tables.Count > 0 ? ds.Tables[0] : new DataTable();
         }
 
         #endregion

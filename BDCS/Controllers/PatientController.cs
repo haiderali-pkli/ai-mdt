@@ -1975,6 +1975,12 @@ namespace BDCS.Controllers
 
             Session["ClinicId"] = clinicId;
             //First initialze with default values
+            //this is the point where the user becomes fully logged in (User + ClinicId both
+            //set) - DoFullRedirect forces a real navigation instead of an AJAX content swap,
+            //so _Layout.cshtml's header (Back button, Admin menu, user info, Logout - all
+            //gated on Session["User"]) actually re-renders. Without it, the browser kept
+            //showing whatever the header looked like on the original anonymous /Home/Login
+            //request (no Back/Admin/user info at all) until the user did a hard refresh.
             AjaxResponse res = new AjaxResponse()
             {
                 Code = 200,
@@ -1982,6 +1988,7 @@ namespace BDCS.Controllers
                 Message = "Saved",
                 MessageClass = MessageConstants.MessageClassSuccess,
                 MessageTitle = "Success",
+                DoFullRedirect = true,
                 RedirectUrl= Url.Action("GetPatientList", "Patient", new { PreloadList = "Yes"}),
             };
 
@@ -2126,10 +2133,11 @@ namespace BDCS.Controllers
             return Json(res, JsonRequestBehavior.DenyGet);
 
         }
+        [CheckUserRights(MenuName = "Advance Search", Order = 1, UserRightType = RightType.View)]
         public async Task<ActionResult> PatientVisitAdvanceSearch()
         {
 
-    
+
             List<KeyAndValuePair> Diagnosis = await _CommonBL.GetDefinationData("lookups", "System", "DiagnosisType");
             ViewBag.DiagnosisVB = Diagnosis.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
 
@@ -2167,24 +2175,68 @@ namespace BDCS.Controllers
             ViewBag.RefusalReasonVB = RefusalReason.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
             List<KeyAndValuePair> SitesOfExtraHepaticDisease = await _CommonBL.GetDefinationData("Lookups", "System", "SitesOfExtraHepaticDisease");
-            ViewBag.SitesOfExtraHepaticDiseaseVB = SitesOfExtraHepaticDisease.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
+            //Value=Text, not Id - the saved value (Clinical.SiteOfHepaticDisease.SiteOfHepaticDiseaseText)
+            //is the lookup's text, same as every other multi-select on this form
+            ViewBag.SitesOfExtraHepaticDiseaseVB = SitesOfExtraHepaticDisease.Select(a => new SelectListItem() { Text = a.Value, Value = a.Value }).ToList();
 
             List<KeyAndValuePair> SVRStatus = await _CommonBL.GetDefinationData("Lookups", "System", "SVRStatus");
             ViewBag.SVRStatusVB = SVRStatus.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
-            List<VitalHistory> Data = new List<VitalHistory>();
 
             return View();
         }
-        public async Task<ActionResult> PatientVisitAdvanceSearchResult(int? ChildStatus, int? MeldStatus, int? BCLCStatus, int? ECOG, int? TreatmentResponse,
-        int? MdtOutcome, int? HepatitisStatus, int? AscitiesStatus, int? Svr, int? OtherComorbidities, int? AngioInvasion, double? AFP, bool LiverCirrhosis, bool PortalHypertension,bool Varices,bool MeetingMilan,bool UCSF,bool ASAN)
+
+        //MdtOutcome/OtherComorbidities/AngioInvasion/SiteOfHepaticDisease arrive as a '|'-joined list of
+        //lookup text values (their multi-selects post Chosen.js's checked options) - ',' can't be used as
+        //the join delimiter here since several real lookup values (MDTOutCome especially) contain commas
+        private DataTable RunAdvanceSearch(int? ChildStatus, int? MeldStatus, int? BCLCStatus, int? ECOG, int? TreatmentResponse,
+        string MdtOutcome, int? HepatitisStatus, int? AscitiesStatus, int? Svr, string OtherComorbidities, string AngioInvasion, string SiteOfHepaticDisease,
+        double? AFP, bool LiverCirrhosis = false, bool PortalHypertension = false, bool Varices = false, bool MeetingMilan = false, bool UCSF = false, bool ASAN = false, DateTime? FromDate = null, DateTime? ToDate = null)
         {
-            List<VitalHistory> Data = new List<VitalHistory>();
-            Data = _PatientBL.GetVisitListAgainstSearch(ChildStatus, MeldStatus, BCLCStatus, ECOG, TreatmentResponse,
-            MdtOutcome, HepatitisStatus, AscitiesStatus, Svr, OtherComorbidities, AngioInvasion, AFP, LiverCirrhosis, PortalHypertension, Varices, MeetingMilan, UCSF, ASAN);
+            return _PatientBL.GetAdvanceSearchResults(ChildStatus, MeldStatus, BCLCStatus, ECOG, TreatmentResponse,
+                MdtOutcome, HepatitisStatus, AscitiesStatus, Svr, OtherComorbidities, AngioInvasion, SiteOfHepaticDisease,
+                AFP, LiverCirrhosis, PortalHypertension, Varices, MeetingMilan, UCSF, ASAN, FromDate, ToDate);
+        }
 
-
+        [CheckUserRights(MenuName = "Advance Search", Order = 1, UserRightType = RightType.View)]
+        public ActionResult PatientVisitAdvanceSearchResult(int? ChildStatus, int? MeldStatus, int? BCLCStatus, int? ECOG, int? TreatmentResponse,
+        string MdtOutcome, int? HepatitisStatus, int? AscitiesStatus, int? Svr, string OtherComorbidities, string AngioInvasion, string SiteOfHepaticDisease,
+        double? AFP, bool LiverCirrhosis = false, bool PortalHypertension = false,bool Varices = false,bool MeetingMilan = false,bool UCSF = false,bool ASAN = false, DateTime? FromDate = null, DateTime? ToDate = null)
+        {
+            DataTable Data = RunAdvanceSearch(ChildStatus, MeldStatus, BCLCStatus, ECOG, TreatmentResponse,
+                MdtOutcome, HepatitisStatus, AscitiesStatus, Svr, OtherComorbidities, AngioInvasion, SiteOfHepaticDisease,
+                AFP, LiverCirrhosis, PortalHypertension, Varices, MeetingMilan, UCSF, ASAN, FromDate, ToDate);
 
             return View(Data);
+        }
+
+        [CheckUserRights(MenuName = "Advance Search", Order = 1, UserRightType = RightType.View)]
+        public ActionResult ExportAdvanceSearchResults(int? ChildStatus, int? MeldStatus, int? BCLCStatus, int? ECOG, int? TreatmentResponse,
+        string MdtOutcome, int? HepatitisStatus, int? AscitiesStatus, int? Svr, string OtherComorbidities, string AngioInvasion, string SiteOfHepaticDisease,
+        double? AFP, bool LiverCirrhosis = false, bool PortalHypertension = false, bool Varices = false, bool MeetingMilan = false, bool UCSF = false, bool ASAN = false, DateTime? FromDate = null, DateTime? ToDate = null)
+        {
+            DataTable dt = RunAdvanceSearch(ChildStatus, MeldStatus, BCLCStatus, ECOG, TreatmentResponse,
+                MdtOutcome, HepatitisStatus, AscitiesStatus, Svr, OtherComorbidities, AngioInvasion, SiteOfHepaticDisease,
+                AFP, LiverCirrhosis, PortalHypertension, Varices, MeetingMilan, UCSF, ASAN, FromDate, ToDate);
+
+            //internal keys only, not meant for the spreadsheet a user opens
+            foreach (string internalColumn in new[] { "PatientId", "VisitId", "MDTType" })
+            {
+                if (dt.Columns.Contains(internalColumn))
+                {
+                    dt.Columns.Remove(internalColumn);
+                }
+            }
+
+            string fileName = "Advance Search Results.xlsx";
+            using (XLWorkbook wb = new XLWorkbook())
+            {
+                wb.Worksheets.Add(dt, "Results");
+                using (MemoryStream stream = new MemoryStream())
+                {
+                    wb.SaveAs(stream);
+                    return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
+                }
+            }
         }
         public async Task<ActionResult> PatientListForMDT(DateTime? fromDate, DateTime? toDate)
         {

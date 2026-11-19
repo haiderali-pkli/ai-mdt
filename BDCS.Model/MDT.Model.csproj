@@ -51,6 +51,7 @@
     <Compile Include="RoleRights\Location.cs" />
     <Compile Include="Misc\LookupItem.cs" />
     <Compile Include="Misc\LookupCategorySummary.cs" />
+    <Compile Include="Misc\LabTestDefinition.cs" />
     <Compile Include="RoleRights\Menu.cs" />
     <Compile Include="RoleRights\Role.cs" />
     <Compile Include="RoleRights\RoleRight.cs" />

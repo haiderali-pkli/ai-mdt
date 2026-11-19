@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -264,10 +265,82 @@ namespace BDCS.Bussiness
         public async Task<int> DiscontinueMedicine(int protocolDetailId)
             => await _patientBL.DiscontinueMedicine(protocolDetailId);
 
-        public List<VitalHistory> GetVisitListAgainstSearch(int? ChildStatus, int? MeldStatus, int? BCLCStatus, int? ECOG, int? TreatmentResponse,
-            int? MdtOutcome, int? HepatitisStatus, int? AscitiesStatus, int? Svr, int? OtherComorbidities, int? AngioInvasion, double? AFP, bool LiverCirrhosis, bool PortalHypertension, bool Varices, bool MeetingMilan, bool UCSF, bool ASAN)
-            => _patientBL.GetVisitListAgainstSearch(ChildStatus, MeldStatus, BCLCStatus, ECOG, TreatmentResponse,
-            MdtOutcome, HepatitisStatus, AscitiesStatus, Svr, OtherComorbidities, AngioInvasion, AFP, LiverCirrhosis, PortalHypertension, Varices, MeetingMilan, UCSF, ASAN);
+        // Runs the search, then pivots each matching visit's current lab results (TestName/TestResult
+        // rows, a variable set per visit) into one column per distinct test name on the same row -
+        // the result/export table reads "all labs as columns" directly off this, not row-per-lab.
+        public DataTable GetAdvanceSearchResults(int? ChildStatus, int? MeldStatus, int? BCLCStatus, int? ECOG, int? TreatmentResponse,
+            string MdtOutcome, int? HepatitisStatus, int? AscitiesStatus, int? Svr, string OtherComorbidities, string AngioInvasion, string SiteOfHepaticDisease,
+            double? AFP, bool LiverCirrhosis, bool PortalHypertension, bool Varices, bool MeetingMilan, bool UCSF, bool ASAN, DateTime? FromDate, DateTime? ToDate)
+        {
+            DataTable baseTable = _patientBL.GetVisitListAgainstSearch(ChildStatus, MeldStatus, BCLCStatus, ECOG, TreatmentResponse,
+                MdtOutcome, HepatitisStatus, AscitiesStatus, Svr, OtherComorbidities, AngioInvasion, SiteOfHepaticDisease,
+                AFP, LiverCirrhosis, PortalHypertension, Varices, MeetingMilan, UCSF, ASAN, FromDate, ToDate);
+
+            if (baseTable.Rows.Count == 0)
+            {
+                return baseTable;
+            }
+
+            string visitIdsCsv = string.Join(",", baseTable.AsEnumerable().Select(r => r.Field<int>("VisitId")).Distinct());
+            DataTable labRows = _patientBL.GetCurrentLabsForVisits(visitIdsCsv);
+
+            Dictionary<int, Dictionary<string, string>> labsByVisit = new Dictionary<int, Dictionary<string, string>>();
+            List<string> labColumnsInOrder = new List<string>();
+            foreach (DataRow row in labRows.Rows)
+            {
+                string testName = row["TestName"]?.ToString();
+                if (string.IsNullOrWhiteSpace(testName))
+                {
+                    continue;
+                }
+
+                int visitId = Convert.ToInt32(row["VisitId"]);
+                if (!labsByVisit.TryGetValue(visitId, out Dictionary<string, string> visitLabs))
+                {
+                    visitLabs = new Dictionary<string, string>();
+                    labsByVisit[visitId] = visitLabs;
+                }
+                visitLabs[testName] = row["TestResult"]?.ToString();
+
+                if (!labColumnsInOrder.Contains(testName))
+                {
+                    labColumnsInOrder.Add(testName);
+                }
+            }
+            labColumnsInOrder.Sort(StringComparer.OrdinalIgnoreCase);
+
+            //only lab names that don't collide with one of the fixed columns above get a column -
+            //a collision is never expected with real lab names, but silently overwriting a fixed
+            //column (MRN, VisitDate, etc.) would be worse than just dropping that one lab column
+            List<string> addedLabColumns = new List<string>();
+            foreach (string labColumn in labColumnsInOrder)
+            {
+                if (!baseTable.Columns.Contains(labColumn))
+                {
+                    baseTable.Columns.Add(labColumn, typeof(string));
+                    addedLabColumns.Add(labColumn);
+                }
+            }
+
+            foreach (DataRow row in baseTable.Rows)
+            {
+                int visitId = Convert.ToInt32(row["VisitId"]);
+                if (!labsByVisit.TryGetValue(visitId, out Dictionary<string, string> visitLabs))
+                {
+                    continue;
+                }
+
+                foreach (string labColumn in addedLabColumns)
+                {
+                    if (visitLabs.TryGetValue(labColumn, out string result))
+                    {
+                        row[labColumn] = (object)result ?? DBNull.Value;
+                    }
+                }
+            }
+
+            return baseTable;
+        }
 
         public List<VitalHistory> GetPatientListForMDTList(DateTime fromDate, DateTime toDate)
             => _patientBL.GetPatientListForMDTList(fromDate, toDate);

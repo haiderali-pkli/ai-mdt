@@ -9,6 +9,7 @@
     List<string> userMdtRight = (ViewBag.mdtTypesNameVb as List<SelectListItem>).Select(a => a.Text).ToList();
     bool CanManagePatients = BDCS.Models.SessionHelper.IsUserAuthorized("Add Patient", BDCS.Models.RightType.AddEdit)
         || BDCS.Models.SessionHelper.IsUserAuthorized("Create Visit", BDCS.Models.RightType.AddEdit);
+    bool CanSeeAdvanceSearch = BDCS.Models.SessionHelper.IsUserAuthorized("Advance Search", BDCS.Models.RightType.View);
 
     //patient list filter state - re-read on every reload so the toolbar reflects
     //whatever was last picked instead of resetting to the defaults each time
@@ -18,6 +19,22 @@
     DateTime? CurrentFromDate = ViewBag.FromDate as DateTime?;
     DateTime? CurrentToDate = ViewBag.ToDate as DateTime?;
     List<int> PatientCountOptions = new List<int> { 20, 30, 40, 50, 60, 80, 100 };
+}
+
+@* A user with both Liver and Bone Marrow rights sees both history links on every
+   row, but a Liver-only patient has nothing behind "BMT History" (and vice versa) -
+   clicking it just opens an empty history screen. Render it disabled instead so
+   there's nothing to click into when that MDT type has no visits for this patient. *@
+@helper HistoryLink(int patientId, string fullName, string mdtType, string label, bool hasHistory)
+{
+    if (hasHistory)
+    {
+        <a href="#" onclick="LoadPatientVisitHistory(@patientId,'@fullName','@mdtType');"><i class="fa fa-link"></i> @label</a>
+    }
+    else
+    {
+        <span class="am-history-link-disabled" title="No @(mdtType == "Liver" ? "Liver" : "Bone Marrow") history for this patient"><i class="fa fa-link"></i> @label</span>
+    }
 }
 
 <div class="admin-module">
@@ -39,9 +56,8 @@
                 </div>
                 <button class="btn btn-am-light" onclick="LoadPageData();"><i class="fa fa-search"></i> Search</button>
 
-                @if (userMdtRight.Contains("Liver"))
+                @if (userMdtRight.Contains("Liver") && CanSeeAdvanceSearch)
                 {
-                    <button class="btn btn-am-light" id="btnsms" onclick="loadPage('@Url.Action("PatientListForMDT","Patient")','Patient');"><i class="fa fa-list"></i> MDT Patient</button>
                     <button class="btn btn-am-light" id="btnsms" onclick="loadPage('@Url.Action("PatientVisitAdvanceSearch","Patient")','Patient');"><i class="fa fa-filter"></i> Advance Search</button>
                 }
                 @if (userMdtRight.Contains("Bone Marrow"))
@@ -125,7 +141,6 @@
                                         <th>Contact</th>
                                         @if (CanManagePatients)
                                         {
-                                            <th>Discussion</th>
                                             <th style="width:60px;">Edit</th>
                                             <th style="width:120px;">Action</th>
                                         }
@@ -154,59 +169,44 @@
                                             @if (CanManagePatients)
                                             {
                                                 <td>
-                                                    @if (item.DiscussionRequired.Equals(true))
-                                                    {
-                                                        <span class="am-pill am-pill-active"><i class="fa fa-circle"></i> Yes</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="am-pill am-pill-inactive"><i class="fa fa-circle"></i> No</span>
-                                                    }
-                                                </td>
-                                                <td>
                                                     <a href="#" title="Edit" onclick="AddEditPatientDemographics(@item.PatientId); return false;">
                                                         <i class="fa fa-pencil"></i> Edit
                                                     </a>
                                                 </td>
                                                 <td>
-                                                    <div class="dropdown" style="display:inline-block;">
-                                                        <button class="btn btn-am-light dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" style="padding:5px 10px; font-size:12px;">
-                                                            MDT
-                                                            <span class="caret"></span>
-                                                        </button>
-                                                        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                                            @foreach (SelectListItem items in ViewBag.mdtTypesNameVb)
+                                                    <div class="am-visit-actions">
+                                                        @foreach (SelectListItem items in ViewBag.mdtTypesNameVb)
+                                                        {
+                                                            if (items.Text == "Liver")
                                                             {
-                                                                if (items.Text == "Liver")
-                                                                {
-                                                                    <li><a href="#" onclick=" CreateVisit(@item.PatientId, this, 'Liver');">Liver</a></li>
-                                                                }
-                                                                else if (items.Text == "Bone Marrow")
-                                                                {
-                                                                    <li><a href="#" onclick=" CreateVisit(@item.PatientId, this, 'BoneMarrow');">Bone Marrow</a></li>
-                                                                }
+                                                                <a href="#" class="am-visit-btn am-visit-btn-liver" title="Create a Liver MDT visit" onclick="CreateVisit(@item.PatientId, this, 'Liver'); return false;">
+                                                                    <i class="fa fa-plus-circle"></i> Liver Visit
+                                                                </a>
                                                             }
-                                                        </ul>
+                                                            else if (items.Text == "Bone Marrow")
+                                                            {
+                                                                <a href="#" class="am-visit-btn am-visit-btn-bmt" title="Create a Bone Marrow MDT visit" onclick="CreateVisit(@item.PatientId, this, 'BoneMarrow'); return false;">
+                                                                    <i class="fa fa-plus-circle"></i> BMT Visit
+                                                                </a>
+                                                            }
+                                                        }
                                                     </div>
-                                                    <a href="#" onclick="ToggleDiscussionStatus(@item.PatientId,this); return false;" title="Toggle Discussion Status" style="margin-left:6px;">
-                                                        <i class="fa fa-tasks"></i>
-                                                    </a>
                                                 </td>
                                             }
                                             <td>
                                                 @if (userMdtRight.Contains("Liver") && !userMdtRight.Contains("Bone Marrow"))
                                                 {
-                                                    <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','Liver');"><i class="fa fa-link"></i> Liver History</a>
+                                                    @HistoryLink(item.PatientId, item.FullName, "Liver", "Liver History", item.HasLiverHistory)
                                                 }
                                                 else if (!userMdtRight.Contains("Liver") && userMdtRight.Contains("Bone Marrow"))
                                                 {
-                                                    <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','BoneMarrow');"><i class="fa fa-link"></i> BMT History</a>
+                                                    @HistoryLink(item.PatientId, item.FullName, "BoneMarrow", "BMT History", item.HasBoneMarrowHistory)
                                                 }
                                                 else if (userMdtRight.Contains("Liver") && userMdtRight.Contains("Bone Marrow"))
                                                 {
-                                                    <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','Liver');"><i class="fa fa-link"></i> Liver History</a>
+                                                    @HistoryLink(item.PatientId, item.FullName, "Liver", "Liver History", item.HasLiverHistory)
                                                     <span>&nbsp;|&nbsp;</span>
-                                                    <a href="#" onclick="LoadPatientVisitHistory(@item.PatientId,'@item.FullName','BoneMarrow');"><i class="fa fa-link"></i> BMT History</a>
+                                                    @HistoryLink(item.PatientId, item.FullName, "BoneMarrow", "BMT History", item.HasBoneMarrowHistory)
                                                 }
                                                 <span>&nbsp;|&nbsp;</span>
                                                 <a href="@Url.Action("PatientCard", new {PatientId = item.PatientId})" target="_blank"><i class="fa fa-id-card"></i> Card</a>

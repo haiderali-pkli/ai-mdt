@@ -30,7 +30,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="~/Content/theme/css/custom.css">
     <!-- Admin Module CSS (User / Role / Clinic management) -->
-    <link rel="stylesheet" href="~/Content/theme/css/admin-module.css?v=20261118a">
+    <link rel="stylesheet" href="~/Content/theme/css/admin-module.css?v=20261118h">
 
 
     <link href="~/Content/Plugin/Jquery.toast/jquery.toast.min.css" rel="stylesheet" />
@@ -77,7 +77,9 @@
         bool CanSeeClinics = BDCS.Models.SessionHelper.IsUserAuthorized("MDT Types", BDCS.Models.RightType.View);
         bool CanSeeLocations = BDCS.Models.SessionHelper.IsUserAuthorized("Locations", BDCS.Models.RightType.View);
         bool CanSeeLookups = BDCS.Models.SessionHelper.IsUserAuthorized("Add Lookup", BDCS.Models.RightType.View);
-        bool CanSeeAdminMenu = CanSeeUsers || CanSeeRoles || CanSeeClinics || CanSeeLocations || CanSeeLookups;
+        bool CanSeeLabTests = BDCS.Models.SessionHelper.IsUserAuthorized("Lab Tests", BDCS.Models.RightType.View);
+        bool CanSeeLabTestsBMT = BDCS.Models.SessionHelper.IsUserAuthorized("Lab Tests BMT", BDCS.Models.RightType.View);
+        bool CanSeeAdminMenu = CanSeeUsers || CanSeeRoles || CanSeeClinics || CanSeeLocations || CanSeeLookups || CanSeeLabTests || CanSeeLabTestsBMT;
     }
     <header class="hidden-print">
         <div class="mh-topbar">
@@ -124,6 +126,14 @@
                                     @if (CanSeeLookups)
                                     {
                                         <li><a href="@Url.Action("AddEditLookupData","Patient")"><i class="fa fa-list"></i> Lookups</a></li>
+                                    }
+                                    @if (CanSeeLabTests)
+                                    {
+                                        <li><a href="@Url.Action("GetLabTestList","LabTest")"><i class="fa fa-flask"></i> Lab Tests</a></li>
+                                    }
+                                    @if (CanSeeLabTestsBMT)
+                                    {
+                                        <li><a href="@Url.Action("GetLabTestListBMT","LabTest")"><i class="fa fa-flask"></i> Lab Tests BMT</a></li>
                                     }
                                 </ul>
                             </div>

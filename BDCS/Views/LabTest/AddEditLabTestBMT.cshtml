@@ -1,0 +1,77 @@
+@model BDCS.Model.Misc.LabTestDefinition
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+
+<div class="admin-module">
+    <form id="frmLabTestBMT" onsubmit="return SaveLabTestBMT();">
+        @Html.HiddenFor(a => a.TestId)
+
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-sm-8">
+                    <div class="form-group">
+                        <label>Test Name</label>
+                        @Html.TextBoxFor(a => a.TestName, new { @class = "form-control", placeholder = "e.g. Ferritin", required = "required", maxlength = "50" })
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label>Order</label>
+                        @Html.TextBoxFor(a => a.Order, new { @class = "form-control", type = "number", placeholder = "Display order" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label>Unit</label>
+                        @Html.TextBoxFor(a => a.TestUnit, new { @class = "form-control", placeholder = "e.g. mg/dL", maxlength = "50" })
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-am-light" onclick="ClosePopup();">Cancel</button>
+            <button type="submit" class="btn btn-am-primary"><i class="fa fa-save"></i> Save Lab Test</button>
+        </div>
+    </form>
+</div>
+
+<script type="text/javascript">
+
+    function SaveLabTestBMT() {
+        var data = {
+            TestId: $("#TestId").val(),
+            TestName: $("#TestName").val(),
+            TestUnit: $("#TestUnit").val(),
+            Order: $("#Order").val()
+        };
+
+        $.ajax({
+            url: '@Url.Action("InsertUpdateLabTestBMT", "LabTest")',
+            type: "post",
+            dataType: "json",
+            data: JSON.stringify(data),
+            contentType: "application/json;",
+            success: function (res) {
+                ShowAlertMessage(res.Message, res.MessageClass, res.MessageTitle);
+                if (res.IsSuccess) {
+                    ClosePopup();
+                    if (typeof ReloadLabTestListBMT == "function") {
+                        ReloadLabTestListBMT();
+                    }
+                }
+            },
+            error: function () {
+                ShowAlertMessage("An error occured", "error", "Error!");
+            }
+        });
+
+        return false;
+    }
+
+</script>

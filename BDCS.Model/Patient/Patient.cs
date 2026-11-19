@@ -60,6 +60,8 @@ namespace BDCS.Model.Patient
         public string Rel { get; set; }
         public bool DiscussionRequired { get; set; }
         public string BloodGroupName { get; set; }
+        public bool HasLiverHistory { get; set; }
+        public bool HasBoneMarrowHistory { get; set; }
 
         public string mdtType { get; set; }
         string CalculateYourAge(DateTime Dob)

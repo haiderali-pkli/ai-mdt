@@ -1081,6 +1081,66 @@ body.clinic_version {
 
 /* ---- Role card: sectioned panels used on AddEditUser (Account / Roles / MDT Types / Locations) ---- */
 
+/* Skeleton placeholder shown in #VitalHx while a Liver/BMT visit's vital-history
+   partial is still loading (AddEditPatientDetail.cshtml) - swapped in synchronously
+   right before loadPage() fires so there's something resembling the real am-rolecard
+   layout on screen immediately, instead of the global full-page loader's blank white
+   overlay. loadPage() replaces this container's content itself once the response
+   arrives, so no explicit cleanup is needed here.
+
+   loadPage() itself (Global.js) now also drops this same skeleton into whatever
+   container it's about to replace, for every AJAX navigation app-wide - wrapped in
+   its own .admin-module div there since the target (e.g. #MainContent) isn't always
+   already inside one. */
+.admin-module .am-skeleton-wrap {
+    padding: 16px;
+}
+
+.admin-module .am-skeleton-card {
+    background: #fff;
+    border: 1px solid var(--am-border);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    overflow: hidden;
+}
+
+.admin-module .am-skeleton-card-head {
+    height: 30px;
+    background: var(--am-bg);
+    border-bottom: 1px solid var(--am-border);
+}
+
+.admin-module .am-skeleton-card-body {
+    padding: 12px 14px;
+}
+
+.admin-module .am-skeleton-line {
+    height: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.admin-module .am-skeleton-line:last-child {
+    margin-bottom: 0;
+}
+
+.admin-module .am-skeleton-line,
+.admin-module .am-skeleton-card-head {
+    background: linear-gradient(90deg, #eceff3 25%, #f6f7f9 37%, #eceff3 63%);
+    background-size: 400% 100%;
+    animation: am-skeleton-shimmer 1.4s ease infinite;
+}
+
+@keyframes am-skeleton-shimmer {
+    0% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0 50%;
+    }
+}
+
 .admin-module .am-rolecard {
     background: #fff;
     border: 1px solid var(--am-border);

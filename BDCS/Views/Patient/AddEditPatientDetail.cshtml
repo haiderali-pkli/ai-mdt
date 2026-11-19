@@ -171,7 +171,7 @@
                 @*var URL = '@Url.Action("GetProtocols", "Patient")' + '/?visitId=' + visitId + "&patId=" + patientId;*@
                 @*var LabUrl = '@Url.Action("GetPreviousVisitLabTestsBMT", "Patient")' + '/?patientId=' + patientId + '&visitId=' + visitId;*@
                 /*loadPage(URL, "ProtocolsHistory", "ProtocolHx");*/
-                loadPage(url, "VitalHistoryBMT", "VitalHx");
+                loadPage(url, "VitalHistoryBMT", "VitalHx", false, VitalHistorySkeletonHtml());
                 /*loadPage(LabUrl, "Lab History", "LabHxBMT");*/
                 break;
             case "Liver":
@@ -179,19 +179,43 @@
                 var URL = '@Url.Action("GetProtocols", "Patient")' + '/?visitId=' + visitId + "&patId=" + patientId;
                 @*var LabUrl = '@Url.Action("GetPreviousVisitLabTests", "Patient")' + '/?patientId=' + patientId + '&visitId=' + visitId;*@
                 /*loadPage(URL, "ProtocolsHistory", "ProtocolHx");*/
-                loadPage(url, "VitalHistory", "VitalHx");
+                loadPage(url, "VitalHistory", "VitalHx", false, VitalHistorySkeletonHtml());
                 /*loadPage(LabUrl, "Lab History", "LabHx");*/
                 break;
             case "Kidney":
-                alert("Kidney MDT is under development");
+                ShowAlertMessage("Kidney MDT is under development", "info", "Not Available");
                 break;
             default:
-                alert("Invalid MDT Type");
+                ShowAlertMessage("Invalid MDT Type", "error", "Error");
         }
         @*var uRl = '@Url.Action("GetPreviousLabReport", "Patient")' + '/?visitId=' + visitId + "&patId=" + patientId;
         loadPage(uRl,"PreviousLabReports")*@
     });
 
+
+    //Passed into loadPage() as its skeletonHtml argument so the Liver/BMT vital-history
+    //load gets this 3-column layout (matching the real am-rolecard grid) instead of
+    //loadPage()'s generic one-column skeleton - shown the instant the partial starts
+    //loading. loadPage() empties and replaces #VitalHx itself once the real content
+    //arrives, so there's nothing to clean up here.
+    function VitalHistorySkeletonCard(lineWidths) {
+        var lines = lineWidths.map(function (w) {
+            return '<div class="am-skeleton-line" style="width:' + w + '"></div>';
+        }).join('');
+        return '<div class="am-skeleton-card"><div class="am-skeleton-card-head"></div><div class="am-skeleton-card-body">' + lines + '</div></div>';
+    }
+
+    function VitalHistorySkeletonHtml() {
+        var columns = [
+            [["45%", "70%", "55%", "90%"], ["60%", "40%", "80%"], ["100%", "100%", "70%"]],
+            [["50%", "85%", "60%"], ["70%", "45%", "90%", "55%"], ["65%", "80%"]],
+            [["40%", "75%"], ["90%", "60%", "50%"], ["55%", "70%", "85%"]]
+        ];
+
+        return '<div class="row am-vf-columns">' + columns.map(function (col) {
+            return '<div class="col-lg-4 col-xs-12">' + col.map(VitalHistorySkeletonCard).join('') + '</div>';
+        }).join('') + '</div>';
+    }
 
     function LoadPatientHeader()
     {
@@ -238,7 +262,7 @@
                 ShowAlertMessage(msg.Message, msg.MessageClass);
             },
             error: function () {
-                alert('an error occured');
+                ShowAlertMessage('An error occured', 'error', 'Error');
             }
         });
     }
@@ -254,7 +278,7 @@
                 ShowAlertMessage(msg.Message, msg.MessageClass);
             },
             error: function () {
-                alert('an error occured');
+                ShowAlertMessage('An error occured', 'error', 'Error');
             }
         });
     }

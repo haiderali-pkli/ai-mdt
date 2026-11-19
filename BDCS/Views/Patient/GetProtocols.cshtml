@@ -301,18 +301,21 @@
                 }
             },
             error: function () {
-                alert("an error occured.. ");
+                ShowAlertMessage('An error occured', 'error', 'Error');
             }
         });
 
     }
     function ClearProtocolTable() {
-        if (confirm("Do you wish to clear the current data")) {
-
+        ConfirmAction({
+            title: "Clear the current data?",
+            text: "This removes every protocol row currently in the table.",
+            confirmButtonText: "Yes, clear"
+        }, function () {
             $("#tblProtocols .DataRowProtocol").each(function(){
                 removeRowProtocol(this);
             });
-        }
+        });
     }
 
     function addRowProtocol() {
@@ -417,7 +420,7 @@
            
             },
             error: function () {
-                alert("an error occured.. ");
+                ShowAlertMessage('An error occured', 'error', 'Error');
             }
         });
 

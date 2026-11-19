@@ -18,7 +18,7 @@ namespace BDCS.Constants
         #endregion
 
         #region [MessageClasses]
-        public const string MessageClassSuccess = "sucess";
+        public const string MessageClassSuccess = "success";
         public const string MessageClassWarning = "warning";
         public const string MessageClassInfo = "info";
         public const string MessageClassError = "error";

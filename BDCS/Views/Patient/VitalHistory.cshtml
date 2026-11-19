@@ -745,7 +745,7 @@
                 };
 
                 if (!OptionalTests.includes(Data.TestName) && (Data.TestName == "" || Data.TestDate == "" || Data.TestResult == "")) {
-                    alert("Please fill all the fields for lab Reports");
+                    ShowAlertMessage("Please fill all the fields for lab Reports", "warning", "Missing Information");
                     Valid = false;
                     return false;
                 }
@@ -867,7 +867,7 @@
 
                     },
                     error: function () {
-                        alert('an error occured');
+                        ShowAlertMessage('An error occured', 'error', 'Error');
                     }
                 });
             }
@@ -900,7 +900,7 @@
                     }
                 },
                 error: function () {
-                    alert('an error occured');
+                    ShowAlertMessage('An error occured', 'error', 'Error');
                 }
             });
         }*@
@@ -961,7 +961,7 @@
                     $("#PastHxNAT").val(PastHxText);
                 },
                 error: function () {
-                    alert('an error occured');
+                    ShowAlertMessage('An error occured', 'error', 'Error');
                 }
             });
         }

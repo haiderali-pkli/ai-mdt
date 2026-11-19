@@ -190,6 +190,7 @@
             data: { loginId: UserId, password: Password },
             dataType: "json",
             success: function (res) {
+                hideProgressBar();
 
                 if (res !== null && res.Message !== undefined) {
                     if (res.Code == 200) {
@@ -203,6 +204,7 @@
             },
             error: function()
                 {
+                hideProgressBar();
                 ShowAlertMessage("An error occured", "error", "Error");
                 }
         });

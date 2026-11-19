@@ -7,10 +7,21 @@
 var NavigationHistory = [];
 var CurrentPage = null;
 
-function loadPage(url, name, targetElement, isBackNavigation) {
-    showProgressBar();
-
+function loadPage(url, name, targetElement, isBackNavigation, skeletonHtml) {
     targetElement = targetElement || 'MainContent';
+
+    //a shimmering skeleton in the exact area being replaced, instead of the old
+    //full-page blank-white-plus-spinner overlay - every AJAX navigation in the app
+    //goes through here (patient list, admin screens, vital history tabs, lab
+    //orders, protocols, etc.), so this single change covers all of them. A caller
+    //that already knows the real layout (e.g. Vital History's own 3-column card
+    //grid) can pass its own skeletonHtml instead of the generic one.
+    if (skeletonHtml) {
+        $("#" + targetElement).html('<div class="admin-module"><div class="am-skeleton-wrap">' + skeletonHtml + '</div></div>');
+    } else {
+        ShowGenericSkeleton(targetElement);
+    }
+
     ResetPreviousFunction();
 
     $.ajax({
@@ -175,6 +186,35 @@ function showProgressBar() {
     $("#preloader").show();
     $("#preloader .preloader").show();
 
+}
+
+//Generic shimmering placeholder used by loadPage() for every AJAX navigation -
+//deliberately content-agnostic (a handful of card-shaped blocks) rather than
+//trying to mimic each target screen's real layout, which varies far too much
+//(tables, forms, card grids) for one generic skeleton to match exactly. Wrapped
+//in its own .admin-module div since the target container (e.g. #MainContent)
+//isn't always already inside one, and the skeleton's CSS (admin-module.css) is
+//scoped under that class.
+function GenericSkeletonCardHtml(lineWidths) {
+    var lines = lineWidths.map(function (w) {
+        return '<div class="am-skeleton-line" style="width:' + w + '"></div>';
+    }).join('');
+    return '<div class="am-skeleton-card"><div class="am-skeleton-card-head"></div><div class="am-skeleton-card-body">' + lines + '</div></div>';
+}
+
+function ShowGenericSkeleton(targetElement) {
+    var target = document.getElementById(targetElement);
+    if (!target) {
+        return;
+    }
+
+    var cards = [
+        ["40%", "75%", "60%"],
+        ["55%", "90%"],
+        ["35%", "80%", "65%"]
+    ].map(GenericSkeletonCardHtml).join('');
+
+    target.innerHTML = '<div class="admin-module"><div class="am-skeleton-wrap">' + cards + '</div></div>';
 }
 
 function hideProgressBar() {

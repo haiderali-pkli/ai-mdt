@@ -60,10 +60,6 @@
                 {
                     <button class="btn btn-am-light" id="btnsms" onclick="loadPage('@Url.Action("PatientVisitAdvanceSearch","Patient")','Patient');"><i class="fa fa-filter"></i> Advance Search</button>
                 }
-                @if (userMdtRight.Contains("Bone Marrow"))
-                {
-                    <button class="btn btn-am-light" id="btnsms" onclick="loadPage('@Url.Action("PatientListOfBMTForMDT","Patient")','Patient');"><i class="fa fa-list"></i> BMT Patient</button>
-                }
             </div>
 
             <div class="am-filter-bar">

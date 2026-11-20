@@ -19,11 +19,22 @@ namespace BDCS.Bussiness
    public class PatientBL
     {
         readonly PatientDAL _patientBL;
-        
+        readonly SisoftPatientDAL _sisoftPatientBL;
+        readonly SisoftLabDAL _sisoftLabBL;
+
         public PatientBL()
         {
             _patientBL = new PatientDAL();
+            _sisoftPatientBL = new SisoftPatientDAL();
+            _sisoftLabBL = new SisoftLabDAL();
         }
+
+        // Thin pass-through - Sisoft connectivity/availability issues are handled by the caller
+        // (PatientController) so a down Sisoft never blocks local patient registration.
+        public SisoftPatientInfo GetPatientFromSisoft(string hospitalNumber) => _sisoftPatientBL.GetPatientByMrn(hospitalNumber);
+
+        public List<SisoftLabResult> GetLabResultsFromSisoft(string hospitalNumber, IEnumerable<string> cptCodes)
+            => _sisoftLabBL.GetLatestLabResults(hospitalNumber, cptCodes);
 
 
         public List<Patient> GetPatientList(string searchText,int clinicId,string locationIds="",int count=20,DateTime? fromDate=null,DateTime? toDate=null) => _patientBL.PatientSearchByText("PatientSearchByText", "Clinical", searchText,clinicId,locationIds,count,fromDate,toDate);

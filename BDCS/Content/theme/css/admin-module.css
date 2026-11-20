@@ -1590,6 +1590,16 @@ body.clinic_version {
     font-weight: 400;
 }
 
+/* inline status text for things like the Sisoft lookup feedback - same caption
+   sizing as am-subtitle, just swappable between neutral/success/muted tone */
+.admin-module .am-subtitle.am-text-success {
+    color: var(--am-success);
+    font-weight: 500;
+}
+.admin-module .am-subtitle.am-text-muted {
+    color: var(--am-muted);
+}
+
 /* result-count callout above a list - deliberately its own badge (not am-subtitle's
    small muted caption style) with real margin on both sides so it never sits flush
    against the filter bar above it or the table header below it */

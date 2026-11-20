@@ -10,5 +10,7 @@ namespace BDCS.Model.Misc
         public string TestName { get; set; }
         public string TestUnit { get; set; }
         public int? Order { get; set; }
+        public string CptCode { get; set; }
+        public bool IsMandatory { get; set; }
     }
 }

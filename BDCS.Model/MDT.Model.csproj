@@ -45,6 +45,8 @@
     <Compile Include="Misc\KeyAndValuePair.cs" />
     <Compile Include="PatientServices\PatientServices.cs" />
     <Compile Include="Patient\Patient.cs" />
+    <Compile Include="Patient\SisoftPatientInfo.cs" />
+    <Compile Include="Patient\SisoftLabResult.cs" />
     <Compile Include="Patient\PatientAlert.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoleRights\Clinic.cs" />

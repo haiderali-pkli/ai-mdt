@@ -28,6 +28,8 @@ namespace BDCS.Data
                     TestName = a["TestName"] == DBNull.Value ? "" : a["TestName"].ToString(),
                     TestUnit = a["TestUnit"] == DBNull.Value ? "" : a["TestUnit"].ToString(),
                     Order = a["Order"] == DBNull.Value ? (int?)null : Convert.ToInt32(a["Order"]),
+                    CptCode = ds.Tables[0].Columns.Contains("CptCode") && a["CptCode"] != DBNull.Value ? a["CptCode"].ToString() : "",
+                    IsMandatory = !ds.Tables[0].Columns.Contains("IsMandatory") || a["IsMandatory"] == DBNull.Value || Convert.ToBoolean(a["IsMandatory"]),
                 }).ToList();
             }
             return Data;
@@ -54,6 +56,8 @@ namespace BDCS.Data
                 new DbParameters() { Name = "TestName", Type = DbType.String, Value = test.TestName },
                 new DbParameters() { Name = "TestUnit", Type = DbType.String, Value = (object)test.TestUnit ?? DBNull.Value },
                 new DbParameters() { Name = "Order", Type = DbType.Int32, Value = (object)test.Order ?? DBNull.Value },
+                new DbParameters() { Name = "CptCode", Type = DbType.String, Value = (object)test.CptCode ?? DBNull.Value },
+                new DbParameters() { Name = "IsMandatory", Type = DbType.Boolean, Value = test.IsMandatory },
             };
             return Convert.ToInt32(await _db.ExecuteScalarAsync(QueryHelper.GetQueryString("InsertUpdateLabTest", "System"), CommandType.StoredProcedure, pars));
         }
@@ -85,6 +89,8 @@ namespace BDCS.Data
                 new DbParameters() { Name = "TestName", Type = DbType.String, Value = test.TestName },
                 new DbParameters() { Name = "TestUnit", Type = DbType.String, Value = (object)test.TestUnit ?? DBNull.Value },
                 new DbParameters() { Name = "Order", Type = DbType.Int32, Value = (object)test.Order ?? DBNull.Value },
+                new DbParameters() { Name = "CptCode", Type = DbType.String, Value = (object)test.CptCode ?? DBNull.Value },
+                new DbParameters() { Name = "IsMandatory", Type = DbType.Boolean, Value = test.IsMandatory },
             };
             return Convert.ToInt32(await _db.ExecuteScalarAsync(QueryHelper.GetQueryString("InsertUpdateLabTestBMT", "System"), CommandType.StoredProcedure, pars));
         }

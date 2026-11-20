@@ -82,6 +82,10 @@ namespace BDCS.Data
                 new DbParameters() {Name="FirstName",Type=DbType.String, Value=patient.FirstName },
                 new DbParameters() {Name="LastName", Type=DbType.String,Value=patient.LastName },
                 //new DbParameters() {Name="MrNumber", Type=DbType.String,Value=patient.MrNumber },
+                new DbParameters() {Name="MiddleName", Type=DbType.String,Value=patient.MiddleName },
+                new DbParameters() {Name="MotherName", Type=DbType.String,Value=patient.MotherName },
+                new DbParameters() {Name="Cnic", Type=DbType.String,Value=patient.Cnic },
+                new DbParameters() {Name="PlaceOfBirth", Type=DbType.String,Value=patient.PlaceOfBirth },
                 new DbParameters() {Name="Relationship", Type=DbType.String,Value=patient.Relationship },
                 new DbParameters() {Name="FatherSpouseName", Type=DbType.String,Value=patient.FatherSpouseName },
                 new DbParameters() {Name="GenderId", Type=DbType.String,Value=patient.GenderId },
@@ -187,6 +191,10 @@ namespace BDCS.Data
                         MrNumber=a["MrNumber"].ToString(),
                         FirstName=a["FirstName"].ToString(),
                         LastName = a["LastName"].ToString(),
+                        MiddleName = ds.Tables[0].Columns.Contains("MiddleName") ? a["MiddleName"].ToString() : "",
+                        MotherName = ds.Tables[0].Columns.Contains("MotherName") ? a["MotherName"].ToString() : "",
+                        Cnic = ds.Tables[0].Columns.Contains("Cnic") ? a["Cnic"].ToString() : "",
+                        PlaceOfBirth = ds.Tables[0].Columns.Contains("PlaceOfBirth") ? a["PlaceOfBirth"].ToString() : "",
                         Relationship=a["Relationship"].ToString(),
                         FatherSpouseName = a["FatherSpouseName"].ToString(),
                         GenderId=Convert.ToInt32(a["LookupId"]),
@@ -282,6 +290,8 @@ namespace BDCS.Data
                         TestResult = a["TestResult"].ToString(),
                         TestUnit = a["TestUnit"].ToString(),
                         TestResultLabel=a["TestResultLabel"].ToString(),
+                        CptCode = ds.Tables[0].Columns.Contains("CptCode") && a["CptCode"] != DBNull.Value ? a["CptCode"].ToString() : "",
+                        IsMandatory = !ds.Tables[0].Columns.Contains("IsMandatory") || a["IsMandatory"] == DBNull.Value || Convert.ToBoolean(a["IsMandatory"]),
                     }).ToList();
                 }
             }
@@ -517,11 +527,7 @@ namespace BDCS.Data
                         MDTOutComeOther = a["MDTOutComeOther"].ToString(),
                         TransplantDiscussion = Convert.ToBoolean(a["TransplantDiscussion"]),
                         TransplantDiscussionDetail = a["TransplantDiscussionDetail"].ToString(),
-                        //ImagingDate = Convert.ToDateTime(a["ImagingDate"]),
-
-                        ImagingDate = Convert.ToDateTime(a["ImagingDate"] == DBNull.Value ? null : a["ImagingDate"]),
-
-
+                        ImagingDate = a["ImagingDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(a["ImagingDate"]),
 
                     }).ToList();
                 }
@@ -1735,12 +1741,8 @@ namespace BDCS.Data
                         MDTOutComeOther = a["MDTOutComeOther"].ToString(),
                         TransplantDiscussion = Convert.ToBoolean(a["TransplantDiscussion"]),
                         TransplantDiscussionDetail = a["TransplantDiscussionDetail"].ToString(),
-                        MDTDate= Convert.ToDateTime(a["MDTDate"]),
+                        MDTDate = a["MDTDate"] == DBNull.Value ? (DateTime?)null : Convert.ToDateTime(a["MDTDate"]),
                         TreatmentType = a["TreatmentType"].ToString(),
-
-                        //ImagingDate = Convert.ToDateTime(a["ImagingDate"] == DBNull.Value ? null : a["ImagingDate"]),
-
-
 
                     }).ToList();
                 }
@@ -1776,6 +1778,8 @@ namespace BDCS.Data
                         TestResult = a["TestResult"].ToString(),
                         TestUnit = a["TestUnit"].ToString(),
                         TestResultLabel = a["TestResultLabel"].ToString(),
+                        CptCode = ds.Tables[0].Columns.Contains("CptCode") && a["CptCode"] != DBNull.Value ? a["CptCode"].ToString() : "",
+                        IsMandatory = !ds.Tables[0].Columns.Contains("IsMandatory") || a["IsMandatory"] == DBNull.Value || Convert.ToBoolean(a["IsMandatory"]),
                     }).ToList();
                 }
             }

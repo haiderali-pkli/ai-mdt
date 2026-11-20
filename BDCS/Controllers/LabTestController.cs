@@ -32,8 +32,8 @@ namespace BDCS.Controllers
         [CheckUserRights(MenuName = "Lab Tests", Order = 1, UserRightType = RightType.View)]
         public ActionResult AddEditLabTest(int TestId = 0)
         {
-            LabTestDefinition Data = TestId > 0 ? _labTestBL.GetLabTestById(TestId) : new LabTestDefinition();
-            return View(Data ?? new LabTestDefinition());
+            LabTestDefinition Data = TestId > 0 ? _labTestBL.GetLabTestById(TestId) : new LabTestDefinition { IsMandatory = true };
+            return View(Data ?? new LabTestDefinition { IsMandatory = true });
         }
 
         [CheckUserRights(MenuName = "Lab Tests", Order = 1, UserRightType = RightType.AddEdit)]
@@ -103,8 +103,8 @@ namespace BDCS.Controllers
         [CheckUserRights(MenuName = "Lab Tests BMT", Order = 1, UserRightType = RightType.View)]
         public ActionResult AddEditLabTestBMT(int TestId = 0)
         {
-            LabTestDefinition Data = TestId > 0 ? _labTestBL.GetLabTestByIdBMT(TestId) : new LabTestDefinition();
-            return View(Data ?? new LabTestDefinition());
+            LabTestDefinition Data = TestId > 0 ? _labTestBL.GetLabTestByIdBMT(TestId) : new LabTestDefinition { IsMandatory = true };
+            return View(Data ?? new LabTestDefinition { IsMandatory = true });
         }
 
         [CheckUserRights(MenuName = "Lab Tests BMT", Order = 1, UserRightType = RightType.AddEdit)]

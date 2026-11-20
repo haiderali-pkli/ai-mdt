@@ -39,6 +39,8 @@
                                 <th style="width:90px;">Order</th>
                                 <th>Test Name</th>
                                 <th>Unit</th>
+                                <th>CPT Code</th>
+                                <th style="width:100px;">Mandatory</th>
                                 <th style="width:130px;"></th>
                             </tr>
                         </thead>
@@ -49,6 +51,8 @@
                                     <td>@item.Order</td>
                                     <td>@item.TestName</td>
                                     <td>@item.TestUnit</td>
+                                    <td>@(string.IsNullOrEmpty(item.CptCode) ? "-" : item.CptCode)</td>
+                                    <td>@(item.IsMandatory ? "Yes" : "No")</td>
                                     <td>
                                         <a href="#" title="Edit" onclick="AddEditLabTest(@item.TestId); return false;">
                                             <i class="fa fa-pencil"></i> Edit

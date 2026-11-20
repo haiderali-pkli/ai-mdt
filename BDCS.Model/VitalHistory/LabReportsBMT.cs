@@ -19,5 +19,7 @@ namespace BDCS.Model.VitalHistory
         public string TestResult { get; set; }
         public string TestUnit { get; set; }
         public string TestResultLabel { get; set; }
+        public string CptCode { get; set; }
+        public bool IsMandatory { get; set; }
     }
 }

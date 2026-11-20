@@ -30,6 +30,7 @@ namespace BDCS.Controllers
     {
         CommonBL _CommonBL;
         PatientBL _PatientBL;
+        LabTestBL _LabTestBL;
 
         // GET: Patient
         #region [Constructor]
@@ -37,6 +38,7 @@ namespace BDCS.Controllers
         {
             _CommonBL = new CommonBL();
             _PatientBL = new PatientBL();
+            _LabTestBL = new LabTestBL();
 
         }
         #endregion
@@ -126,6 +128,172 @@ namespace BDCS.Controllers
         {
             List<KeyAndValuePair> District = await _CommonBL.GetDefinationData("GetDistrictList", "System", Id.ToString());
             return Json(District, JsonRequestBehavior.AllowGet);
+        }
+
+        // Looks up a patient's biodata from Sisoft (Cozum HIS) by MRN/Hospital Number.
+        // Never lets a down/unreachable Sisoft break the page - any failure degrades to
+        // "not available", and the Add Patient form stays fully usable for manual entry.
+        public ActionResult GetPatientFromSisoft(string hospitalNumber)
+        {
+            AjaxResponse response;
+            try
+            {
+                if (string.IsNullOrWhiteSpace(hospitalNumber))
+                {
+                    response = new AjaxResponse
+                    {
+                        Code = 400,
+                        IsSuccess = false,
+                        Message = "Enter a Hospital No. to look up.",
+                        MessageClass = MessageConstants.MessageClassWarning
+                    };
+                    return Json(response, JsonRequestBehavior.AllowGet);
+                }
+
+                SisoftPatientInfo info = _PatientBL.GetPatientFromSisoft(hospitalNumber.Trim());
+                if (info == null)
+                {
+                    response = new AjaxResponse
+                    {
+                        Code = 404,
+                        IsSuccess = false,
+                        Message = "No matching patient found in Sisoft for this Hospital No. You can continue and register the patient manually.",
+                        MessageClass = MessageConstants.MessageClassWarning
+                    };
+                }
+                else
+                {
+                    response = new AjaxResponse
+                    {
+                        Code = 200,
+                        IsSuccess = true,
+                        MessageClass = MessageConstants.MessageClassSuccess,
+                        ResponseObject = info
+                    };
+                }
+            }
+            catch (Exception)
+            {
+                // Sisoft (Oracle) unreachable / timed out / misconfigured - fail soft.
+                response = new AjaxResponse
+                {
+                    Code = 503,
+                    IsSuccess = false,
+                    Message = "Sisoft is currently unavailable. You can continue and fill in the patient's details manually.",
+                    MessageClass = MessageConstants.MessageClassWarning
+                };
+            }
+            return Json(response, JsonRequestBehavior.AllowGet);
+        }
+
+        public ActionResult GetLiverLabsFromSisoft(int patientId)
+            => GetMdtLabsFromSisoft(patientId, isBMT: false);
+
+        public ActionResult GetBoneMarrowLabsFromSisoft(int patientId)
+            => GetMdtLabsFromSisoft(patientId, isBMT: true);
+
+        // Shared by both MDT types: pulls whichever tests have a CptCode configured in
+        // the live catalog (System.LabTests / LabTestsBMT - see the Lab Tests admin
+        // screen), fetches their latest Sisoft results in one batch, and - for the rare
+        // procedure code that returns more than one lab parameter - picks the result
+        // whose parameter name best matches the local test's name. Never throws out to
+        // the caller: any Sisoft failure degrades to a plain "unavailable" response so
+        // the lab-entry grid always stays usable for manual entry.
+        private ActionResult GetMdtLabsFromSisoft(int patientId, bool isBMT)
+        {
+            AjaxResponse response;
+            try
+            {
+                string hospitalNumber = _PatientBL.GetPatientById(patientId, SessionLocationIdsCsv)?.HospitalNumber;
+                if (string.IsNullOrWhiteSpace(hospitalNumber))
+                {
+                    response = new AjaxResponse
+                    {
+                        Code = 400,
+                        IsSuccess = false,
+                        Message = "This patient has no Hospital No. on file to look up in Sisoft.",
+                        MessageClass = MessageConstants.MessageClassWarning
+                    };
+                    return Json(response, JsonRequestBehavior.AllowGet);
+                }
+
+                List<LabTestDefinition> catalog = (isBMT ? _LabTestBL.GetLabTestListBMT() : _LabTestBL.GetLabTestList())
+                    .Where(t => !string.IsNullOrWhiteSpace(t.CptCode))
+                    .ToList();
+
+                if (catalog.Count == 0)
+                {
+                    response = new AjaxResponse
+                    {
+                        Code = 404,
+                        IsSuccess = false,
+                        Message = "None of these tests have a Sisoft procedure code configured yet (set it up in Lab Tests admin).",
+                        MessageClass = MessageConstants.MessageClassWarning
+                    };
+                    return Json(response, JsonRequestBehavior.AllowGet);
+                }
+
+                List<SisoftLabResult> sisoftResults = _PatientBL.GetLabResultsFromSisoft(
+                    hospitalNumber.Trim(), catalog.Select(t => t.CptCode));
+
+                List<object> matched = new List<object>();
+                foreach (LabTestDefinition test in catalog)
+                {
+                    List<SisoftLabResult> candidates = sisoftResults
+                        .Where(r => string.Equals(r.CptCode, test.CptCode, StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+                    if (candidates.Count == 0) continue;
+
+                    SisoftLabResult best = candidates.Count == 1
+                        ? candidates[0]
+                        : candidates
+                            .Where(c => !string.IsNullOrEmpty(c.Param)
+                                && c.Param.IndexOf(test.TestName ?? "", StringComparison.OrdinalIgnoreCase) >= 0)
+                            .OrderByDescending(c => c.ResultDate)
+                            .FirstOrDefault()
+                        ?? candidates.OrderByDescending(c => c.ResultDate).First();
+
+                    matched.Add(new
+                    {
+                        TestId = test.TestId,
+                        Result = best.Result,
+                        Unit = string.IsNullOrWhiteSpace(best.Unit) ? test.TestUnit : best.Unit,
+                        Date = best.ResultDate
+                    });
+                }
+
+                if (matched.Count == 0)
+                {
+                    response = new AjaxResponse
+                    {
+                        Code = 404,
+                        IsSuccess = false,
+                        Message = "No matching lab results found in Sisoft for this patient.",
+                        MessageClass = MessageConstants.MessageClassWarning
+                    };
+                }
+                else
+                {
+                    response = new AjaxResponse
+                    {
+                        Code = 200,
+                        IsSuccess = true,
+                        MessageClass = MessageConstants.MessageClassSuccess,
+                        ResponseObject = matched
+                    };
+                }
+            }
+            catch (Exception)
+            {
+                response = new AjaxResponse
+                {
+                    Code = 503,
+                    IsSuccess = false,
+                    Message = "Sisoft is currently unavailable. You can continue and enter lab results manually.",
+                    MessageClass = MessageConstants.MessageClassWarning
+                };
+            }
+            return Json(response, JsonRequestBehavior.AllowGet);
         }
         #endregion
 

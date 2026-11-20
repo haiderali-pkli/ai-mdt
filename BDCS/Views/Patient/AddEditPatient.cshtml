@@ -52,6 +52,16 @@
                                     </div>
                                 </div>
                             </div>
+                            @if (IsNewPatient)
+                            {
+                                <div class="am-sisoft-row" style="margin-top:6px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                    <label style="font-weight:500; margin:0; display:flex; align-items:center; gap:6px; cursor:pointer;">
+                                        <input type="checkbox" id="FetchFromSisoft" checked="checked" style="width:16px; height:16px;" />
+                                        Fetch patient data from Sisoft using Hospital No.
+                                    </label>
+                                    <span id="SisoftStatus" class="am-subtitle"></span>
+                                </div>
+                            }
                         </div>
                     </div>
 
@@ -72,10 +82,24 @@
                                 </div>
                                 <div class="col-sm-3 col-xs-6">
                                     <div class="form-group">
+                                        <label>Middle Name</label>
+                                        @Html.TextBoxFor(a => a.MiddleName, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
                                         <label>Last Name<span class="am-required">*</span></label>
                                         @Html.TextBoxFor(a => a.LastName, new { @class = "form-control", @required = "required" })
                                     </div>
                                 </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>CNIC</label>
+                                        @Html.TextBoxFor(a => a.Cnic, new { @class = "form-control", placeholder = "xxxxx-xxxxxxx-x" })
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-sm-3 col-xs-6">
                                     <div class="form-group">
                                         <label>Relationship</label>
@@ -86,6 +110,18 @@
                                     <div class="form-group">
                                         <label>Father / Spouse Name</label>
                                         @Html.TextBoxFor(a => a.FatherSpouseName, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Mother's Name</label>
+                                        @Html.TextBoxFor(a => a.MotherName, new { @class = "form-control" })
+                                    </div>
+                                </div>
+                                <div class="col-sm-3 col-xs-6">
+                                    <div class="form-group">
+                                        <label>Place of Birth</label>
+                                        @Html.TextBoxFor(a => a.PlaceOfBirth, new { @class = "form-control" })
                                     </div>
                                 </div>
                             </div>
@@ -229,7 +265,12 @@
                                 </div>
                             </div>
                             <div id="my_camera"></div>
-                            <div id="results"></div>
+                            <div id="results">
+                                @if (!IsNewPatient && !string.IsNullOrEmpty(Model.ImageURL))
+                                {
+                                    <img src="@Url.Content(Model.ImageURL)" style="max-width:160px; max-height:160px;" />
+                                }
+                            </div>
                             <div class="row">
                                 <div class="col-sm-4 col-xs-6">
                                     <div class="form-group">
@@ -357,11 +398,137 @@
             CreatePatientAddress();
         });
 
+        $(document).on("change changeDate", "#DOB", function () {
+            var d = ParseDisplayDate($(this).val());
+            if (d) CalculateAgeFromDOB(d);
+        });
+
 
         $("#HospitalNumber").on("blur", function () {
             DoesHospitalNumberAlreadyExist();
+            FetchPatientFromSisoft();
         });
 
+    }
+
+    function SetSisoftStatus(text, cssClass) {
+        $("#SisoftStatus").attr("class", "am-subtitle " + (cssClass || "")).text(text || "");
+    }
+
+    function FetchPatientFromSisoft() {
+        var isNewPatient = @Json.Encode(IsNewPatient);
+        if (!isNewPatient || !$("#FetchFromSisoft").is(":checked")) {
+            return;
+        }
+
+        var hospitalNumber = $.trim($("#HospitalNumber").val());
+        if (hospitalNumber === "") {
+            SetSisoftStatus("", "");
+            return;
+        }
+
+        SetSisoftStatus("Checking Sisoft...", "");
+
+        $.ajax({
+            url: '@Url.Action("GetPatientFromSisoft", "Patient")',
+            type: 'Get',
+            dataType: 'Json',
+            data: { hospitalNumber: hospitalNumber },
+            success: function (msg) {
+                if (msg.Code === 200 && msg.ResponseObject) {
+                    ApplySisoftPatientData(msg.ResponseObject);
+                    SetSisoftStatus("Found in Sisoft - fields filled in below. Please review before saving.", "am-text-success");
+                } else {
+                    // Not found (404) or Sisoft unavailable (503) - never blocks manual entry.
+                    SetSisoftStatus(msg.Message || "Not found in Sisoft. Please fill in the details manually.", "am-text-muted");
+                }
+            },
+            error: function () {
+                SetSisoftStatus("Sisoft is currently unavailable. Please continue with manual entry.", "am-text-muted");
+            }
+        });
+    }
+
+    function SetDropdownByText(selector, text) {
+        if (!text) return;
+        var match = $(selector + " option").filter(function () {
+            return $.trim($(this).text()).toLowerCase() === text.trim().toLowerCase();
+        }).first();
+        if (match.length > 0) {
+            $(selector).val(match.val());
+        }
+    }
+
+    function ApplySisoftPatientData(data) {
+        if (data.FirstName) $("#FirstName").val(data.FirstName);
+        if (data.MiddleName) $("#MiddleName").val(data.MiddleName);
+        if (data.LastName) $("#LastName").val(data.LastName);
+        if (data.Cnic) $("#Cnic").val(data.Cnic);
+        if (data.FatherName) $("#FatherSpouseName").val(data.FatherName);
+        if (data.MotherName) $("#MotherName").val(data.MotherName);
+        if (data.PlaceOfBirth) $("#PlaceOfBirth").val(data.PlaceOfBirth);
+        if (data.MobileNumber) $("#MobileNumber").val(data.MobileNumber);
+        if (data.ContactNumber) $("#ContactNumber").val(data.ContactNumber);
+        if (data.EmailId) $("#EmailId").val(data.EmailId);
+        if (data.Address) $("#Address").val(data.Address);
+        if (data.Gender) SetDropdownByText("#GenderId", data.Gender);
+        if (data.Country) SetDropdownByText("#CountryId", data.Country);
+        if (data.BloodGroup) SetDropdownByText("#BloodGroupId", data.BloodGroup);
+        if (data.DOB) {
+            var d = new Date(parseInt(data.DOB.substr(6)));
+            if (!isNaN(d.getTime())) {
+                $("#DOB").val(("0" + d.getDate()).slice(-2) + "-" + d.toLocaleString('en-US', { month: 'short' }) + "-" + d.getFullYear());
+                CalculateAgeFromDOB(d);
+            }
+        }
+        if (data.PhotoDataUri) {
+            document.getElementById('results').innerHTML =
+                '<input type="hidden" name="CameraPicture" value="' + data.PhotoDataUri + '"/>' +
+                '<img src="' + data.PhotoDataUri + '" style="max-width:160px; max-height:160px;" />';
+        }
+
+        UpdatePatientPreview();
+    }
+
+    // Age/AgeUnit are plain editable inputs (not derived from DOB server-side), so
+    // keep them in sync whenever DOB changes - both from a Sisoft fetch and from
+    // the user picking a date manually.
+    function CalculateAgeFromDOB(dob) {
+        var now = new Date();
+        if (!(dob instanceof Date) || isNaN(dob.getTime()) || dob > now) return;
+
+        var years = now.getFullYear() - dob.getFullYear();
+        var hadBirthdayThisYear = (now.getMonth() > dob.getMonth()) ||
+            (now.getMonth() === dob.getMonth() && now.getDate() >= dob.getDate());
+        if (!hadBirthdayThisYear) years--;
+
+        if (years >= 1) {
+            $("#Age").val(years);
+            $("#AgeUnit").val("Years");
+            return;
+        }
+
+        var months = (now.getFullYear() - dob.getFullYear()) * 12 + (now.getMonth() - dob.getMonth());
+        if (now.getDate() < dob.getDate()) months--;
+        if (months >= 1) {
+            $("#Age").val(months);
+            $("#AgeUnit").val("Months");
+            return;
+        }
+
+        var days = Math.round((now - dob) / (1000 * 60 * 60 * 24));
+        $("#Age").val(Math.max(days, 0));
+        $("#AgeUnit").val("Days");
+    }
+
+    function ParseDisplayDate(text) {
+        // Expects "dd-MMM-yyyy" (e.g. "27-Aug-1980"), the format this form renders/sets DOB in.
+        var months = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+        var parts = ($.trim(text) || "").split("-");
+        if (parts.length !== 3 || !(parts[1] in months)) return null;
+        var day = parseInt(parts[0], 10), year = parseInt(parts[2], 10);
+        if (isNaN(day) || isNaN(year)) return null;
+        return new Date(year, months[parts[1]], day);
     }
 
     function take_snapshot() {

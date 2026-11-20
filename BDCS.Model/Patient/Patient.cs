@@ -16,6 +16,10 @@ namespace BDCS.Model.Patient
         public string HospitalNumber { get; set; }
         public string Relationship { get; set; }
         public string FatherSpouseName { get; set; }
+        public string MiddleName { get; set; }
+        public string MotherName { get; set; }
+        public string Cnic { get; set; }
+        public string PlaceOfBirth { get; set; }
         public int GenderId { get; set; }
         public string Gender { get; set; }
         public DateTime? DOB { get; set; }

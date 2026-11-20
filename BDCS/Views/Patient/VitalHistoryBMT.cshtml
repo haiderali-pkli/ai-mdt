@@ -645,8 +645,6 @@
                 previousResult.push(Data);
             });
 
-            var OptionalTests = ["CEA", "CA19-9", "CA125", "Pivica"];
-
             $("#tblLabReports .DataRowLabReports").each(function () {
 
                 if (!Valid) {
@@ -663,7 +661,12 @@
                     TestResultLabel: $(this).find(".TestResultLabel").val(),
                 };
 
-                if (!OptionalTests.includes(Data.TestName) && (Data.TestName == "" || Data.TestDate == "" || Data.TestResult == "")) {
+                // Mandatory-ness comes from this row's own data-mandatory attribute (set
+                // server-side from the Lab Tests BMT catalog's Mandatory flag), not a
+                // hardcoded test-name list - a manually added extra row (via the "+"
+                // button) carries no such attribute and is therefore optional.
+                var isMandatory = $(this).attr('data-mandatory') === 'true';
+                if (isMandatory && (Data.TestName == "" || Data.TestDate == "" || Data.TestResult == "")) {
                     ShowAlertMessage("Please fill all the fields for lab Reports", "warning", "Missing Information");
                     Valid = false;
                     return false;

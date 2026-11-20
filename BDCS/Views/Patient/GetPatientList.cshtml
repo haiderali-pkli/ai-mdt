@@ -256,10 +256,23 @@
 </div>
 
 <script type="text/javascript">
+@* This view is always re-rendered through Global.js's loadPage(), which injects this
+   markup via jQuery .html() and then explicitly calls PostPageLoad() itself. jQuery
+   auto-executes embedded <script> tags on insert, and since the document is already
+   "ready" at that point, the $(document).ready callback below would ALSO fire
+   immediately - doubling every PostPageLoad() call and, with it, every handler it
+   binds (e.g. two keypress handlers on #SearchTextBox, causing a duplicate/blank
+   search request to race the real one and sometimes clobber its result). Only the
+   true first, non-ajax page load needs this wrapper; every ajax reload already gets
+   PostPageLoad() from loadPage() itself. *@
+@if (!Request.IsAjaxRequest())
+{
+    <text>
     $(document).ready(function () {
-
         PostPageLoad();
     });
+    </text>
+}
 
 
 

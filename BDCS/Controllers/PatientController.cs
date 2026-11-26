@@ -20,6 +20,7 @@ using Microsoft.Reporting.WebForms;
 using System.Data;
 using System.IO;
 using System.Reflection;
+using System.Drawing;
 using Microsoft.Ajax.Utilities;
 using DocumentFormat.OpenXml.Office2010.Excel;
 using static Antlr.Runtime.Tree.TreeWizard;
@@ -31,6 +32,7 @@ namespace BDCS.Controllers
         CommonBL _CommonBL;
         PatientBL _PatientBL;
         LabTestBL _LabTestBL;
+        ReportConsultantBL _ReportConsultantBL;
 
         // GET: Patient
         #region [Constructor]
@@ -39,6 +41,7 @@ namespace BDCS.Controllers
             _CommonBL = new CommonBL();
             _PatientBL = new PatientBL();
             _LabTestBL = new LabTestBL();
+            _ReportConsultantBL = new ReportConsultantBL();
 
         }
         #endregion
@@ -47,7 +50,27 @@ namespace BDCS.Controllers
         //location-aware stored procs to skip the location filter entirely
         private string SessionLocationIdsCsv => Session["LocationIds"] as string ?? "";
 
+        //resolves the single MDT type (routing form: "Liver"/"BoneMarrow", matching Visit.MDTType
+        //and the mdttype query params throughout this controller) for the clinic the user picked
+        //as their Working Unit at login - null if it can't be determined (e.g. a clinic whose
+        //name doesn't follow the Liver/BMT naming convention), in which case callers should not filter
+        private string ResolveCurrentMdtType(int userId, int clinicId)
+        {
+            KeyAndValuePair clinic = new UserBL().GetUserClinics(userId)
+                .FirstOrDefault(c => Convert.ToInt32(c.Id) == clinicId);
+
+            if (clinic == null) return null;
+
+            if (clinic.Value.IndexOf("Liver", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Liver";
+            if (clinic.Value.IndexOf("BMT", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "BoneMarrow";
+
+            return null;
+        }
+
         #region [AddEditPatient]
+        [CheckUserRights(MenuName = "Add Patient", Order = 1, UserRightType = RightType.View)]
         public async Task<ActionResult> AddEditPatient(int patId = 0)
         {
             Patient pat = new Patient();
@@ -344,14 +367,25 @@ namespace BDCS.Controllers
 
 
 
+                //the Visit/History buttons below must reflect only the MDT type the user picked
+                //as their Working Unit at login, not every MDT type their role has ever been
+                //assigned - otherwise a user working in Liver still sees (and can click) BMT
+                //actions for every patient, and vice versa
+                string currentMdtType = ResolveCurrentMdtType(userId, clinicId);
+                string currentMdtTypeLookupName = currentMdtType == "BoneMarrow" ? "Bone Marrow" : currentMdtType;
+
                 List<KeyAndValuePair> data = new List<KeyAndValuePair>();
                 //Users user = Session["user"] as Users;
                 //int userId = user.UserId;
                 data = _CommonBL.GetMDTTypes(userId);
+                if (currentMdtTypeLookupName != null)
+                    data = data.Where(a => a.Value == currentMdtTypeLookupName).ToList();
                 ViewBag.MDTTypes = data.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
 
                 List<KeyAndValuePair> mdtTypesName = new List<KeyAndValuePair>();
                 mdtTypesName = _CommonBL.GetMDTTypesNameByUserId(userId);
+                if (currentMdtTypeLookupName != null)
+                    mdtTypesName = mdtTypesName.Where(a => a.Value == currentMdtTypeLookupName).ToList();
                 ViewBag.mdtTypesNameVb = mdtTypesName.Select(a => new SelectListItem() { Text = a.Value, Value = a.Id }).ToList();
             }
             else
@@ -654,30 +688,50 @@ namespace BDCS.Controllers
                 }
                 else
                 {
-                    visit.ClinicId = Convert.ToInt32(Session["ClinicId"]);
-                    result = await _PatientBL.CreateVisit(visit);
-                    if (result>0)
+                    int clinicId = Convert.ToInt32(Session["ClinicId"]);
+                    string currentMdtType = ResolveCurrentMdtType(SessionHelper.GetUserId(), clinicId);
+
+                    //the Liver/BMT Visit buttons are now filtered to match the Working Unit the user
+                    //picked at login, but that's only a client-side filter - without re-checking here,
+                    //a forged request could still create a visit of the "wrong" type for this clinic
+                    if (currentMdtType != null && !string.Equals(currentMdtType, mdttype, StringComparison.OrdinalIgnoreCase))
                     {
                         response = new AjaxResponse
                         {
-                            Code = 200,
-                            IsSuccess = true,
-                            Message = "Saved",
-                            MessageTitle = MessageConstants.MessageClassSuccess,
-                            ResponseObject = result
-
+                            Code = 403,
+                            IsSuccess = false,
+                            Message = "This visit type doesn't match your selected working unit.",
+                            MessageTitle = "Not Authorized",
+                            MessageClass = MessageConstants.MessageClassWarning,
                         };
                     }
                     else
                     {
-                        response = new AjaxResponse
+                        visit.ClinicId = clinicId;
+                        result = await _PatientBL.CreateVisit(visit);
+                        if (result>0)
                         {
-                            Code = 404,
-                            IsSuccess = false,
-                            Message = "failed",
-                            MessageTitle = MessageConstants.InsertionFailed,
-                            MessageClass=MessageConstants.MessageClassWarning
-                        };
+                            response = new AjaxResponse
+                            {
+                                Code = 200,
+                                IsSuccess = true,
+                                Message = "Saved",
+                                MessageTitle = MessageConstants.MessageClassSuccess,
+                                ResponseObject = result
+
+                            };
+                        }
+                        else
+                        {
+                            response = new AjaxResponse
+                            {
+                                Code = 404,
+                                IsSuccess = false,
+                                Message = "failed",
+                                MessageTitle = MessageConstants.InsertionFailed,
+                                MessageClass=MessageConstants.MessageClassWarning
+                            };
+                        }
                     }
                 }
             }
@@ -1198,6 +1252,7 @@ namespace BDCS.Controllers
             }),JsonRequestBehavior.AllowGet);
         }
 
+        [CheckUserRights(MenuName = "Create Visit", Order = 1, UserRightType = RightType.AddEdit)]
         public async Task<ActionResult> savePatientDetail1(VitalHistory vitalHistory)
         {
             AjaxResponse response = new AjaxResponse();
@@ -1523,7 +1578,8 @@ namespace BDCS.Controllers
             }
             LocalReport Report = new LocalReport();
             Report.EnableExternalImages = true;
-            
+            List<string> footerTempFiles = null;
+
             if (mdtType == "Liver")
             {
         
@@ -1540,6 +1596,7 @@ namespace BDCS.Controllers
                 ReportParameter p = new ReportParameter("ImagePath", imagePath);
 
                 Report.SetParameters(p);
+                footerTempFiles = BuildConsultantFooterParameters(Report, LiverFooterColumnSizesIn);
                 Report.SubreportProcessing += new SubreportProcessingEventHandler(LocalReport_SubreportProcessing);
             }
             else if (mdtType == "BoneMarrow")
@@ -1554,13 +1611,160 @@ namespace BDCS.Controllers
                 //string imagePath = new Uri(Server.MapPath(Patient[0].ImageURL)).AbsoluteUri;
                 //ReportParameter p = new ReportParameter("ImagePath", imagePath);
                 // Report.SetParameters(p);
+                footerTempFiles = BuildConsultantFooterParameters(Report, BoneMarrowFooterColumnSizesIn);
                 Report.SubreportProcessing += new SubreportProcessingEventHandler(LocalReport_SubreportProcessing);
             }
             //Report.Refresh();
-            
-            var bytes = Report.Render("PDF", null, out mimeType, out encoding, out filenameExtension, out streamids, out warnings);
-            return new FileContentResult(bytes, mimeType);
+
+            try
+            {
+                var bytes = Report.Render("PDF", null, out mimeType, out encoding, out filenameExtension, out streamids, out warnings);
+                return new FileContentResult(bytes, mimeType);
+            }
+            finally
+            {
+                // the footer images are a transient, per-request artifact - Report.Render() has
+                // already read them synchronously by the time it returns, so it's safe to clean
+                // them up immediately rather than leaving them in the temp folder
+                if (footerTempFiles != null)
+                {
+                    foreach (string path in footerTempFiles)
+                    {
+                        try { if (System.IO.File.Exists(path)) System.IO.File.Delete(path); } catch { }
+                    }
+                }
+            }
         }
+
+        private class FooterColumnSize
+        {
+            public double WidthIn;
+            public double HeightIn;
+            public FooterColumnSize(double widthIn, double heightIn) { WidthIn = widthIn; HeightIn = heightIn; }
+        }
+
+        // Exact Width/Height (inches) of the 4 footer department-column boxes in each RDLC,
+        // in left-to-right print order - see the matching Image report items ("Textbox4",
+        // "Textbox5"/"Textbox10", "Textbox6", "Textbox7"/"Textbox8") in Patient.rdlc /
+        // PatientMaster.rdlc. Generated footer images are rendered at exactly these
+        // dimensions so Sizing="Fit" never has to stretch/distort them.
+        private static readonly FooterColumnSize[] LiverFooterColumnSizesIn =
+        {
+            new FooterColumnSize(1.89096, 1.04941),
+            new FooterColumnSize(1.90625, 1.05219),
+            new FooterColumnSize(1.94374, 1.34033),
+            new FooterColumnSize(1.71518, 0.90833),
+        };
+
+        private static readonly FooterColumnSize[] BoneMarrowFooterColumnSizesIn =
+        {
+            new FooterColumnSize(1.89096, 1.04941),
+            new FooterColumnSize(1.90625, 1.05219),
+            new FooterColumnSize(1.94374, 1.0508),
+            new FooterColumnSize(1.71518, 0.90833),
+        };
+
+        // Builds the 4 footer "department column" images shared by both Patient.rdlc (Liver)
+        // and PatientMaster.rdlc (Bone Marrow) from System.ReportConsultant - see
+        // BDCS\DB Script MDT\2026-11-26 - Report Footer Consultants.sql. A page header/footer
+        // in RDL cannot contain a data region (List/Table/Matrix), and this schema version
+        // doesn't support HTML-markup text either, so the only way to print a genuinely
+        // variable-length, dynamically-bold consultant list in a fixed footer box is to
+        // render it ourselves as a bitmap and place it via an Image report item (the same
+        // External/file-URI mechanism already used for the patient's photo). Each RDLC
+        // footer still has exactly 4 fixed side-by-side boxes, so active consultants are
+        // grouped by Department in DisplayOrder and up to 4 groups map one-to-one onto the 4
+        // boxes; a 5th+ distinct active department has nowhere left to go and is appended
+        // into the 4th image under its own heading rather than silently disappearing.
+        // Returns the temp file paths written, so the caller can delete them once Render()
+        // (which reads them synchronously) has returned.
+        private List<string> BuildConsultantFooterParameters(LocalReport report, FooterColumnSize[] columnSizesIn)
+        {
+            // ColumnNumber (1-4) and DisplayOrder ("Row") are set explicitly by the admin on
+            // the Report Consultants screen - no auto-assignment or overflow handling here
+            // anymore, so moving a consultant to a different column/row is always exactly
+            // where they put it. Consultants sharing the same Department within the same
+            // column still print under one shared heading, in the order their lowest Row
+            // value (then name) puts that department's first member.
+            List<ReportConsultant> consultants = _ReportConsultantBL.GetReportConsultants()
+                .Where(a => a.IsActive)
+                .OrderBy(a => a.DisplayOrder ?? int.MaxValue)
+                .ThenBy(a => a.ConsultantName)
+                .ToList();
+
+            List<string> tempFiles = new List<string>();
+            for (int col = 1; col <= 4; col++)
+            {
+                List<IGrouping<string, ReportConsultant>> departmentGroupsInColumn = consultants
+                    .Where(a => a.ColumnNumber == col)
+                    .GroupBy(a => a.Department ?? "")
+                    .ToList();
+
+                string tempPath = RenderFooterColumnImage(departmentGroupsInColumn, columnSizesIn[col - 1].WidthIn, columnSizesIn[col - 1].HeightIn);
+                tempFiles.Add(tempPath);
+                report.SetParameters(new ReportParameter("FooterColumn" + col, new Uri(tempPath).AbsoluteUri));
+            }
+            return tempFiles;
+        }
+
+        private const int FooterImageDpi = 150;
+
+        private string RenderFooterColumnImage(List<IGrouping<string, ReportConsultant>> departmentGroups, double widthIn, double heightIn)
+        {
+            int widthPx = (int)Math.Round(widthIn * FooterImageDpi);
+            int heightPx = (int)Math.Round(heightIn * FooterImageDpi);
+            int paddingPx = (int)Math.Round(2.0 / 72 * FooterImageDpi); // matches the 2pt padding the boxes used as plain text boxes
+            float layoutWidth = Math.Max(1, widthPx - (2 * paddingPx));
+
+            string tempPath = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "mdtfooter_" + Guid.NewGuid().ToString("N") + ".png");
+
+            using (Bitmap bitmap = new Bitmap(Math.Max(1, widthPx), Math.Max(1, heightPx)))
+            using (Graphics g = Graphics.FromImage(bitmap))
+            using (Font regularFont = new Font("Arial", 8f, FontStyle.Regular, GraphicsUnit.Point))
+            using (Font boldFont = new Font("Arial", 8f, FontStyle.Bold, GraphicsUnit.Point))
+            {
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+                g.Clear(System.Drawing.Color.White);
+
+                float y = paddingPx;
+                foreach (IGrouping<string, ReportConsultant> group in departmentGroups)
+                {
+                    bool boldDepartment = group.Any(a => a.BoldDepartment);
+                    y = DrawFooterLine(g, group.Key, boldDepartment ? boldFont : regularFont, paddingPx, y, layoutWidth, heightPx);
+
+                    foreach (ReportConsultant c in group)
+                    {
+                        y = DrawFooterLine(g, c.ConsultantName, c.BoldConsultantName ? boldFont : regularFont, paddingPx, y, layoutWidth, heightPx);
+
+                        if (!string.IsNullOrWhiteSpace(c.Designation))
+                        {
+                            y = DrawFooterLine(g, c.Designation, c.BoldDesignation ? boldFont : regularFont, paddingPx, y, layoutWidth, heightPx);
+                        }
+                        if (!string.IsNullOrWhiteSpace(c.Qualifications))
+                        {
+                            y = DrawFooterLine(g, c.Qualifications, c.BoldQualifications ? boldFont : regularFont, paddingPx, y, layoutWidth, heightPx);
+                        }
+                    }
+                }
+
+                bitmap.Save(tempPath, System.Drawing.Imaging.ImageFormat.Png);
+            }
+
+            return tempPath;
+        }
+
+        // Draws one word-wrapped line, advances and returns the next Y - silently stops
+        // drawing once content would run past the box's fixed height, the same hard limit a
+        // fixed-height footer always had.
+        private float DrawFooterLine(Graphics g, string text, Font font, float x, float y, float layoutWidth, int heightPx)
+        {
+            if (y >= heightPx) return y;
+
+            SizeF measured = g.MeasureString(text, font, (int)layoutWidth);
+            g.DrawString(text, font, Brushes.Black, new RectangleF(x, y, layoutWidth, measured.Height));
+            return y + measured.Height;
+        }
+
         private int globalPatiId;
         private int globalVisitId;
         void LocalReport_SubreportProcessing(object sender, SubreportProcessingEventArgs e)
@@ -1787,6 +1991,7 @@ namespace BDCS.Controllers
         }
 
         [HttpPost]
+        [CheckUserRights(MenuName = "SMS", Order = 1, UserRightType = RightType.AddEdit)]
         public ActionResult UploadVaccinationSMS(DateTime VaccinationDueDate, HttpPostedFileBase smsFile)
         {
             //Create a new DataTable.
@@ -2135,11 +2340,32 @@ namespace BDCS.Controllers
         #endregion
         public ActionResult GetUserClinics(int userId)
         {
-            List<KeyAndValuePair> list = new UserBL().GetUserClinics(userId);
+            //ignore the posted userId and always resolve the logged-in user's own clinics -
+            //GetClinicList() in Login.cshtml only ever has the just-authenticated user's own id
+            //at this point in the flow, so there's no legitimate case for looking up someone else's
+            List<KeyAndValuePair> list = new UserBL().GetUserClinics(SessionHelper.GetUserId());
             return Json(list, JsonRequestBehavior.DenyGet);
         }
         public ActionResult SaveClinicInSession(int clinicId)
         {
+            //the "Select Working Unit" screen only ever renders the MDT types returned by
+            //GetUserClinics for this user, but that's a client-side filter - without re-checking
+            //membership here, a logged-in user could post any clinicId and work inside an MDT
+            //type they were never assigned on the Users screen
+            bool isAssignedClinic = new UserBL().GetUserClinics(SessionHelper.GetUserId())
+                .Any(c => Convert.ToInt32(c.Id) == clinicId);
+
+            if (!isAssignedClinic)
+            {
+                return Json(new AjaxResponse()
+                {
+                    Code = 403,
+                    IsSuccess = false,
+                    Message = MessageConstants.UserNotAuthorized,
+                    MessageClass = MessageConstants.MessageClassWarning,
+                    MessageTitle = "Not Authorized",
+                }, JsonRequestBehavior.DenyGet);
+            }
 
             Session["ClinicId"] = clinicId;
             //First initialze with default values
@@ -2160,9 +2386,10 @@ namespace BDCS.Controllers
                 RedirectUrl= Url.Action("GetPatientList", "Patient", new { PreloadList = "Yes"}),
             };
 
-            
+
             return Json(res, JsonRequestBehavior.DenyGet);
         }
+        [CheckUserRights(MenuName = "Create Visit", Order = 1, UserRightType = RightType.AddEdit)]
         public async Task<ActionResult> DeleteProtocolDetail(int id)
         {
             int Deleted = await _PatientBL.DeleteProtocolDetail(id);
@@ -2226,6 +2453,7 @@ namespace BDCS.Controllers
 
         }
         [HttpPost]
+        [CheckUserRights(MenuName = "Create Visit", Order = 1, UserRightType = RightType.AddEdit)]
         public async Task<ActionResult> MarkPatientDiagnosisAsInactive(int patientDiagnosisId)
         {
             
@@ -2244,6 +2472,7 @@ namespace BDCS.Controllers
             return Json(res, JsonRequestBehavior.DenyGet);
 
         }
+        [CheckUserRights(MenuName = "Create Visit", Order = 1, UserRightType = RightType.AddEdit)]
         public async Task<ActionResult> AddPatientAlert(PatientAlert alert)
         {
             int UserId = SessionHelper.GetUserId();
@@ -2264,6 +2493,7 @@ namespace BDCS.Controllers
             return Json(res, JsonRequestBehavior.DenyGet);
         }
         [HttpPost]
+        [CheckUserRights(MenuName = "Create Visit", Order = 1, UserRightType = RightType.AddEdit)]
         public async Task<ActionResult> MarkPatientAlertAsInactive(int patientAlertId)
         {
 
@@ -2283,6 +2513,7 @@ namespace BDCS.Controllers
 
         }
         [HttpPost]
+        [CheckUserRights(MenuName = "Create Visit", Order = 1, UserRightType = RightType.AddEdit)]
         public async Task<ActionResult> DiscontinueMedicine(int protocolDetailId)
         {
 
@@ -2406,6 +2637,7 @@ namespace BDCS.Controllers
                 }
             }
         }
+        [CheckUserRights(MenuName = "Search Patient", Order = 1, UserRightType = RightType.View)]
         public async Task<ActionResult> PatientListForMDT(DateTime? fromDate, DateTime? toDate)
         {
             List<VitalHistory> Data = new List<VitalHistory>();
@@ -2420,6 +2652,7 @@ namespace BDCS.Controllers
 
             return View(Data);
         }
+        [CheckUserRights(MenuName = "Search Patient", Order = 1, UserRightType = RightType.View)]
         public ActionResult ExportPatientListForMDT(DateTime? fromDate, DateTime? toDate)
         {
             List<VitalHistory> Data = new List<VitalHistory>();
@@ -2749,6 +2982,7 @@ namespace BDCS.Controllers
 
         //    return View(reports);
         //}
+        [CheckUserRights(MenuName = "Create Visit", Order = 1, UserRightType = RightType.AddEdit)]
         public async Task<ActionResult> savePatientDetail1BMT(VitalHistoryBMT vitalHistory)
         {
             AjaxResponse response = new AjaxResponse();

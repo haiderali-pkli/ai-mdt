@@ -45,6 +45,7 @@
     <Compile Include="ClinicBL.cs" />
     <Compile Include="LocationBL.cs" />
     <Compile Include="LabTestBL.cs" />
+    <Compile Include="ReportConsultantBL.cs" />
     <Compile Include="CommonBL.cs" />
     <Compile Include="RoleBL.cs" />
     <Compile Include="UserBL.cs" />

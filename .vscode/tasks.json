@@ -1,0 +1,58 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "type": "shell",
+      "command": "\"C:\\Program Files\\Microsoft Visual Studio\\18\\Community\\MSBuild\\Current\\Bin\\MSBuild.exe\"",
+      "args": [
+        "MDT.sln",
+        "/p:Configuration=Debug",
+        "/t:Build",
+        "/m",
+        "/nologo"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "run: IIS Express (MDT)",
+      "type": "shell",
+      "command": "\"C:\\Program Files\\IIS Express\\iisexpress.exe\"",
+      "args": [
+        "/config:${workspaceFolder}\\.vs\\MDT\\config\\applicationhost.config",
+        "/site:MDT"
+      ],
+      "isBackground": true,
+      "dependsOn": "build",
+      "problemMatcher": {
+        "pattern": [
+          {
+            "regexp": "^(NEVER_MATCH)$",
+            "file": 1,
+            "location": 1,
+            "message": 1
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^Starting IIS Express",
+          "endsPattern": "^IIS Express is running"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": false
+      }
+    }
+  ]
+}

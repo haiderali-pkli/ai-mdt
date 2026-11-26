@@ -104,6 +104,57 @@
         color: rgba(255, 255, 255, 0.75);
         margin-top: 22px;
     }
+
+    .am-clinic-options {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .am-login-card .form-group .am-clinic-option {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        margin: 0;
+        padding: 12px 14px;
+        background: #fff;
+        border: 1px solid var(--am-border);
+        border-radius: 8px;
+        color: var(--am-ink);
+        font-weight: 600;
+        font-size: 14px;
+        text-align: left;
+        cursor: pointer;
+        transition: border-color .15s ease, background .15s ease, color .15s ease;
+    }
+
+    .am-clinic-option i.am-clinic-option-icon {
+        color: var(--am-muted);
+        font-size: 14px;
+    }
+
+    .am-clinic-option i.am-clinic-option-check {
+        margin-left: auto;
+        color: transparent;
+    }
+
+    .am-login-card .form-group .am-clinic-option:hover,
+    .am-login-card .form-group .am-clinic-option:focus {
+        background: #fff;
+        border-color: var(--am-primary);
+    }
+
+    .am-login-card .form-group .am-clinic-option.selected {
+        border-color: var(--am-primary);
+        background: rgba(47, 111, 237, 0.08);
+        color: var(--am-primary-dark);
+    }
+
+    .am-clinic-option.selected i.am-clinic-option-icon,
+    .am-clinic-option.selected i.am-clinic-option-check {
+        color: var(--am-primary);
+    }
 </style>
 
 <div class="admin-module">
@@ -148,10 +199,8 @@
 
                     <div class="form-group">
                         <label>MDT Type</label>
-                        <div class="am-login-field">
-                            <i class="fa fa-stethoscope am-login-field-icon"></i>
-                            <select id="ClinicList" class="form-control"></select>
-                        </div>
+                        <input type="hidden" id="SelectedClinicId" value="" />
+                        <div id="ClinicList" class="am-clinic-options"></div>
                     </div>
 
                     <button type="submit" class="btn btn-am-primary am-login-submit">
@@ -216,6 +265,7 @@
     function GetClinicList(id) {
         hideProgressBar();
         $("#ClinicList").empty();
+        $("#SelectedClinicId").val("");
 
         $.ajax({
             url: '@Url.Action("GetUserClinics","Patient")',
@@ -228,10 +278,23 @@
 
                 if (res !== null ) {
 
-                    $(res).each(function () {
-                        var option = $("<option>").val(this.Id).html(this.Value);
+                    $(res).each(function (index) {
+                        var option = $("<button>")
+                            .attr("type", "button")
+                            .addClass("am-clinic-option")
+                            .attr("data-id", this.Id)
+                            .append($("<i>").addClass("fa fa-stethoscope am-clinic-option-icon"))
+                            .append($("<span>").html(this.Value))
+                            .append($("<i>").addClass("fa fa-check-circle am-clinic-option-check"))
+                            .on("click", function () {
+                                SelectClinicOption($(this));
+                            });
 
                         $("#ClinicList").append(option);
+
+                        if (index === 0) {
+                            SelectClinicOption(option);
+                        }
                     });
 
                 }
@@ -244,13 +307,25 @@
         });
     }
 
+    function SelectClinicOption(option) {
+        $(".am-clinic-option").removeClass("selected");
+        option.addClass("selected");
+        $("#SelectedClinicId").val(option.attr("data-id"));
+    }
+
     function SaveClinicInSession() {
 
+        var clinicId = $("#SelectedClinicId").val();
+
+        if (!clinicId) {
+            ShowAlertMessage("Please select an MDT type", "error", "Error");
+            return false;
+        }
 
         $.ajax({
             url: $("#ClinicForm").attr("action"),
             type: "post",
-            data: { clinicId: $("#ClinicList").val()},
+            data: { clinicId: clinicId },
             dataType: "json",
             success: function (res) {
 

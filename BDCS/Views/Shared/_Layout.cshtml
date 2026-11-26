@@ -30,7 +30,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="~/Content/theme/css/custom.css">
     <!-- Admin Module CSS (User / Role / Clinic management) -->
-    <link rel="stylesheet" href="~/Content/theme/css/admin-module.css?v=20261119b">
+    <link rel="stylesheet" href="~/Content/theme/css/admin-module.css?v=20261126b">
 
 
     <link href="~/Content/Plugin/Jquery.toast/jquery.toast.min.css" rel="stylesheet" />
@@ -79,7 +79,8 @@
         bool CanSeeLookups = BDCS.Models.SessionHelper.IsUserAuthorized("Add Lookup", BDCS.Models.RightType.View);
         bool CanSeeLabTests = BDCS.Models.SessionHelper.IsUserAuthorized("Lab Tests", BDCS.Models.RightType.View);
         bool CanSeeLabTestsBMT = BDCS.Models.SessionHelper.IsUserAuthorized("Lab Tests BMT", BDCS.Models.RightType.View);
-        bool CanSeeAdminMenu = CanSeeUsers || CanSeeRoles || CanSeeClinics || CanSeeLocations || CanSeeLookups || CanSeeLabTests || CanSeeLabTestsBMT;
+        bool CanSeeReportConsultants = BDCS.Models.SessionHelper.IsUserAuthorized("Report Consultants", BDCS.Models.RightType.View);
+        bool CanSeeAdminMenu = CanSeeUsers || CanSeeRoles || CanSeeClinics || CanSeeLocations || CanSeeLookups || CanSeeLabTests || CanSeeLabTestsBMT || CanSeeReportConsultants;
     }
     <header class="hidden-print">
         <div class="mh-topbar">
@@ -134,6 +135,10 @@
                                     @if (CanSeeLabTestsBMT)
                                     {
                                         <li><a href="@Url.Action("GetLabTestListBMT","LabTest")"><i class="fa fa-flask"></i> Lab Tests BMT</a></li>
+                                    }
+                                    @if (CanSeeReportConsultants)
+                                    {
+                                        <li><a href="@Url.Action("GetReportConsultantList","ReportConsultant")"><i class="fa fa-users"></i> Report Consultants</a></li>
                                     }
                                 </ul>
                             </div>

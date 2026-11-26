@@ -1,0 +1,185 @@
+@model List<BDCS.Model.Misc.ReportConsultant>
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+}
+
+<style type="text/css">
+    .admin-module .am-pill-column {
+        background: #eaf1ff;
+        color: var(--am-primary-dark);
+    }
+</style>
+
+<div class="admin-module">
+    <div class="container-fluid">
+
+        @Html.Partial("_AdminNav")
+
+        <div class="am-page-head">
+            <div>
+                <h3><i class="fa fa-users"></i> Report Consultants</h3>
+                <span class="am-subtitle">Consultant details printed in the footer of the Liver MDT and Bone Marrow MDT reports - one shared list feeds both</span>
+            </div>
+            <button type="button" class="btn btn-am-primary" onclick="AddEditReportConsultant(0);">
+                <i class="fa fa-plus"></i> Add Consultant
+            </button>
+        </div>
+
+        <div class="am-card">
+            <div class="am-toolbar" style="margin-bottom:16px;">
+                <div class="am-search">
+                    <i class="fa fa-search"></i>
+                    <input type="text" id="SearchTextByConsultant" class="form-control" placeholder="Search by consultant or department..." value="@ViewBag.SearchText" onkeyup="if(event.key==='Enter'){SearchReportConsultants();}" />
+                </div>
+                <button type="button" class="btn btn-am-light" onclick="SearchReportConsultants();"><i class="fa fa-search"></i> Search</button>
+            </div>
+
+            @{
+                List<BDCS.Model.Misc.ReportConsultant> FilteredModel = Model ?? new List<BDCS.Model.Misc.ReportConsultant>();
+            }
+
+            @if (FilteredModel.Any())
+            {
+                <div class="table-responsive">
+                    <table class="am-table">
+                        <thead>
+                            <tr>
+                                <th style="width:90px;">Column</th>
+                                <th style="width:60px;">Row</th>
+                                <th>Department</th>
+                                <th>Consultant Name</th>
+                                <th>Designation</th>
+                                <th>Qualifications</th>
+                                <th style="width:90px;">Status</th>
+                                <th style="width:170px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ int? lastColumn = null; }
+                            @foreach (BDCS.Model.Misc.ReportConsultant item in FilteredModel)
+                            {
+                                bool isNewColumn = lastColumn != item.ColumnNumber;
+                                lastColumn = item.ColumnNumber;
+                                <tr>
+                                    <td>
+                                        @if (isNewColumn)
+                                        {
+                                            <span class="am-pill am-pill-column"><i class="fa fa-columns"></i> Column @item.ColumnNumber</span>
+                                        }
+                                    </td>
+                                    <td>@item.DisplayOrder</td>
+                                    <td>@item.Department</td>
+                                    <td>@item.ConsultantName</td>
+                                    <td>@(string.IsNullOrEmpty(item.Designation) ? "-" : item.Designation)</td>
+                                    <td>@(string.IsNullOrEmpty(item.Qualifications) ? "-" : item.Qualifications)</td>
+                                    <td>
+                                        @if (item.IsActive)
+                                        {
+                                            <span class="am-pill am-pill-active"><i class="fa fa-circle"></i> Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="am-pill am-pill-inactive"><i class="fa fa-circle"></i> Inactive</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a href="#" title="Edit" onclick="AddEditReportConsultant(@item.ReportConsultantId); return false;">
+                                            <i class="fa fa-pencil"></i> Edit
+                                        </a>
+                                        <span>&nbsp;|&nbsp;</span>
+                                        <a href="#" title="@(item.IsActive ? "Deactivate" : "Activate")" onclick="ToggleReportConsultant(@item.ReportConsultantId, '@item.ConsultantName', @(item.IsActive ? "true" : "false")); return false;">
+                                            <i class="fa @(item.IsActive ? "fa-ban" : "fa-undo")"></i> @(item.IsActive ? "Deactivate" : "Activate")
+                                        </a>
+                                        <span>&nbsp;|&nbsp;</span>
+                                        <a href="#" title="Remove" onclick="DeleteReportConsultant(@item.ReportConsultantId, '@item.ConsultantName'); return false;">
+                                            <i class="fa fa-trash"></i> Remove
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div style="margin-top:8px; font-size:11px; color:var(--am-muted);">Column = which of the 4 footer boxes this prints in (left to right on the report). Row = order within that column (lower first); consultants left blank fall to the end.</div>
+            }
+            else
+            {
+                <div class="am-empty">
+                    <i class="fa fa-users"></i>
+                    @(ViewBag.SearchText != null ? "No consultants match your search." : "No consultants configured yet.")
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    function SearchReportConsultants() {
+        var par = { searchText: $("#SearchTextByConsultant").val() };
+        var url = '@Url.Action("GetReportConsultantList", "ReportConsultant")' + '/?' + $.param(par);
+        loadPage(url, "GetReportConsultantList");
+    }
+
+    function AddEditReportConsultant(id) {
+        var url = '@Url.Action("AddEditReportConsultant", "ReportConsultant")' + '/?ReportConsultantId=' + id;
+        OpenPopup(url, id > 0 ? "Edit Consultant" : "Add Consultant");
+    }
+
+    function ReloadReportConsultantList() {
+        loadPage('@Url.Action("GetReportConsultantList", "ReportConsultant")', "GetReportConsultantList");
+    }
+
+    function ToggleReportConsultant(id, name, isCurrentlyActive) {
+        var activating = !isCurrentlyActive;
+        ConfirmAction({
+            title: (activating ? "Activate" : "Deactivate") + " \"" + name + "\"?",
+            text: activating ? "This consultant will reappear in the printed report footer." : "This consultant will stop printing on the report footer, but stays configured for later.",
+            confirmButtonText: "Yes, " + (activating ? "activate" : "deactivate")
+        }, function () {
+            $.ajax({
+                url: '@Url.Action("ToggleReportConsultantActive", "ReportConsultant")',
+                type: "post",
+                data: { ReportConsultantId: id },
+                dataType: "json",
+                success: function (res) {
+                    ShowAlertMessage(res.Message, res.MessageClass, res.MessageTitle);
+                    if (res.IsSuccess) {
+                        ReloadReportConsultantList();
+                    }
+                },
+                error: function () {
+                    ShowAlertMessage("An error occured", "error", "Error!");
+                }
+            });
+        });
+    }
+
+    function DeleteReportConsultant(id, name) {
+        ConfirmAction({
+            title: "Remove \"" + name + "\"?",
+            text: "This permanently deletes the entry. If you only want to stop printing it for now, use Deactivate instead.",
+            confirmButtonText: "Yes, remove"
+        }, function () {
+            $.ajax({
+                url: '@Url.Action("DeleteReportConsultant", "ReportConsultant")',
+                type: "post",
+                data: { ReportConsultantId: id },
+                dataType: "json",
+                success: function (res) {
+                    ShowAlertMessage(res.Message, res.MessageClass, res.MessageTitle);
+                    if (res.IsSuccess) {
+                        ReloadReportConsultantList();
+                    }
+                },
+                error: function () {
+                    ShowAlertMessage("An error occured", "error", "Error!");
+                }
+            });
+        });
+    }
+
+</script>

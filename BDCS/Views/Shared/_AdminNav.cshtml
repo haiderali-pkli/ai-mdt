@@ -24,4 +24,7 @@
     <a href="@Url.Action("GetLabTestListBMT", "LabTest")" class="@(CurrentController == "LabTest" && ViewContext.RouteData.Values["action"] as string == "GetLabTestListBMT" ? "active" : "")">
         <i class="fa fa-flask"></i> Lab Tests BMT
     </a>
+    <a href="@Url.Action("GetReportConsultantList", "ReportConsultant")" class="@(CurrentController == "ReportConsultant" ? "active" : "")">
+        <i class="fa fa-users"></i> Report Consultants
+    </a>
 </div>

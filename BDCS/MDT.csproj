@@ -242,6 +242,7 @@
     <Compile Include="Controllers\ClinicController.cs" />
     <Compile Include="Controllers\LocationController.cs" />
     <Compile Include="Controllers\LabTestController.cs" />
+    <Compile Include="Controllers\ReportConsultantController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\PatientController.cs" />
@@ -747,6 +748,8 @@
     <Content Include="Views\Clinic\GetClinicList.cshtml" />
     <Content Include="Views\Location\AddEditLocation.cshtml" />
     <Content Include="Views\Location\GetLocationList.cshtml" />
+    <Content Include="Views\ReportConsultant\AddEditReportConsultant.cshtml" />
+    <Content Include="Views\ReportConsultant\GetReportConsultantList.cshtml" />
     <Content Include="Views\Patient\_LookupRows.cshtml" />
     <Content Include="Views\Role\AddEditRole.cshtml" />
     <Content Include="Views\Role\GetRoleList.cshtml" />

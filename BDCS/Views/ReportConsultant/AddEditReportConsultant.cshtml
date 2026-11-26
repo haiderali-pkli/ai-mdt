@@ -1,0 +1,165 @@
+@model BDCS.Model.Misc.ReportConsultant
+@{
+    if (Request.IsAjaxRequest())
+    {
+        Layout = null;
+    }
+    List<string> Departments = ViewBag.DepartmentsVB as List<string> ?? new List<string>();
+}
+
+<div class="admin-module">
+    <form id="frmReportConsultant" onsubmit="return SaveReportConsultant();">
+        @Html.HiddenFor(a => a.ReportConsultantId)
+
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label>Column</label>
+                        @Html.DropDownListFor(a => a.ColumnNumber, new List<SelectListItem>
+                        {
+                            new SelectListItem { Text = "Column 1 (leftmost)", Value = "1" },
+                            new SelectListItem { Text = "Column 2", Value = "2" },
+                            new SelectListItem { Text = "Column 3", Value = "3" },
+                            new SelectListItem { Text = "Column 4 (rightmost)", Value = "4" },
+                        }, new { @class = "form-control" })
+                        <span class="am-field-hint">Which of the 4 footer boxes this consultant prints in on the report.</span>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label>Row</label>
+                        @Html.TextBoxFor(a => a.DisplayOrder, new { @class = "form-control", type = "number", placeholder = "Position within the column" })
+                        <span class="am-field-hint">Lower prints first within the column. Leave blank to fall to the end.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label>Department</label>
+                        <label class="am-bold-toggle">
+                            @Html.CheckBoxFor(a => a.BoldDepartment, new { style = "width:14px; height:14px; margin-right:4px; vertical-align:middle;" })
+                            Bold
+                        </label>
+                        @Html.TextBoxFor(a => a.Department, new { @class = "form-control", placeholder = "e.g. Liver Transplant / Hepatobiliary Surgeons", required = "required", maxlength = "150", list = "DepartmentSuggestions" })
+                        <datalist id="DepartmentSuggestions">
+                            @foreach (string dept in Departments)
+                            {
+                                <option value="@dept"></option>
+                            }
+                        </datalist>
+                        <span class="am-field-hint">Consultants sharing the exact same department text within the same column are grouped together under one heading on the printed report.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label>Consultant Name</label>
+                        <label class="am-bold-toggle">
+                            @Html.CheckBoxFor(a => a.BoldConsultantName, new { style = "width:14px; height:14px; margin-right:4px; vertical-align:middle;" })
+                            Bold
+                        </label>
+                        @Html.TextBoxFor(a => a.ConsultantName, new { @class = "form-control", placeholder = "e.g. Prof. Dr. Faisal Saud Dar", required = "required", maxlength = "150" })
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label>Designation</label>
+                        <label class="am-bold-toggle">
+                            @Html.CheckBoxFor(a => a.BoldDesignation, new { style = "width:14px; height:14px; margin-right:4px; vertical-align:middle;" })
+                            Bold
+                        </label>
+                        @Html.TextBoxFor(a => a.Designation, new { @class = "form-control", placeholder = "e.g. HOD / Consultant", maxlength = "150" })
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label>Qualifications</label>
+                        <label class="am-bold-toggle">
+                            @Html.CheckBoxFor(a => a.BoldQualifications, new { style = "width:14px; height:14px; margin-right:4px; vertical-align:middle;" })
+                            Bold
+                        </label>
+                        @Html.TextBoxFor(a => a.Qualifications, new { @class = "form-control", placeholder = "e.g. FRCS, FACS", maxlength = "200" })
+                    </div>
+                </div>
+            </div>
+            <div class="row am-field-divider-row">
+                <div class="col-sm-12">
+                    <label class="am-switch">
+                        <input type="checkbox" id="IsActive" @(Model.IsActive || Model.ReportConsultantId == 0 ? "checked=\"checked\"" : "") />
+                        <span class="am-switch-track"></span>
+                        Active (prints on both reports)
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-am-light" onclick="ClosePopup();">Cancel</button>
+            <button type="submit" class="btn btn-am-primary"><i class="fa fa-save"></i> Save Consultant</button>
+        </div>
+    </form>
+</div>
+
+<style type="text/css">
+    .am-bold-toggle {
+        float: right;
+        font-weight: 400;
+        font-size: 12px;
+        color: var(--am-muted);
+        cursor: pointer;
+    }
+
+    .am-field-hint {
+        display: block;
+        font-size: 11px;
+        color: var(--am-muted);
+        margin-top: 4px;
+    }
+</style>
+
+<script type="text/javascript">
+
+    function SaveReportConsultant() {
+        var data = {
+            ReportConsultantId: $("#ReportConsultantId").val(),
+            Department: $("#Department").val(),
+            ConsultantName: $("#ConsultantName").val(),
+            Designation: $("#Designation").val(),
+            Qualifications: $("#Qualifications").val(),
+            ColumnNumber: $("#ColumnNumber").val(),
+            DisplayOrder: $("#DisplayOrder").val() || null,
+            IsActive: $("#IsActive").is(":checked"),
+            BoldDepartment: $("#BoldDepartment").is(":checked"),
+            BoldConsultantName: $("#BoldConsultantName").is(":checked"),
+            BoldDesignation: $("#BoldDesignation").is(":checked"),
+            BoldQualifications: $("#BoldQualifications").is(":checked")
+        };
+
+        $.ajax({
+            url: '@Url.Action("InsertUpdateReportConsultant", "ReportConsultant")',
+            type: "post",
+            dataType: "json",
+            data: JSON.stringify(data),
+            contentType: "application/json;",
+            success: function (res) {
+                ShowAlertMessage(res.Message, res.MessageClass, res.MessageTitle);
+                if (res.IsSuccess) {
+                    ClosePopup();
+                    if (typeof ReloadReportConsultantList == "function") {
+                        ReloadReportConsultantList();
+                    }
+                }
+            },
+            error: function () {
+                ShowAlertMessage("An error occured", "error", "Error!");
+            }
+        });
+
+        return false;
+    }
+
+</script>

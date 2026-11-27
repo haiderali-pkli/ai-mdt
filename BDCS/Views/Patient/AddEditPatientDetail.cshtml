@@ -223,7 +223,17 @@
 
     function LoadPatientHeader()
     {
+        // This function stays defined on window after loadPage() navigates away
+        // from the visit detail screen (inline <script> blocks from ajax-loaded
+        // partials are never unloaded), so AddEditPatient's save handler can still
+        // find and call it from an unrelated page (e.g. Patient Search) that has
+        // neither #patientId nor #PatientHeaderContainer. Bail out instead of
+        // firing PatientHeader/?patId=undefined against a stale container.
         var patientId = $("#patientId").val();
+        if (!$("#PatientHeaderContainer").length || !(parseInt(patientId, 10) > 0)) {
+            return;
+        }
+
         var HeaderUrl = '@Url.Action("PatientHeader", "Patient")' + '/?patId=' + patientId;
 
         loadPage(HeaderUrl, "Patient Header", "PatientHeaderContainer");

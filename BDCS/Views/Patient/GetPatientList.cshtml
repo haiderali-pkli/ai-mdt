@@ -40,12 +40,14 @@
 <div class="admin-module">
     <div class="container-fluid">
 
-        <div class="am-page-head">
-            <div>
-                <h3><i class="fa fa-user-circle-o"></i> Patient Search</h3>
-                <span class="am-subtitle">Find an existing patient or register a new one</span>
+        <div class="am-frozen-page-head">
+            <div class="am-page-head">
+                <div>
+                    <h3><i class="fa fa-user-circle-o"></i> Patient Search</h3>
+                    <span class="am-subtitle">Find an existing patient or register a new one</span>
+                </div>
+                <button class="btn btn-am-primary" onclick="OpenPatientPopup();"><i class="fa fa-plus"></i> Add Patient</button>
             </div>
-            <button class="btn btn-am-primary" onclick="OpenPatientPopup();"><i class="fa fa-plus"></i> Add Patient</button>
         </div>
 
         <div class="am-card">
@@ -123,7 +125,7 @@
                     @if (Model != null && Model.Any())
                     {
                         <div class="am-result-count"><i class="fa fa-users"></i> Showing @Model.Count patient@(Model.Count == 1 ? "" : "s")</div>
-                        <div class="table-responsive">
+                        <div class="table-responsive am-table-page-sticky">
                             <table class="am-table am-table-patients">
                                 <thead>
                                     <tr>

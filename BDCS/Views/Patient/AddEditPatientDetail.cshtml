@@ -27,44 +27,48 @@
         <input type="hidden" id="reason" value="@TempData["reasonVB"]" />
         <input type="hidden" id="mdtTypeId" value="@TempData["MDTType"]"/>
 
-        <div class="am-card" id="PatientHeaderContainer">
+        <div class="am-frozen-head">
 
-            @Html.Action("PatientHeader","Patient", new { patId  = TempData["patientIdVB"] })
+            <div class="am-card" id="PatientHeaderContainer">
 
-        </div>
+                @Html.Action("PatientHeader","Patient", new { patId  = TempData["patientIdVB"] })
 
-        <div class="am-card am-visit-head">
-            <div>
-                @if (TempData["MDTType"].ToString() == "BoneMarrow")
-                {
-                    <h4 class="am-mdt-title am-mdt-title-bmt"><i class="fa fa-flask"></i> MDT for Bone Marrow Transplant</h4>
-                }
-                else if(TempData["MDTType"].ToString() == "Liver")
-                {
-                    <h4 class="am-mdt-title am-mdt-title-liver"><i class="fa fa-stethoscope"></i> MDT for Liver Transplant (LTx)</h4>
-                }
             </div>
 
-            <div class="am-visit-actions">
-                <span id="saveButtonContainer">
-                    @if (@TempData["MDTType"].ToString() == "Liver")
+            <div class="am-card am-visit-head">
+                <div>
+                    @if (TempData["MDTType"].ToString() == "BoneMarrow")
                     {
-                        <button class="btn-am-primary" type="button" onclick="savePatientDetail();"><i class="fa fa-floppy-o"></i> Save</button>
+                        <h4 class="am-mdt-title am-mdt-title-bmt"><i class="fa fa-flask"></i> MDT for Bone Marrow Transplant</h4>
                     }
-                    else if (@TempData["MDTType"].ToString() == "BoneMarrow")
+                    else if(TempData["MDTType"].ToString() == "Liver")
                     {
-                        <button class="btn-am-primary" type="button" onclick="savePatientDetailBMT();"><i class="fa fa-floppy-o"></i> BMT Save</button>
+                        <h4 class="am-mdt-title am-mdt-title-liver"><i class="fa fa-stethoscope"></i> MDT for Liver Transplant (LTx)</h4>
                     }
-                </span>
+                </div>
 
-                <button class="btn-am-light" type="button" onclick="PrintReport();"><i class="fa fa-print"></i> Print</button>
+                <div class="am-visit-actions">
+                    <span id="saveButtonContainer">
+                        @if (@TempData["MDTType"].ToString() == "Liver")
+                        {
+                            <button class="btn-am-primary" type="button" onclick="savePatientDetail();"><i class="fa fa-floppy-o"></i> Save</button>
+                        }
+                        else if (@TempData["MDTType"].ToString() == "BoneMarrow")
+                        {
+                            <button class="btn-am-primary" type="button" onclick="savePatientDetailBMT();"><i class="fa fa-floppy-o"></i> BMT Save</button>
+                        }
+                    </span>
 
-                <a class="btn-am-light" onclick="AddEditPatientDemographics(@TempData["patientIdVB"]);" target="_blank">
-                    <i class="fa fa-pencil"></i> Edit
-                </a>
+                    <button class="btn-am-light" type="button" onclick="PrintReport();"><i class="fa fa-print"></i> Print</button>
 
-                <button class="btn-am-danger" type="button" onclick="loadPage('@Url.Action("GetPatientList","Patient", new { PreloadList="Yes"})')"><i class="fa fa-times-circle"></i> Close</button>
+                    <a class="btn-am-light" onclick="AddEditPatientDemographics(@TempData["patientIdVB"]);" target="_blank">
+                        <i class="fa fa-pencil"></i> Edit
+                    </a>
+
+                    <button class="btn-am-danger" type="button" onclick="loadPage('@Url.Action("GetPatientList","Patient", new { PreloadList="Yes"})')"><i class="fa fa-times-circle"></i> Close</button>
+                </div>
             </div>
+
         </div>
 
 

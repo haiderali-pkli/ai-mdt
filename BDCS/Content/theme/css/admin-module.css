@@ -1643,6 +1643,51 @@ body.clinic_version {
     margin-bottom: 6px;
 }
 
+/* Freezes the patient banner + MDT title bar (Liver and Bone Marrow Transplant
+   alike - both render through this same pair of cards) at the top of the
+   viewport, so only the Vital History/Protocol/Lab tab content below them
+   scrolls. #MainContent has no overflow of its own (the whole page/window
+   scrolls), so top:64px - the fixed .mh-topbar's own height - is what makes
+   this stick flush under the topbar rather than against the viewport edge.
+   padding-bottom:1px stops the last card's margin-bottom from collapsing
+   through this wrapper, which would otherwise let the scrolling content
+   underneath show through the gap between the two cards. */
+.admin-module .am-frozen-head {
+    position: sticky;
+    top: 64px;
+    z-index: 500;
+    background: #fff;
+    padding-bottom: 1px;
+}
+
+/* Patient Search (GetPatientList) screen - freezes just the page heading and
+   the patient table's own column-header row, so the search/filter toolbar
+   and the patient rows both scroll normally underneath. Two separate sticky
+   elements (not one combined block like .am-frozen-head above) because the
+   toolbar/filter bar in between is meant to scroll away, not stay pinned. */
+.admin-module .am-frozen-page-head {
+    position: sticky;
+    top: 64px;
+    z-index: 510;
+    background: #fff;
+    padding-bottom: 1px;
+}
+
+/* Tried making .am-table-patients thead th stick directly to the viewport
+   here (an offset below the frozen page heading) instead of to 0 - doesn't
+   work: the surrounding .table-responsive sets overflow-x:auto, and per the
+   CSS Overflow spec a non-"visible" overflow-x with no overflow-y forces
+   overflow-y to "auto" too, silently making .table-responsive itself a
+   scroll container. That makes IT the sticky positioning context instead of
+   the viewport, so top:<offset> ends up measured from the table's own start
+   rather than the page top. Reusing the already-proven .am-table-scroll
+   pattern below (bounded height + its own scrollbar, header sticks to ITS
+   top:0) sidesteps this instead of fighting it. */
+.admin-module .am-table-page-sticky {
+    max-height: calc(100vh - 260px);
+    overflow-y: auto;
+}
+
 /* ======================================================================
    Patient Visit Detail (MDT form) screen - PatientHeader banner,
    visit toolbar, Diagnosis/Discussion rolecards, lab/diagnosis tables.
